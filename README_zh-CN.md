@@ -1,19 +1,48 @@
 ## OpenDownloader
 
-基于 Avalonia UI 和 .NET 10 构建的现代化开源下载管理器，由 aria2 强力驱动。
+<div align="center">
+
+<img src="src/OpenDownloader/Assets/app_ico.png" width="128" height="128" alt="Logo">
+
+### 适用于 macOS、Windows 和 Linux 的现代化下载管理器
+
+[![Release](https://img.shields.io/github/v/release/pengpercy/OpenDownloader?style=flat-square)](https://github.com/pengpercy/OpenDownloader/releases)
+[![License](https://img.shields.io/github/license/pengpercy/OpenDownloader?style=flat-square)](LICENSE)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/pengpercy/OpenDownloader/release.yml?style=flat-square)](https://github.com/pengpercy/OpenDownloader/actions)
 
 [English](README.md) | [简体中文](README_zh-CN.md)
 
-### ✨ 特性
+</div>
 
-- 🚀 **高性能**：基于强大的 `aria2` 下载引擎。
-- 🎨 **现代化 UI**：使用 Avalonia UI 构建的清爽美观界面。
-- 🖥️ **跨平台**：完美支持 macOS、Windows 和 Linux。
-- 🌐 **代理支持**：支持 HTTP 和 SOCKS5 代理设置。
-- 🌗 **深色模式**：支持亮色和深色主题切换。
-- 🌍 **双语支持**：内置英文和简体中文支持。
+## 界面预览
 
-### 🛠️ 开发指南
+<div align="center">
+  <img src="screenshots/theme_light.png" alt="浅色主题" width="45%">
+  <img src="screenshots/theme_dark.png" alt="深色主题" width="45%">
+</div>
+
+## ✨ 核心特性
+
+- 🚀 **极致性能**：基于强大的 `aria2` 引擎，支持多线程极速下载。
+- 🎨 **现代设计**：采用 Avalonia UI 构建，遵循流畅设计（Fluent Design）原则，界面清爽美观。
+- 🖥️ **全平台支持**：完美支持 macOS (Universal)、Windows 和 Linux 原生运行。
+- 🌐 **网络增强**：完整的 HTTP/HTTPS 和 SOCKS5 代理支持。
+- 🌗 **主题系统**：内置亮色与深色模式，随心切换。
+- 🌍 **多语言**：原生支持简体中文和英文。
+- 📋 **剪贴板监听**：自动检测下载链接（即将推出）。
+
+## 📥 安装指南
+
+### macOS
+从 [Releases](https://github.com/pengpercy/OpenDownloader/releases) 下载 `.dmg` 文件，将应用拖入“应用程序”文件夹即可。
+
+### Windows
+下载 `.zip` 压缩包，解压后运行 `OpenDownloader.exe`。
+
+### Linux
+下载 `.tar.gz` 压缩包，解压后运行 `./OpenDownloader`。
+
+## 🛠️ 开发指南
 
 **环境要求：**
 - .NET 10.0 SDK
@@ -38,6 +67,11 @@ chmod +x build/package_osx.sh
 ./build/package_osx.sh osx-x64 1.0.0 build_output/
 ```
 
-### 📄 许可证
+## 📄 许可证
 
-MIT
+MIT License. 详见 [LICENSE](LICENSE) 文件。
+
+---
+<div align="center">
+  <sub>Built with ❤️ using <a href="https://avaloniaui.net/">Avalonia UI</a></sub>
+</div>

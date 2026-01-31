@@ -1,19 +1,48 @@
 ## OpenDownloader
 
-A modern, open-source download manager built with Avalonia UI and .NET 10, powered by aria2.
+<div align="center">
 
-[English](README.md) | [简体中文](README_zh-CN.md)
+<img src="src/OpenDownloader/Assets/app_ico.png" width="128" height="128" alt="Logo">
 
-### Features
+### A Modern Download Manager for macOS, Windows, and Linux
 
-- 🚀 **High Performance**: Powered by the robust `aria2` engine.
-- 🎨 **Modern UI**: Clean, beautiful interface using Avalonia UI.
-- 🖥️ **Cross-Platform**: Supports macOS, Windows, and Linux.
-- 🌐 **Proxy Support**: HTTP and SOCKS5 proxy support.
-- 🌗 **Theme Support**: Light and Dark modes.
-- 🌍 **Bilingual**: English and Chinese (Simplified) support.
+[![Release](https://img.shields.io/github/v/release/pengpercy/OpenDownloader?style=flat-square)](https://github.com/pengpercy/OpenDownloader/releases)
+[![License](https://img.shields.io/github/license/pengpercy/OpenDownloader?style=flat-square)](LICENSE)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/pengpercy/OpenDownloader/release.yml?style=flat-square)](https://github.com/pengpercy/OpenDownloader/actions)
 
-### Development
+[简体中文](README_zh-CN.md) | [English](README.md)
+
+</div>
+
+## Screenshots
+
+<div align="center">
+  <img src="screenshots/theme_light.png" alt="Light Theme" width="45%">
+  <img src="screenshots/theme_dark.png" alt="Dark Theme" width="45%">
+</div>
+
+## Features
+
+- 🚀 **High Performance**: Powered by the robust `aria2` engine, supporting multi-threaded downloads.
+- 🎨 **Modern UI**: Clean, beautiful interface built with Avalonia UI, following fluent design principles.
+- 🖥️ **Cross-Platform**: Native support for macOS (Universal), Windows, and Linux.
+- 🌐 **Advanced Network**: Full HTTP/HTTPS and SOCKS5 proxy support.
+- 🌗 **Theme System**: Seamless switching between Light and Dark modes.
+- 🌍 **Internationalization**: Built-in English and Chinese (Simplified) support.
+- 📋 **Clipboard Monitor**: Automatically detects download links (Coming soon).
+
+## Installation
+
+### macOS
+Download the `.dmg` file from [Releases](https://github.com/pengpercy/OpenDownloader/releases), drag and drop to Applications folder.
+
+### Windows
+Download the `.zip` file, extract and run `OpenDownloader.exe`.
+
+### Linux
+Download the `.tar.gz` file, extract and run `./OpenDownloader`.
+
+## Development
 
 **Prerequisites:**
 - .NET 10.0 SDK
@@ -38,6 +67,11 @@ chmod +x build/package_osx.sh
 ./build/package_osx.sh osx-x64 1.0.0 build_output/
 ```
 
-### License
+## License
 
-MIT
+MIT License. See [LICENSE](LICENSE) file for details.
+
+---
+<div align="center">
+  <sub>Built with ❤️ using <a href="https://avaloniaui.net/">Avalonia UI</a></sub>
+</div>
