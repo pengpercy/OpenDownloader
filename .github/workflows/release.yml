@@ -9,8 +9,55 @@ permissions:
   contents: write
 
 jobs:
+  # ===========================================================================
+  # 1. Build: Compile and Publish .NET Artifacts
+  # ===========================================================================
   build:
-    name: Build for ${{ matrix.os }} (${{ matrix.rid }})
+    name: Build ${{ matrix.rid }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            rid: linux-x64
+          - os: ubuntu-latest
+            rid: linux-arm64
+          - os: windows-latest
+            rid: win-x64
+          - os: windows-latest
+            rid: win-arm64
+          - os: macos-14
+            rid: osx-x64
+          - os: macos-14
+            rid: osx-arm64
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 10.0.x
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Publish
+      run: |
+        dotnet publish src/OpenDownloader/OpenDownloader.csproj -c Release -r ${{ matrix.rid }} --self-contained -p:PublishSingleFile=true -o publish/${{ matrix.rid }}
+
+    - name: Upload Build Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-${{ matrix.rid }}
+        path: publish/${{ matrix.rid }}
+
+  # ===========================================================================
+  # 2. Package: Create Installers (DEB, RPM, DMG, ZIP, AppImage)
+  # ===========================================================================
+  package:
+    needs: build
+    name: Package ${{ matrix.rid }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -35,21 +82,13 @@ jobs:
             archive_name: OpenDownloader-osx-arm64
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v3
+    - name: Download Build Artifact
+      uses: actions/download-artifact@v4
       with:
-        dotnet-version: 10.0.x
-
-    # Restore dependencies
-    - name: Restore dependencies
-      run: dotnet restore
-
-    # Build and Publish
-    - name: Publish
-      run: |
-        dotnet publish src/OpenDownloader/OpenDownloader.csproj -c Release -r ${{ matrix.rid }} --self-contained -p:PublishSingleFile=true -o publish/${{ matrix.rid }}
+        name: build-${{ matrix.rid }}
+        path: publish/${{ matrix.rid }}
 
     # -------------------------------------------------------------------------
     # Windows Packaging
@@ -78,9 +117,10 @@ jobs:
         VERSION=${GITHUB_REF#refs/tags/v}
         
         # Run package script
+        # Note: package_linux.sh expects: <rid> <version> <output_dir> <publish_dir>
         ./build/package_linux.sh ${{ matrix.rid }} $VERSION build_output publish/${{ matrix.rid }}
         
-        # Also create a tar.gz as a fallback/standard portable package
+        # Also create a tar.gz as a fallback
         cd publish/${{ matrix.rid }}
         tar -czvf ../../${{ matrix.archive_name }}.tar.gz *
 
@@ -91,12 +131,10 @@ jobs:
       if: runner.os == 'macOS'
       run: |
         chmod +x build/package_osx.sh
-        # Extract version from tag (v1.0.0 -> 1.0.0)
         VERSION=${GITHUB_REF#refs/tags/v}
         
-        # Move publish output to where the script expects it (to avoid modifying script logic too much or keep consistency)
-        # Script expects: src/OpenDownloader/bin/Release/net10.0/<rid>/publish
-        # But we published to 'publish/<rid>'
+        # Reconstruct directory structure expected by package_osx.sh
+        # It expects: src/OpenDownloader/bin/Release/net10.0/<rid>/publish
         mkdir -p src/OpenDownloader/bin/Release/net10.0/${{ matrix.rid }}/publish
         cp -a publish/${{ matrix.rid }}/. src/OpenDownloader/bin/Release/net10.0/${{ matrix.rid }}/publish/
         
@@ -107,44 +145,47 @@ jobs:
         zip -r ../../${{ matrix.archive_name }}.zip *
 
     # -------------------------------------------------------------------------
-    # Upload Artifacts (Split by OS to avoid missing file errors)
+    # Upload Final Packages
     # -------------------------------------------------------------------------
-    
-    # Windows Upload
-    - name: Upload Windows binaries
-      if: matrix.os == 'windows-latest'
-      uses: svenstaro/upload-release-action@v2
+    - name: Upload Package Artifacts
+      uses: actions/upload-artifact@v4
       with:
-        repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: ${{ matrix.archive_name }}.*
-        tag: ${{ github.ref }}
-        overwrite: true
-        file_glob: true
-
-    # Linux Upload
-    - name: Upload Linux binaries
-      if: matrix.os == 'ubuntu-latest'
-      uses: svenstaro/upload-release-action@v2
-      with:
-        repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: |
+        name: package-${{ matrix.rid }}
+        path: |
           build_output/*.deb
           build_output/*.rpm
           build_output/*.AppImage
-          ${{ matrix.archive_name }}.*
-        tag: ${{ github.ref }}
-        overwrite: true
-        file_glob: true
-
-    # macOS Upload
-    - name: Upload macOS binaries
-      if: runner.os == 'macOS'
-      uses: svenstaro/upload-release-action@v2
-      with:
-        repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: |
           build_output/*.dmg
           ${{ matrix.archive_name }}.*
-        tag: ${{ github.ref }}
-        overwrite: true
-        file_glob: true
+        if-no-files-found: ignore
+
+  # ===========================================================================
+  # 3. Release: Create GitHub Release and Upload Assets
+  # ===========================================================================
+  release:
+    needs: package
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Download All Packages
+      uses: actions/download-artifact@v4
+      with:
+        pattern: package-*
+        path: dist
+        merge-multiple: true
+
+    - name: List Files
+      run: ls -R dist
+
+    - name: Create Release
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        TAG: ${{ github.ref_name }}
+      run: |
+        # Check if release exists, if not create it
+        gh release create "$TAG" --title "$TAG" --generate-notes || true
+        
+        # Upload assets
+        gh release upload "$TAG" dist/* --clobber
