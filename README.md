@@ -2,6 +2,8 @@
 
 A modern, open-source download manager built with Avalonia UI and .NET 10, powered by aria2.
 
+[English](README.md) | [简体中文](README_zh-CN.md)
+
 ### Features
 
 - 🚀 **High Performance**: Powered by the robust `aria2` engine.
