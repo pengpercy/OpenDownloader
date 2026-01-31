@@ -27,10 +27,10 @@ jobs:
           - os: windows-latest
             rid: win-arm64
             archive_name: OpenDownloader-win-arm64
-          - os: macos-latest
+          - os: macos-14
             rid: osx-x64
             archive_name: OpenDownloader-osx-x64
-          - os: macos-latest
+          - os: macos-14
             rid: osx-arm64
             archive_name: OpenDownloader-osx-arm64
 
