@@ -1,0 +1,50 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="180"
+        x:Class="OpenDownloader.Views.ConfirmDeleteDialog"
+        Title="Confirm Delete"
+        Width="400" SizeToContent="Height"
+        WindowStartupLocation="CenterOwner"
+        SystemDecorations="BorderOnly"
+        CanResize="False"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaChromeHints="NoChrome"
+        ExtendClientAreaTitleBarHeightHint="-1"
+        TransparencyLevelHint="AcrylicBlur"
+        Background="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}">
+
+    <Border CornerRadius="5" Background="{DynamicResource WorkspaceBackgroundBrush}" 
+            BorderThickness="1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+            BoxShadow="0 4 20 0 #40000000">
+        <Grid RowDefinitions="Auto, Auto, Auto, Auto" Margin="24">
+            <!-- Title -->
+            <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="10" Margin="0,0,0,16">
+                <PathIcon Data="{StaticResource IconTrash}" Width="20" Height="20" Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}" />
+                <TextBlock Text="{DynamicResource MenuDelete}" FontWeight="SemiBold" FontSize="18" VerticalAlignment="Center"
+                           Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}"/>
+            </StackPanel>
+
+            <!-- Message -->
+            <TextBlock Grid.Row="1" x:Name="MessageText" TextWrapping="Wrap" Margin="0,0,0,20"
+                       VerticalAlignment="Top" FontSize="14" LineHeight="20"
+                       Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}"/>
+
+            <!-- Checkbox -->
+            <CheckBox Grid.Row="2" x:Name="DeleteFileCheckBox" Content="{DynamicResource LabelDeleteFile}" 
+                      Margin="0,0,0,24" FontSize="13"/>
+
+            <!-- Buttons -->
+            <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="12">
+                <Button Content="{DynamicResource ButtonCancel}" Click="OnCancelClick" 
+                        Width="90" Height="32" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                        CornerRadius="6"/>
+                <Button Content="{DynamicResource ButtonConfirm}" Click="OnConfirmClick" 
+                        Width="90" Height="32" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                        Background="{DynamicResource SystemControlForegroundAccentBrush}" Foreground="White"
+                        CornerRadius="6"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>

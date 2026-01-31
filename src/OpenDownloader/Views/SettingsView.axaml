@@ -1,0 +1,103 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:OpenDownloader.ViewModels"
+             xmlns:localConv="using:OpenDownloader.Converters"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="OpenDownloader.Views.SettingsView"
+             x:DataType="vm:MainWindowViewModel">
+    
+    <UserControl.Resources>
+        <localConv:ResourceKeyToTextConverter x:Key="ResourceKeyToTextConverter" />
+    </UserControl.Resources>
+
+    <ScrollViewer Margin="30,20,0,30">
+        <StackPanel Spacing="20" Margin="0,0,30,0">
+            <!-- General Settings -->
+            <Border Classes="taskCard" Padding="20" CornerRadius="8" Background="{DynamicResource CardBackgroundBrush}" BoxShadow="{DynamicResource CardShadow}">
+                <StackPanel Spacing="15">
+                    <TextBlock Text="{DynamicResource GroupGeneral}" Classes="settingsHeader"/>
+                    
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="{DynamicResource LabelTheme}" FontWeight="Medium"/>
+                        <ComboBox ItemsSource="{Binding ThemeOptions}" SelectedItem="{Binding SelectedTheme}" HorizontalAlignment="Stretch">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Key, Converter={StaticResource ResourceKeyToTextConverter}}"/>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                    </StackPanel>
+
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="{DynamicResource LabelLanguage}" FontWeight="Medium"/>
+                        <ComboBox ItemsSource="{Binding LanguageOptions}" SelectedItem="{Binding SelectedLanguage}" HorizontalAlignment="Stretch">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Key, Converter={StaticResource ResourceKeyToTextConverter}}"/>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                    </StackPanel>
+
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="{DynamicResource LabelDefaultSavePath}" FontWeight="Medium"/>
+                        <Grid ColumnDefinitions="*, Auto">
+                            <TextBox Grid.Column="0" Text="{Binding DefaultSavePath}" IsReadOnly="True"/>
+                            <Button Grid.Column="1" Command="{Binding ChooseDefaultSavePathCommand}" Margin="10,0,0,0">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <PathIcon Data="{StaticResource IconFolder}" Width="16" Height="16" Opacity="0.7"/>
+                                    <TextBlock Text="{DynamicResource BtnBrowse}"/>
+                                </StackPanel>
+                            </Button>
+                        </Grid>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Network Settings -->
+            <Border Classes="taskCard" Padding="20" CornerRadius="8" Background="{DynamicResource CardBackgroundBrush}" BoxShadow="{DynamicResource CardShadow}">
+                <StackPanel Spacing="15">
+                    <TextBlock Text="{DynamicResource GroupNetwork}" Classes="settingsHeader"/>
+                    
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="{DynamicResource LabelProxy}" FontWeight="Medium"/>
+                        <Grid ColumnDefinitions="100, 10, *, 10, 80">
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="{DynamicResource LabelProxyType}" FontSize="12" Opacity="0.7"/>
+                                <ComboBox ItemsSource="{Binding ProxyTypes}" SelectedIndex="{Binding ProxyTypeIndex}" HorizontalAlignment="Stretch"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="{DynamicResource LabelProxyAddress}" FontSize="12" Opacity="0.7"/>
+                                <TextBox Text="{Binding ProxyAddress}" Watermark="127.0.0.1"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="4">
+                                <TextBlock Text="{DynamicResource LabelProxyPort}" FontSize="12" Opacity="0.7"/>
+                                <TextBox Text="{Binding ProxyPort}"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- About -->
+            <Border Classes="taskCard" Padding="20" CornerRadius="8" Background="{DynamicResource CardBackgroundBrush}" BoxShadow="{DynamicResource CardShadow}">
+                <StackPanel Spacing="15">
+                    <TextBlock Text="{DynamicResource GroupAbout}" Classes="settingsHeader"/>
+                    
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="OpenDownloader" FontWeight="Bold" FontSize="18"/>
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                            <TextBlock Text="{DynamicResource LabelVersion}" Opacity="0.7"/>
+                            <TextBlock Text="{Binding AppVersion}" Opacity="0.7"/>
+                        </StackPanel>
+                        <TextBlock Text="{DynamicResource LabelAboutContent}" TextWrapping="Wrap" Opacity="0.8"/>
+                        
+                        <Button Content="{DynamicResource BtnCheckUpdate}" Command="{Binding CheckForUpdatesCommand}" Margin="0,10,0,0"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

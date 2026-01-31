@@ -1,0 +1,115 @@
+name: Package
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: OpenDownloader package version
+        required: true
+        type: string
+jobs:
+  windows:
+    name: Package Windows
+    runs-on: windows-2022
+    strategy:
+      matrix:
+        runtime: [win-x64, win-arm64]
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+      - name: Download build
+        uses: actions/download-artifact@v4
+        with:
+          name: opendownloader.${{ matrix.runtime }}
+          path: build/OpenDownloader
+      - name: Package
+        shell: pwsh
+        env:
+          VERSION: ${{ inputs.version }}
+          RUNTIME: ${{ matrix.runtime }}
+        run: ./build/scripts/package.win.ps1
+      - name: Upload package artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: package.${{ matrix.runtime }}
+          path: |
+            build/opendownloader_*.zip
+            build/opendownloader_*.dmg
+      - name: Delete temp artifacts
+        uses: geekyeggo/delete-artifact@v5
+        with:
+          name: opendownloader.${{ matrix.runtime }}
+  osx-app:
+    name: Package macOS
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        runtime: [osx-x64, osx-arm64]
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+      - name: Download build
+        uses: actions/download-artifact@v4
+        with:
+          name: opendownloader.${{ matrix.runtime }}
+          path: build
+      - name: Package
+        env:
+          VERSION: ${{ inputs.version }}
+          RUNTIME: ${{ matrix.runtime }}
+        run: |
+          mkdir build/OpenDownloader
+          tar -xf "build/opendownloader.${{ matrix.runtime }}.tar" -C build/OpenDownloader
+          chmod +x build/scripts/package.osx-app.sh
+          ./build/scripts/package.osx-app.sh
+      - name: Upload package artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: package.${{ matrix.runtime }}
+          path: build/opendownloader_*.zip
+      - name: Delete temp artifacts
+        uses: geekyeggo/delete-artifact@v5
+        with:
+          name: opendownloader.${{ matrix.runtime }}
+  linux:
+    name: Package Linux
+    runs-on: ubuntu-latest
+    container: ubuntu:20.04
+    strategy:
+      matrix:
+        runtime: [linux-x64, linux-arm64]
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+      - name: Download package dependencies
+        run: |
+          export DEBIAN_FRONTEND=noninteractive
+          ln -fs /usr/share/zoneinfo/Etc/UTC /etc/localtime
+          apt-get update
+          apt-get install -y curl wget git dpkg-dev fakeroot tzdata zip unzip desktop-file-utils rpm libfuse2 file build-essential binutils
+      - name: Download build
+        uses: actions/download-artifact@v4
+        with:
+          name: opendownloader.${{ matrix.runtime }}
+          path: build
+      - name: Package
+        env:
+          VERSION: ${{ inputs.version }}
+          RUNTIME: ${{ matrix.runtime }}
+          APPIMAGE_EXTRACT_AND_RUN: 1
+        run: |
+          mkdir build/OpenDownloader
+          tar -xf "build/opendownloader.${{ matrix.runtime }}.tar" -C build/OpenDownloader
+          chmod +x build/scripts/package.linux.sh
+          ./build/scripts/package.linux.sh
+      - name: Upload package artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: package.${{ matrix.runtime }}
+          path: |
+            build/opendownloader-*.AppImage
+            build/opendownloader_*.deb
+            build/opendownloader-*.rpm
+      - name: Delete temp artifacts
+        uses: geekyeggo/delete-artifact@v5
+        with:
+          name: opendownloader.${{ matrix.runtime }}

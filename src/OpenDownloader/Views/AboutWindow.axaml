@@ -1,0 +1,51 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="300"
+        x:Class="OpenDownloader.Views.AboutWindow"
+        Title="About OpenDownloader"
+        Width="400" SizeToContent="Height"
+        WindowStartupLocation="CenterOwner"
+        SystemDecorations="BorderOnly"
+        CanResize="False"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaChromeHints="NoChrome"
+        ExtendClientAreaTitleBarHeightHint="-1"
+        TransparencyLevelHint="AcrylicBlur"
+        Background="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}">
+
+    <Border CornerRadius="12" Background="{DynamicResource WorkspaceBackgroundBrush}" 
+            BorderThickness="1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+            BoxShadow="0 4 20 0 #40000000">
+        <Grid RowDefinitions="Auto, Auto, Auto, Auto" Margin="30">
+            <!-- Close Button -->
+            <Button Grid.Row="0" Click="OnCloseClick" 
+                    HorizontalAlignment="Right" VerticalAlignment="Top"
+                    Theme="{StaticResource TransparentButton}" 
+                    Padding="8" CornerRadius="4" Margin="0,-10,-10,0">
+                <PathIcon Data="{StaticResource IconCancel}" Width="12" Height="12" Opacity="0.6"/>
+            </Button>
+
+            <!-- Logo -->
+            <Image Grid.Row="1" Source="/Assets/app_ico.ico" Width="80" Height="80" Margin="0,0,0,20"/>
+
+            <!-- App Info -->
+            <StackPanel Grid.Row="2" Spacing="8" HorizontalAlignment="Center">
+                <TextBlock Text="OpenDownloader" FontWeight="Bold" FontSize="20" HorizontalAlignment="Center"/>
+                <StackPanel Orientation="Horizontal" Spacing="4" HorizontalAlignment="Center" Opacity="0.7">
+                    <TextBlock Text="{DynamicResource LabelVersion}" FontSize="14"/>
+                    <TextBlock Text="1.0.0" FontSize="14"/>
+                </StackPanel>
+                <TextBlock Text="{DynamicResource LabelDescription}" 
+                           FontSize="13" Opacity="0.6" HorizontalAlignment="Center" 
+                           TextWrapping="Wrap" TextAlignment="Center" Margin="0,10,0,0"/>
+            </StackPanel>
+
+            <!-- Footer -->
+            <StackPanel Grid.Row="3" Spacing="10" Margin="0,30,0,0" HorizontalAlignment="Center">
+                <TextBlock Text="{DynamicResource LabelCopyright}" FontSize="12" Opacity="0.5" HorizontalAlignment="Center"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>

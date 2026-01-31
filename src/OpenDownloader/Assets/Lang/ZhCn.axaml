@@ -1,0 +1,81 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    x:Class="OpenDownloader.Assets.Lang.ZhCn">
+    <x:String x:Key="MenuDownloading">下载中</x:String>
+    <x:String x:Key="MenuWaiting">等待中</x:String>
+    <x:String x:Key="MenuStopped">已停止</x:String>
+    <x:String x:Key="MenuSettings">设置</x:String>
+    <x:String x:Key="LabelTheme">主题</x:String>
+    <x:String x:Key="LabelLanguage">语言</x:String>
+    <x:String x:Key="LanguageSystem">跟随系统</x:String>
+    <x:String x:Key="ThemeDark">深色</x:String>
+    <x:String x:Key="ThemeLight">浅色</x:String>
+    <x:String x:Key="ThemeSystem">跟随系统</x:String>
+    <x:String x:Key="BtnNewTask">新建任务</x:String>
+    <x:String x:Key="TitleNewTask">添加下载任务</x:String>
+    <x:String x:Key="LabelUrl">下载链接</x:String>
+    <x:String x:Key="BtnCancel">取消</x:String>
+    <x:String x:Key="BtnDownload">立即下载</x:String>
+    <x:String x:Key="BtnPause">暂停</x:String>
+    
+    <x:String x:Key="LabelFileName">文件名称</x:String>
+    <x:String x:Key="LabelChunks">分片数</x:String>
+    <x:String x:Key="LabelSavePath">存储路径</x:String>
+    <x:String x:Key="PlaceholderAutoDetected">自动检测</x:String>
+    <x:String x:Key="ToolTipResumeAll">全部开始</x:String>
+    <x:String x:Key="ToolTipPauseAll">全部暂停</x:String>
+    <x:String x:Key="ToolTipDeleteSelected">移除选中</x:String>
+    <x:String x:Key="ToolTipRefresh">刷新</x:String>
+
+    <!-- Settings Groups -->
+    <x:String x:Key="GroupGeneral">常规</x:String>
+    <x:String x:Key="GroupNetwork">网络</x:String>
+    <x:String x:Key="GroupAbout">关于</x:String>
+
+    <!-- Settings Items -->
+    <x:String x:Key="LabelDefaultSavePath">默认存储路径</x:String>
+    <x:String x:Key="LabelProxy">代理服务器</x:String>
+    <x:String x:Key="LabelProxyType">协议</x:String>
+    <x:String x:Key="LabelProxyAddress">地址</x:String>
+    <x:String x:Key="LabelProxyPort">端口</x:String>
+    <x:String x:Key="BtnCheckUpdate">检查更新</x:String>
+    <x:String x:Key="LabelAboutContent">OpenDownloader 是一个开源的下载管理器。</x:String>
+    <x:String x:Key="BtnBrowse">浏览</x:String>
+
+    <!-- Native Menu -->
+    <x:String x:Key="MenuAbout">关于 OpenDownloader</x:String>
+    <x:String x:Key="MenuCheckUpdate">检查更新...</x:String>
+    <x:String x:Key="MenuQuit">退出 OpenDownloader</x:String>
+    <x:String x:Key="MenuFile">文件</x:String>
+    <x:String x:Key="MenuView">视图</x:String>
+    <x:String x:Key="MenuDelete">删除</x:String>
+    <x:String x:Key="MenuDetails">详情</x:String>
+
+    <!-- Status -->
+    <x:String x:Key="StatusDownloading">下载中</x:String>
+    <x:String x:Key="StatusCompleted">已完成</x:String>
+    <x:String x:Key="StatusPaused">已暂停</x:String>
+    <x:String x:Key="StatusError">错误</x:String>
+
+    <!-- Time -->
+    <x:String x:Key="TimeMoreThanOneDay">> 1 天</x:String>
+    <x:String x:Key="TimeDays">天</x:String>
+    <x:String x:Key="TimeHours">时</x:String>
+    <x:String x:Key="TimeMinutes">分</x:String>
+    <x:String x:Key="TimeSeconds">秒</x:String>
+    <x:String x:Key="TimeDone">已完成</x:String>
+    <x:String x:Key="LabelTimeRemaining">剩余</x:String>
+    <x:String x:Key="LabelDeleteFile">同时删除文件</x:String>
+    <x:String x:Key="ButtonCancel">取消</x:String>
+    <x:String x:Key="ButtonConfirm">确定</x:String>
+    <x:String x:Key="MessageConfirmDeleteTask">确定要移除“%s”下载任务吗？</x:String>
+    <x:String x:Key="LabelStatus">状态</x:String>
+    <x:String x:Key="LabelSize">大小</x:String>
+    <x:String x:Key="LabelSpeed">速度</x:String>
+    <x:String x:Key="LabelConnections">连接数</x:String>
+    <x:String x:Key="LabelProgress">进度</x:String>
+    <x:String x:Key="ButtonClose">关闭</x:String>
+    <x:String x:Key="LabelVersion">版本</x:String>
+    <x:String x:Key="LabelDescription">一款现代化的开源下载管理器。</x:String>
+    <x:String x:Key="LabelCopyright">© 2026 OpenDownloader 贡献者</x:String>
+</ResourceDictionary>
