@@ -6,6 +6,8 @@
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
+    <!-- Explicitly disable AOT for Source Generator -->
+    <PublishAot>false</PublishAot>
   </PropertyGroup>
 
   <ItemGroup>
