@@ -26,7 +26,7 @@ jobs:
             rid: win-x64
           - os: windows-latest
             rid: win-arm64
-          - os: macos-latest
+          - os: macos-15-intel
             rid: osx-x64
           - os: macos-latest
             rid: osx-arm64
@@ -74,7 +74,7 @@ jobs:
           - os: windows-latest
             rid: win-arm64
             archive_name: OpenDownloader-win-arm64
-          - os: macos-latest
+          - os: macos-15-intel
             rid: osx-x64
             archive_name: OpenDownloader-osx-x64
           - os: macos-latest
