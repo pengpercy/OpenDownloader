@@ -1,6 +1,6 @@
 ## OpenDownloader
 
-A modern, open-source download manager built with Avalonia UI and .NET 8, powered by aria2.
+A modern, open-source download manager built with Avalonia UI and .NET 10, powered by aria2.
 
 ### Features
 
@@ -14,7 +14,7 @@ A modern, open-source download manager built with Avalonia UI and .NET 8, powere
 ### Development
 
 **Prerequisites:**
-- .NET 8.0 SDK
+- .NET 10.0 SDK
 - Avalonia templates
 
 **Build:**
