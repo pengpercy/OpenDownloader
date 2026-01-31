@@ -40,7 +40,7 @@ jobs:
     # Build and Publish
     - name: Publish
       run: |
-        dotnet publish src/OpenDownloader/OpenDownloader.csproj -c Release -r ${{ matrix.rid }} --self-contained -o publish/${{ matrix.rid }}
+        dotnet publish src/OpenDownloader/OpenDownloader.csproj -c Release -r ${{ matrix.rid }} --self-contained -p:PublishSingleFile=true -o publish/${{ matrix.rid }}
 
     # Package based on OS
     # Windows: Zip
