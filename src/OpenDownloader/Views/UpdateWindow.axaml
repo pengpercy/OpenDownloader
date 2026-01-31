@@ -1,0 +1,63 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:views="using:OpenDownloader.Views"
+        mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="350"
+        x:Class="OpenDownloader.Views.UpdateWindow"
+        x:DataType="views:UpdateViewModel"
+        Title="{DynamicResource TitleUpdateAvailable}"
+        Width="500" SizeToContent="Height"
+        WindowStartupLocation="CenterOwner"
+        SystemDecorations="BorderOnly"
+        CanResize="False"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaChromeHints="NoChrome"
+        ExtendClientAreaTitleBarHeightHint="-1"
+        TransparencyLevelHint="AcrylicBlur"
+        Background="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}">
+
+    <Border CornerRadius="12" Background="{DynamicResource SystemControlBackgroundAltHighBrush}" 
+            BorderThickness="1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+            BoxShadow="0 4 20 0 #40000000">
+        <Grid RowDefinitions="Auto, *, Auto" Margin="24">
+            <!-- Header -->
+            <StackPanel Grid.Row="0" Spacing="10" Margin="0,0,0,20">
+                <StackPanel Orientation="Horizontal" Spacing="12">
+                    <PathIcon Data="{StaticResource IconRefresh}" Width="24" Height="24" 
+                              Foreground="{DynamicResource SystemAccentColorBrush}" />
+                    <TextBlock Text="{DynamicResource TitleUpdateAvailable}" FontWeight="SemiBold" FontSize="20" VerticalAlignment="Center"/>
+                </StackPanel>
+                <TextBlock Text="{Binding VersionText}" FontSize="14" Opacity="0.7" Margin="36,0,0,0"/>
+            </StackPanel>
+
+            <!-- Release Notes -->
+            <ScrollViewer Grid.Row="1" Height="150" Margin="0,0,0,20">
+                <TextBlock Text="{Binding ReleaseNotes}" TextWrapping="Wrap" FontSize="13" Opacity="0.8" LineHeight="20"/>
+            </ScrollViewer>
+
+            <!-- Progress (Hidden by default) -->
+            <StackPanel Grid.Row="1" IsVisible="{Binding IsDownloading}" VerticalAlignment="Center" Margin="0,0,0,20">
+                <TextBlock Text="{DynamicResource LabelDownloadingUpdate}" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                <ProgressBar Value="{Binding DownloadProgress}" Maximum="1.0" Height="6" CornerRadius="3"/>
+                <TextBlock Text="{Binding DownloadProgress, StringFormat={}{0:P0}}" HorizontalAlignment="Right" FontSize="12" Opacity="0.6" Margin="0,4,0,0"/>
+            </StackPanel>
+
+            <!-- Buttons -->
+            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="12" IsVisible="{Binding !IsDownloading}">
+                <Button Content="{DynamicResource ButtonLater}" Click="OnLaterClick" 
+                        Width="100" HorizontalContentAlignment="Center" CornerRadius="6"/>
+                <Button Content="{DynamicResource ButtonUpdateNow}" Click="OnUpdateClick" 
+                        Width="120" HorizontalContentAlignment="Center" 
+                        Classes="accent" CornerRadius="6"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+    
+    <Window.Styles>
+        <Style Selector="Button.accent">
+            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAccentBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundChromeWhiteBrush}"/>
+        </Style>
+    </Window.Styles>
+</Window>

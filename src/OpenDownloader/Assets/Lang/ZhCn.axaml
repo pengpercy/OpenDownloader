@@ -77,5 +77,11 @@
     <x:String x:Key="ButtonClose">关闭</x:String>
     <x:String x:Key="LabelVersion">版本</x:String>
     <x:String x:Key="LabelDescription">一款现代化的开源下载管理器。</x:String>
-    <x:String x:Key="LabelCopyright">© 2026 OpenDownloader 贡献者</x:String>
+    <x:String x:Key="LabelCopyright">© 2024 OpenDownloader 贡献者</x:String>
+
+    <!-- Update -->
+    <x:String x:Key="TitleUpdateAvailable">发现新版本</x:String>
+    <x:String x:Key="LabelDownloadingUpdate">正在下载更新...</x:String>
+    <x:String x:Key="ButtonUpdateNow">立即更新</x:String>
+    <x:String x:Key="ButtonLater">稍后</x:String>
 </ResourceDictionary>

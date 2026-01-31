@@ -343,10 +343,25 @@ public partial class MainWindowViewModel : ViewModelBase
     [RelayCommand]
     public async Task CheckForUpdates()
     {
-        // Mock update check
-        await Task.Delay(2000);
-        // In a real app, this would show a dialog or notification
-        System.Diagnostics.Debug.WriteLine("Update check complete. No updates found.");
+        var updateService = new UpdateService();
+        // Remove 'v' prefix if present for clean comparison
+        var currentVersion = AppVersion.TrimStart('v');
+        
+        var release = await updateService.CheckForUpdatesAsync(currentVersion);
+        
+        if (release != null)
+        {
+            if (Application.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop && desktop.MainWindow is { } mainWindow)
+            {
+                var dialog = new UpdateWindow(release);
+                dialog.ShowDialog(mainWindow);
+            }
+        }
+        else
+        {
+            // Optional: Show "No updates available" toast/dialog
+            System.Diagnostics.Debug.WriteLine("No updates found.");
+        }
     }
 
     [RelayCommand]
