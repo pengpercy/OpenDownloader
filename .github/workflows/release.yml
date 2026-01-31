@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   build:
-    name: Build for ${{ matrix.os }}
+    name: Build for ${{ matrix.os }} (${{ matrix.rid }})
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -18,9 +18,15 @@ jobs:
           - os: ubuntu-latest
             rid: linux-x64
             archive_name: OpenDownloader-linux-x64
+          - os: ubuntu-latest
+            rid: linux-arm64
+            archive_name: OpenDownloader-linux-arm64
           - os: windows-latest
             rid: win-x64
             archive_name: OpenDownloader-win-x64
+          - os: windows-latest
+            rid: win-arm64
+            archive_name: OpenDownloader-win-arm64
           - os: macos-latest
             rid: osx-x64
             archive_name: OpenDownloader-osx-x64
@@ -36,7 +42,7 @@ jobs:
       with:
         dotnet-version: 10.0.x
 
-    # Restore dependencies (including NuGet packages)
+    # Restore dependencies
     - name: Restore dependencies
       run: dotnet restore
 
@@ -45,49 +51,74 @@ jobs:
       run: |
         dotnet publish src/OpenDownloader/OpenDownloader.csproj -c Release -r ${{ matrix.rid }} --self-contained -p:PublishSingleFile=true -o publish/${{ matrix.rid }}
 
-    # Package based on OS
-    # Windows: Zip
+    # -------------------------------------------------------------------------
+    # Windows Packaging
+    # -------------------------------------------------------------------------
     - name: Package Windows
       if: matrix.os == 'windows-latest'
       run: |
         Compress-Archive -Path publish/${{ matrix.rid }}/* -DestinationPath ${{ matrix.archive_name }}.zip
 
-    # Linux: Tar.gz
+    # -------------------------------------------------------------------------
+    # Linux Packaging
+    # -------------------------------------------------------------------------
+    - name: Install Linux Packaging Tools
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y ruby ruby-dev rubygems build-essential rpm
+        sudo gem install --no-document fpm
+
     - name: Package Linux
       if: matrix.os == 'ubuntu-latest'
       run: |
+        chmod +x build/package_linux.sh
+        
+        # Extract version from tag (v1.0.0 -> 1.0.0)
+        VERSION=${GITHUB_REF#refs/tags/v}
+        
+        # Run package script
+        ./build/package_linux.sh ${{ matrix.rid }} $VERSION build_output publish/${{ matrix.rid }}
+        
+        # Also create a tar.gz as a fallback/standard portable package
         cd publish/${{ matrix.rid }}
         tar -czvf ../../${{ matrix.archive_name }}.tar.gz *
 
-    # macOS: DMG (Using hdiutil, only available on macOS runner)
+    # -------------------------------------------------------------------------
+    # macOS Packaging
+    # -------------------------------------------------------------------------
     - name: Package macOS
       if: runner.os == 'macOS'
       run: |
         chmod +x build/package_osx.sh
         # Extract version from tag (v1.0.0 -> 1.0.0)
         VERSION=${GITHUB_REF#refs/tags/v}
-        # Run package script
-        # The script expects: <rid> <version> <output_dir>
-        # And it expects published files in src/OpenDownloader/bin/Release/net10.0/<rid>/publish
-        # But we published to 'publish/<rid>' above.
-        # Let's adjust the script or move files to expected location.
-        # Easier: Adjust the script call or logic? 
-        # Actually, our script has hardcoded paths. Let's make it flexible or just move files.
+        
+        # Move publish output to where the script expects it (to avoid modifying script logic too much or keep consistency)
+        # Script expects: src/OpenDownloader/bin/Release/net10.0/<rid>/publish
+        # But we published to 'publish/<rid>'
         mkdir -p src/OpenDownloader/bin/Release/net10.0/${{ matrix.rid }}/publish
         cp -a publish/${{ matrix.rid }}/. src/OpenDownloader/bin/Release/net10.0/${{ matrix.rid }}/publish/
         
         ./build/package_osx.sh ${{ matrix.rid }} $VERSION build_output
         
-        # Rename the dmg to match artifact name pattern if needed, but script names it OpenDownloader_1.0.0_osx-x64.dmg
-        # Let's just find it.
-        find build_output -name "*.dmg" -exec mv {} ${{ matrix.archive_name }}.dmg \;
+        # Create ZIP as well
+        cd publish/${{ matrix.rid }}
+        zip -r ../../${{ matrix.archive_name }}.zip *
 
-    # Upload Artifacts to Release
+    # -------------------------------------------------------------------------
+    # Upload Artifacts
+    # -------------------------------------------------------------------------
     - name: Upload binaries to release
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: ${{ matrix.archive_name }}.*
+        file: |
+          build_output/*.deb
+          build_output/*.rpm
+          build_output/*.AppImage
+          build_output/*.dmg
+          ${{ matrix.archive_name }}.*
         tag: ${{ github.ref }}
         overwrite: true
         file_glob: true
