@@ -107,9 +107,23 @@ jobs:
         zip -r ../../${{ matrix.archive_name }}.zip *
 
     # -------------------------------------------------------------------------
-    # Upload Artifacts
+    # Upload Artifacts (Split by OS to avoid missing file errors)
     # -------------------------------------------------------------------------
-    - name: Upload binaries to release
+    
+    # Windows Upload
+    - name: Upload Windows binaries
+      if: matrix.os == 'windows-latest'
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: ${{ matrix.archive_name }}.*
+        tag: ${{ github.ref }}
+        overwrite: true
+        file_glob: true
+
+    # Linux Upload
+    - name: Upload Linux binaries
+      if: matrix.os == 'ubuntu-latest'
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
@@ -117,6 +131,18 @@ jobs:
           build_output/*.deb
           build_output/*.rpm
           build_output/*.AppImage
+          ${{ matrix.archive_name }}.*
+        tag: ${{ github.ref }}
+        overwrite: true
+        file_glob: true
+
+    # macOS Upload
+    - name: Upload macOS binaries
+      if: runner.os == 'macOS'
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: |
           build_output/*.dmg
           ${{ matrix.archive_name }}.*
         tag: ${{ github.ref }}
