@@ -1,6 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using OpenDownloader.ViewModels;
+using OpenDownloader.Views;
 
 namespace OpenDownloader;
 
@@ -11,15 +12,11 @@ public partial class ViewLocator : IDataTemplate
         if (param is null)
             return null;
 
-        // Use the generated AutoBuild method
-        var control = AutoBuild(param);
-        
-        if (control != null)
+        return param switch
         {
-            return control;
-        }
-
-        return new TextBlock { Text = "Not Found: " + param.GetType().Name };
+            MainWindowViewModel => new MainWindow(),
+            _ => new TextBlock { Text = "Not Found: " + param.GetType().Name }
+        };
     }
 
     public bool Match(object? data)
