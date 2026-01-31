@@ -1,0 +1,22 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+jobs:
+  # 1. Build
+  build:
+    name: Build
+    uses: ./.github/workflows/build.yml
+
+  # 2. Package (Dry run for verification)
+  package:
+    needs: build
+    name: Package
+    uses: ./.github/workflows/package.yml
+    with:
+      version: "ci-build"
