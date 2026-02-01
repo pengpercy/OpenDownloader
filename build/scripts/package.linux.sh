@@ -62,7 +62,7 @@ mkdir -p resources/deb/opt/opendownloader/
 mkdir -p resources/deb/usr/bin
 mkdir -p resources/deb/usr/share/applications
 mkdir -p resources/deb/usr/share/icons
-cp -f OpenDownloader/* resources/deb/opt/opendownloader
+cp -a OpenDownloader/. resources/deb/opt/opendownloader/
 ln -rsf resources/deb/opt/opendownloader/OpenDownloader resources/deb/opt/opendownloader/opendownloader
 ln -rsf resources/deb/opt/opendownloader/opendownloader resources/deb/usr/bin
 cp -r resources/_common/applications resources/deb/usr/share

@@ -20,7 +20,7 @@ mkdir -p %{buildroot}/opt/opendownloader
 mkdir -p %{buildroot}/%{_bindir}
 mkdir -p %{buildroot}/usr/share/applications
 mkdir -p %{buildroot}/usr/share/icons
-cp -f %{_topdir}/../../OpenDownloader/* %{buildroot}/opt/opendownloader/
+cp -r %{_topdir}/../../OpenDownloader/* %{buildroot}/opt/opendownloader/
 ln -rsf %{buildroot}/opt/opendownloader/OpenDownloader %{buildroot}/opt/opendownloader/opendownloader
 ln -rsf %{buildroot}/opt/opendownloader/opendownloader %{buildroot}/%{_bindir}
 cp -r %{_topdir}/../_common/applications %{buildroot}/%{_datadir}
