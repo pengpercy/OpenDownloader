@@ -124,7 +124,7 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty]
     private LanguageOption _selectedLanguage;
 
-    partial void OnSelectedThemeChanged(ThemeOption value)
+    partial void OnSelectedThemeChanged(ThemeOption? value)
     {
         if (value != null)
         {
@@ -132,32 +132,30 @@ public partial class MainWindowViewModel : ViewModelBase
         }
     }
 
-    partial void OnSelectedLanguageChanged(LanguageOption value)
+    partial void OnSelectedLanguageChanged(LanguageOption? value)
     {
-        if (value != null)
-        {
-            SetLanguage(value.Value);
+        if (value == null) return;
+        SetLanguage(value.Value);
             
-            // Refresh ThemeOptions to trigger converter update for localized strings
-            var currentTheme = SelectedTheme;
-            var themes = ThemeOptions.ToList();
-            ThemeOptions.Clear();
-            foreach (var theme in themes)
-            {
-                ThemeOptions.Add(theme);
-            }
-            SelectedTheme = currentTheme;
-
-            // Also Refresh LanguageOptions to translate "System" option
-            var currentLang = SelectedLanguage;
-            var langs = LanguageOptions.ToList();
-            LanguageOptions.Clear();
-            foreach (var lang in langs)
-            {
-                LanguageOptions.Add(lang);
-            }
-            SelectedLanguage = currentLang;
+        // Refresh ThemeOptions to trigger converter update for localized strings
+        var currentTheme = SelectedTheme;
+        var themes = ThemeOptions.ToList();
+        ThemeOptions.Clear();
+        foreach (var theme in themes)
+        {
+            ThemeOptions.Add(theme);
         }
+        SelectedTheme = currentTheme;
+
+        // Also Refresh LanguageOptions to translate "System" option
+        var currentLang = SelectedLanguage;
+        var langs = LanguageOptions.ToList();
+        LanguageOptions.Clear();
+        foreach (var lang in langs)
+        {
+            LanguageOptions.Add(lang);
+        }
+        SelectedLanguage = currentLang;
     }
 
     public MainWindowViewModel()
