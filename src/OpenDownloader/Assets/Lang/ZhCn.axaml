@@ -79,6 +79,8 @@
     <x:String x:Key="LabelVersion">版本</x:String>
     <x:String x:Key="LabelDescription">一款现代化的开源下载管理器。</x:String>
     <x:String x:Key="LabelCopyright">© 2026 OpenDownloader 贡献者</x:String>
+    <x:String x:Key="LabelRepository">仓库</x:String>
+    <x:String x:Key="ButtonOpenRepo">打开</x:String>
 
     <!-- Update -->
     <x:String x:Key="TitleUpdateAvailable">发现新版本</x:String>

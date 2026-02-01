@@ -88,6 +88,8 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty]
     private string _appVersion = "0.0.0";
 
+    public string RepositoryUrl => "https://github.com/pengpercy/OpenDownloader";
+
     [ObservableProperty]
     private bool _isCheckingForUpdates;
 
@@ -699,7 +701,10 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         if (Application.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop && desktop.MainWindow is { } mainWindow)
         {
-            var dialog = new AboutWindow();
+            var dialog = new AboutWindow
+            {
+                DataContext = this
+            };
             dialog.ShowDialog(mainWindow);
         }
     }

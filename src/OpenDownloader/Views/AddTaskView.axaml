@@ -8,13 +8,12 @@
              x:DataType="vm:MainWindowViewModel">
 
     <Grid Background="#80000000" IsVisible="{Binding IsAddTaskVisible}">
-        <Border Background="{DynamicResource WorkspaceBackgroundBrush}"
-                CornerRadius="12"
+        <Border Classes="dialogRoot"
                 Width="500"
                 VerticalAlignment="Center"
                 HorizontalAlignment="Center"
                 Padding="24"
-                BoxShadow="0 4 20 0 #40000000">
+                >
             <StackPanel Spacing="16">
                 <TextBlock Text="{DynamicResource TitleNewTask}" FontSize="20" FontWeight="SemiBold"/>
                 

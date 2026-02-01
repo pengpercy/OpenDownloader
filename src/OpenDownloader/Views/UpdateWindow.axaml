@@ -6,20 +6,12 @@
         mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="350"
         x:Class="OpenDownloader.Views.UpdateWindow"
         x:DataType="views:UpdateViewModel"
+        Classes="dialog"
         Title="{DynamicResource TitleUpdateAvailable}"
         Width="500" SizeToContent="Height"
-        WindowStartupLocation="CenterOwner"
-        SystemDecorations="BorderOnly"
-        CanResize="False"
-        ExtendClientAreaToDecorationsHint="True"
-        ExtendClientAreaChromeHints="NoChrome"
-        ExtendClientAreaTitleBarHeightHint="-1"
-        TransparencyLevelHint="AcrylicBlur"
-        Background="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}">
+        >
 
-    <Border CornerRadius="12" Background="{DynamicResource SystemControlBackgroundAltHighBrush}" 
-            BorderThickness="1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
-            BoxShadow="0 4 20 0 #40000000">
+    <Border Classes="dialogRoot">
         <Grid RowDefinitions="Auto, *, Auto" Margin="24">
             <!-- Header -->
             <StackPanel Grid.Row="0" Spacing="10" Margin="0,0,0,20">
@@ -45,19 +37,10 @@
 
             <!-- Buttons -->
             <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="12" IsVisible="{Binding !IsDownloading}">
-                <Button Content="{DynamicResource ButtonLater}" Click="OnLaterClick" 
-                        Width="100" HorizontalContentAlignment="Center" CornerRadius="6"/>
+                <Button Classes="dialogButton" Content="{DynamicResource ButtonLater}" Click="OnLaterClick"/>
                 <Button Content="{DynamicResource ButtonUpdateNow}" Click="OnUpdateClick" 
-                        Width="120" HorizontalContentAlignment="Center" 
-                        Classes="accent" CornerRadius="6"/>
+                        Classes="dialogButton accent"/>
             </StackPanel>
         </Grid>
     </Border>
-    
-    <Window.Styles>
-        <Style Selector="Button.accent">
-            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAccentBrush}"/>
-            <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundChromeWhiteBrush}"/>
-        </Style>
-    </Window.Styles>
 </Window>

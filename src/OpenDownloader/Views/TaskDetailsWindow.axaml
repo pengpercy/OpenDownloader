@@ -7,25 +7,17 @@
         mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="450"
         x:Class="OpenDownloader.Views.TaskDetailsWindow"
         x:DataType="models:DownloadTask"
-        Title="Task Details"
+        Classes="dialog"
+        Title="{DynamicResource MenuDetails}"
         Width="500" SizeToContent="Height"
-        WindowStartupLocation="CenterOwner"
-        SystemDecorations="BorderOnly"
-        CanResize="False"
-        ExtendClientAreaToDecorationsHint="True"
-        ExtendClientAreaChromeHints="NoChrome"
-        ExtendClientAreaTitleBarHeightHint="-1"
-        TransparencyLevelHint="AcrylicBlur"
-        Background="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}">
+        >
 
     <Window.Resources>
         <conv:StatusToIconConverter x:Key="StatusToIconConverter" />
         <conv:ResourceKeyToTextConverter x:Key="ResourceKeyToTextConverter" />
     </Window.Resources>
 
-    <Border CornerRadius="12" Background="{DynamicResource WorkspaceBackgroundBrush}" 
-            BorderThickness="1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
-            BoxShadow="0 4 20 0 #40000000">
+    <Border Classes="dialogRoot">
         <Grid RowDefinitions="Auto, Auto, Auto" Margin="24">
             <!-- Header -->
             <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Margin="0,0,0,20">
@@ -113,15 +105,8 @@
             <!-- Footer -->
             <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10" Margin="0,24,0,0">
                 <Button Content="{DynamicResource ButtonClose}" Click="OnCloseClick" 
-                        Width="100" HorizontalContentAlignment="Center" Classes="accent"/>
+                        Classes="dialogButton accent"/>
             </StackPanel>
         </Grid>
     </Border>
-    
-    <Window.Styles>
-        <Style Selector="Button.accent">
-            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAccentBrush}"/>
-            <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundChromeWhiteBrush}"/>
-        </Style>
-    </Window.Styles>
 </Window>

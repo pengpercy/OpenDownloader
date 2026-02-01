@@ -79,6 +79,8 @@
     <x:String x:Key="LabelVersion">Version</x:String>
     <x:String x:Key="LabelDescription">A modern, open-source download manager.</x:String>
     <x:String x:Key="LabelCopyright">© 2026 OpenDownloader Contributors</x:String>
+    <x:String x:Key="LabelRepository">Repository</x:String>
+    <x:String x:Key="ButtonOpenRepo">Open</x:String>
     
     <!-- Update -->
     <x:String x:Key="TitleUpdateAvailable">Update Available</x:String>
