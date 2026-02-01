@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleIconFile</key>
-	<string>App.icns</string>
+	<string>App</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.opendownloader.app</string>
 	<key>CFBundleName</key>
