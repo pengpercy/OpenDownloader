@@ -68,32 +68,46 @@ public class Aria2Service : IAria2Service, IDisposable
             $"--rpc-secret={RpcSecret}",
             "--rpc-allow-origin-all=true",
             "--rpc-listen-all=true", // Listen on all interfaces if needed, usually localhost is fine but 'all' avoids binding issues sometimes
-            $"--save-session=\"{sessionFile}\"",
-            $"--input-file=\"{sessionFile}\"",
-            $"--log=\"{logFile}\"",
+            $"--save-session={sessionFile}",
+            $"--input-file={sessionFile}",
+            $"--log={logFile}",
             "--log-level=warn",
             "--max-concurrent-downloads=5",
             "--max-connection-per-server=16",
             "--split=16",
             "--min-split-size=1M",
             "--continue=true",
-            "--user-agent=\"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36\""
+            "--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36"
         };
 
         var startInfo = new ProcessStartInfo
         {
             FileName = binaryPath,
-            Arguments = string.Join(" ", args),
             UseShellExecute = false,
             CreateNoWindow = true,
             RedirectStandardOutput = true,
             RedirectStandardError = true
         };
+        
+        foreach (var arg in args)
+        {
+            startInfo.ArgumentList.Add(arg);
+        }
 
         try 
         {
             _aria2Process = new Process { StartInfo = startInfo };
+            _aria2Process.OutputDataReceived += (_, _) => { };
+            _aria2Process.ErrorDataReceived += (_, e) =>
+            {
+                if (!string.IsNullOrWhiteSpace(e.Data))
+                {
+                    AppLog.Warn($"aria2: {e.Data}");
+                }
+            };
             _aria2Process.Start();
+            _aria2Process.BeginOutputReadLine();
+            _aria2Process.BeginErrorReadLine();
             
             Debug.WriteLine($"Aria2 started. PID: {_aria2Process.Id}");
             AppLog.Info($"Aria2 started. PID: {_aria2Process.Id}");

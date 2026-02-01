@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.Http;
+using System.Net;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -18,7 +19,14 @@ public class JsonRpcClient
 
     public JsonRpcClient(string rpcUrl, string secret = "")
     {
-        _httpClient = new HttpClient();
+        _httpClient = new HttpClient(new HttpClientHandler
+        {
+            UseProxy = false,
+            Proxy = null
+        })
+        {
+            Timeout = TimeSpan.FromSeconds(10)
+        };
         _rpcUrl = rpcUrl;
         _secret = secret;
     }
