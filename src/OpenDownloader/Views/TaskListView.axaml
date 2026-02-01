@@ -176,7 +176,7 @@
                                    FontSize="18" FontWeight="SemiBold"
                                    HorizontalAlignment="Center" />
 
-                        <TextBlock Text="{DynamicResource EmptyStateSubtitleDownloading}"
+                        <TextBlock Text="{Binding EmptyStateSubtitleDownloadingText}"
                                    FontSize="13" Opacity="0.7"
                                    TextAlignment="Center"
                                    TextWrapping="Wrap"

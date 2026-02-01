@@ -154,7 +154,21 @@
                 <Grid RowDefinitions="Auto, *, Auto" Margin="0,0,0,20" Background="Transparent"
                       PointerPressed="Sidebar_PointerPressed">
                     <!-- TitleBar Placeholder in Sidebar (44px height) -->
-                    <Grid Grid.Row="0" Height="44" />
+                    <Grid Grid.Row="0" Height="44">
+                        <Button Command="{Binding TogglePaneCommand}"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Width="32"
+                                Height="32"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center"
+                                Margin="{Binding SidebarToggleMargin}"
+                                IsVisible="{Binding IsNotMacOS}"
+                                HotKey="Ctrl+B">
+                            <PathIcon Data="{StaticResource IconMenu}" Width="16" Height="16"
+                                      Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}" Opacity="0.8" />
+                        </Button>
+                    </Grid>
 
                     <StackPanel Grid.Row="1" Spacing="4" Margin="0,10,0,0">
                         <!-- New Task Button -->
@@ -225,55 +239,52 @@
                             BorderBrush="{DynamicResource SystemControlHighlightBaseLowBrush}"
                             PointerPressed="TitleBar_PointerPressed">
                         <Grid ColumnDefinitions="Auto, *">
-                            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center"
-                                        Margin="0" Spacing="10">
+                            <!-- Global Controls (Resume All / Pause All / Remove / Refresh) -->
+                            <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left"
+                                        VerticalAlignment="Center" Margin="8,0,0,0" Spacing="8"
+                                        >
                                 <Button Command="{Binding TogglePaneCommand}"
                                         Background="Transparent"
                                         BorderThickness="0"
                                         Width="32"
                                         Height="32"
+                                        IsVisible="{Binding IsMacOS}"
                                         HotKey="Ctrl+B">
                                     <PathIcon Data="{StaticResource IconSidebar}" Width="16" Height="16"
                                               Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}" Opacity="0.8" />
                                 </Button>
-                                <TextBlock Text="{DynamicResource MenuDownloading}" FontSize="18" FontWeight="Bold"
-                                           IsVisible="{Binding IsDownloading}" VerticalAlignment="Center" />
-                                <TextBlock Text="{DynamicResource MenuWaiting}" FontSize="18" FontWeight="Bold"
-                                           IsVisible="{Binding IsWaiting}" VerticalAlignment="Center" />
-                                <TextBlock Text="{DynamicResource MenuStopped}" FontSize="18" FontWeight="Bold"
-                                           IsVisible="{Binding IsStopped}" VerticalAlignment="Center" />
-                                <TextBlock Text="{DynamicResource MenuSettings}" FontSize="18" FontWeight="Bold"
-                                           IsVisible="{Binding IsSettings}" VerticalAlignment="Center" />
-                            </StackPanel>
 
-                            <!-- Global Controls (Resume All / Pause All / Remove / Refresh) -->
-                            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right"
-                                        VerticalAlignment="Center" Margin="{Binding TitleBarToolbarMargin}" Spacing="8"
-                                        IsVisible="{Binding !IsSettingsVisible}">
-                                <Button Command="{Binding ResumeAllCommand}"
-                                        Background="Transparent"
-                                        BorderThickness="0"
-                                        Padding="8"
-                                        ToolTip.Tip="{DynamicResource ToolTipResumeAll}">
-                                    <PathIcon Data="{StaticResource IconPlay}" Width="16" Height="16"
-                                              Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}" />
-                                </Button>
-                                <Button Command="{Binding PauseAllCommand}"
-                                        Background="Transparent"
-                                        BorderThickness="0"
-                                        Padding="8"
-                                        ToolTip.Tip="{DynamicResource ToolTipPauseAll}">
-                                    <PathIcon Data="{StaticResource IconPause}" Width="16" Height="16"
-                                              Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}" />
-                                </Button>
-                                <Button Command="{Binding DeleteSelectedTasksCommand}"
-                                        Background="Transparent"
-                                        BorderThickness="0"
-                                        Padding="8"
-                                        ToolTip.Tip="{DynamicResource ToolTipDeleteSelected}">
-                                    <PathIcon Data="{StaticResource IconTrash}" Width="16" Height="16"
-                                              Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}" />
-                                </Button>
+                                <StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding !IsSettingsVisible}">
+                                    <Border Width="1" Height="16"
+                                            Background="{DynamicResource SystemControlHighlightBaseLowBrush}"
+                                            Opacity="0.6"
+                                            IsVisible="{Binding IsMacOS}" />
+
+                                    <Button Command="{Binding ResumeAllCommand}"
+                                            Background="Transparent"
+                                            BorderThickness="0"
+                                            Padding="8"
+                                            ToolTip.Tip="{DynamicResource ToolTipResumeAll}">
+                                        <PathIcon Data="{StaticResource IconPlay}" Width="16" Height="16"
+                                                  Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}" />
+                                    </Button>
+                                    <Button Command="{Binding PauseAllCommand}"
+                                            Background="Transparent"
+                                            BorderThickness="0"
+                                            Padding="8"
+                                            ToolTip.Tip="{DynamicResource ToolTipPauseAll}">
+                                        <PathIcon Data="{StaticResource IconPause}" Width="16" Height="16"
+                                                  Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}" />
+                                    </Button>
+                                    <Button Command="{Binding DeleteSelectedTasksCommand}"
+                                            Background="Transparent"
+                                            BorderThickness="0"
+                                            Padding="8"
+                                            ToolTip.Tip="{DynamicResource ToolTipDeleteSelected}">
+                                        <PathIcon Data="{StaticResource IconTrash}" Width="16" Height="16"
+                                                  Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}" />
+                                    </Button>
+                                </StackPanel>
                             </StackPanel>
                         </Grid>
                     </Border>

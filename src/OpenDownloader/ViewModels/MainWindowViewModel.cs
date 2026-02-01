@@ -58,21 +58,14 @@ public partial class MainWindowViewModel : ViewModelBase
     public bool IsStopped => CurrentTitleKey == "MenuStopped";
     public bool IsSettings => CurrentTitleKey == "MenuSettings";
 
-    public Thickness TitleBarToolbarMargin
+    public bool IsMacOS => RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
+    public bool IsNotMacOS => !IsMacOS;
+
+    public Thickness SidebarToggleMargin
     {
         get
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                return new Thickness(0, 0, 140, 0);
-            }
-
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                return new Thickness(0);
-            }
-
-            return new Thickness(0, 0, 20, 0);
+            return new Thickness(16, 0, 0, 0);
         }
     }
 
@@ -151,6 +144,16 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty]
     private LanguageOption? _selectedLanguage;
 
+    public string EmptyStateSubtitleDownloadingText
+    {
+        get
+        {
+            var template = GetString("EmptyStateSubtitleDownloading");
+            var shortcut = RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? "⌘N" : "Ctrl+N";
+            return template.Replace("⌘N", shortcut);
+        }
+    }
+
     partial void OnSelectedThemeChanged(ThemeOption? value)
     {
         if (value != null)
@@ -183,6 +186,8 @@ public partial class MainWindowViewModel : ViewModelBase
             LanguageOptions.Add(lang);
         }
         SelectedLanguage = currentLang;
+
+        OnPropertyChanged(nameof(EmptyStateSubtitleDownloadingText));
     }
 
     public MainWindowViewModel()
