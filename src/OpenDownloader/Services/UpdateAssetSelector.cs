@@ -25,10 +25,10 @@ public static class UpdateAssetSelector
             var zipExact = $"opendownloader_{version}.{runtime}.zip";
             var dmgExact = $"opendownloader_{version}.{runtime}.dmg";
 
-            return release.Assets.FirstOrDefault(a => a.Name.Equals(zipExact, StringComparison.OrdinalIgnoreCase))
-                   ?? release.Assets.FirstOrDefault(a => a.Name.Equals(dmgExact, StringComparison.OrdinalIgnoreCase))
-                   ?? release.Assets.FirstOrDefault(a => a.Name.EndsWith($".{runtime}.zip", StringComparison.OrdinalIgnoreCase))
-                   ?? release.Assets.FirstOrDefault(a => a.Name.EndsWith($".{runtime}.dmg", StringComparison.OrdinalIgnoreCase));
+            return release.Assets.FirstOrDefault(a => a.Name.Equals(dmgExact, StringComparison.OrdinalIgnoreCase))
+                   ?? release.Assets.FirstOrDefault(a => a.Name.Equals(zipExact, StringComparison.OrdinalIgnoreCase))
+                   ?? release.Assets.FirstOrDefault(a => a.Name.EndsWith($".{runtime}.dmg", StringComparison.OrdinalIgnoreCase))
+                   ?? release.Assets.FirstOrDefault(a => a.Name.EndsWith($".{runtime}.zip", StringComparison.OrdinalIgnoreCase));
         }
 
         var linuxRuntime = arch == Architecture.Arm64 ? "aarch64" : "x86_64";

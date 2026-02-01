@@ -88,6 +88,16 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty]
     private string _appVersion = "0.0.0";
 
+    [ObservableProperty]
+    private bool _isCheckingForUpdates;
+
+    public string CheckUpdateButtonKey => IsCheckingForUpdates ? "BtnCheckingUpdate" : "BtnCheckUpdate";
+
+    partial void OnIsCheckingForUpdatesChanged(bool value)
+    {
+        OnPropertyChanged(nameof(CheckUpdateButtonKey));
+    }
+
     // Theme & Language Options
     public record ThemeOption(string Key, string Value);
     public record LanguageOption(string Key, string Value);
@@ -345,11 +355,26 @@ public partial class MainWindowViewModel : ViewModelBase
     [RelayCommand]
     public async Task CheckForUpdates()
     {
+        if (IsCheckingForUpdates) return;
+        IsCheckingForUpdates = true;
+
         var updateService = new UpdateService();
         // Remove 'v' prefix if present for clean comparison
         var currentVersion = AppVersion.TrimStart('v');
         
-        var release = await updateService.CheckForUpdatesAsync(currentVersion);
+        ReleaseInfo? release = null;
+        try
+        {
+            release = await updateService.CheckForUpdatesAsync(currentVersion);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Update check failed: {ex.Message}");
+        }
+        finally
+        {
+            IsCheckingForUpdates = false;
+        }
         
         if (release != null)
         {
@@ -361,9 +386,23 @@ public partial class MainWindowViewModel : ViewModelBase
         }
         else
         {
-            // Optional: Show "No updates available" toast/dialog
-            System.Diagnostics.Debug.WriteLine("No updates found.");
+            if (Application.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop && desktop.MainWindow is { } mainWindow)
+            {
+                var title = GetString("TitleUpdateCheck");
+                var message = GetString("MessageNoUpdates");
+                var dialog = new InfoDialog(title, message);
+                dialog.ShowDialog(mainWindow);
+            }
         }
+    }
+
+    private static string GetString(string key)
+    {
+        if (Application.Current != null && Application.Current.TryGetResource(key, null, out var resource) && resource is string str)
+        {
+            return str;
+        }
+        return key;
     }
 
     [RelayCommand]

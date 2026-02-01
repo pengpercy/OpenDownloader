@@ -40,6 +40,10 @@ rm -rf "$ICONSET_DIR"
 sed "s/OPENDOWNLOADER_VERSION/$VERSION/g" resources/app/App.plist > OpenDownloader.app/Contents/Info.plist
 rm -rf OpenDownloader.app/Contents/MacOS/OpenDownloader.dsym
 
+if [[ -n "${CODESIGN_IDENTITY:-}" ]]; then
+    codesign --force --deep --options runtime --timestamp --sign "$CODESIGN_IDENTITY" OpenDownloader.app
+fi
+
 zip "opendownloader_$VERSION.$RUNTIME.zip" -r OpenDownloader.app
 
 # Create DMG
@@ -58,6 +62,10 @@ hdiutil create -volname "OpenDownloader" \
     -srcfolder "$DMG_SOURCE" \
     -ov -format UDZO \
     "$DMG_NAME"
+
+if [[ -n "${CODESIGN_IDENTITY:-}" ]]; then
+    codesign --force --timestamp --sign "$CODESIGN_IDENTITY" "$DMG_NAME"
+fi
 
 # Cleanup
 rm -rf "$DMG_SOURCE"

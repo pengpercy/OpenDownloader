@@ -2,7 +2,7 @@
 
 <div align="center">
 
-<img src="src/OpenDownloader/Assets/app_ico.png" width="128" height="128" alt="Logo">
+<img src="src/OpenDownloader/Assets/app_icon.png" width="128" height="128" alt="Logo">
 
 ### A Modern Download Manager for macOS, Windows, and Linux
 
@@ -40,7 +40,12 @@ Download the `.dmg` file from [Releases](https://github.com/pengpercy/OpenDownlo
 Download the `.zip` file, extract and run `OpenDownloader.exe`.
 
 ### Linux
-Download the `.tar.gz` file, extract and run `./OpenDownloader`.
+Prefer the `.AppImage` (easiest). Make it executable and run:
+```bash
+chmod +x OpenDownloader*.AppImage
+./OpenDownloader*.AppImage
+```
+You can also install via `.deb` / `.rpm` for your distro.
 
 ## Development
 

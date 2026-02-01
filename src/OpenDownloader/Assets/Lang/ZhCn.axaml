@@ -39,6 +39,7 @@
     <x:String x:Key="LabelProxyAddress">地址</x:String>
     <x:String x:Key="LabelProxyPort">端口</x:String>
     <x:String x:Key="BtnCheckUpdate">检查更新</x:String>
+    <x:String x:Key="BtnCheckingUpdate">检查中...</x:String>
     <x:String x:Key="LabelAboutContent">OpenDownloader 是一个开源的下载管理器。</x:String>
     <x:String x:Key="BtnBrowse">浏览</x:String>
 
@@ -84,4 +85,6 @@
     <x:String x:Key="LabelDownloadingUpdate">正在下载更新...</x:String>
     <x:String x:Key="ButtonUpdateNow">立即更新</x:String>
     <x:String x:Key="ButtonLater">稍后</x:String>
+    <x:String x:Key="TitleUpdateCheck">检查更新</x:String>
+    <x:String x:Key="MessageNoUpdates">当前已是最新版本。</x:String>
 </ResourceDictionary>

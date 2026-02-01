@@ -39,6 +39,7 @@
     <x:String x:Key="LabelProxyAddress">Address</x:String>
     <x:String x:Key="LabelProxyPort">Port</x:String>
     <x:String x:Key="BtnCheckUpdate">Check for Updates</x:String>
+    <x:String x:Key="BtnCheckingUpdate">Checking...</x:String>
     <x:String x:Key="LabelAboutContent">OpenDownloader is an open-source download manager.</x:String>
     <x:String x:Key="BtnBrowse">Browse</x:String>
 
@@ -84,4 +85,6 @@
     <x:String x:Key="LabelDownloadingUpdate">Downloading update...</x:String>
     <x:String x:Key="ButtonUpdateNow">Update Now</x:String>
     <x:String x:Key="ButtonLater">Later</x:String>
+    <x:String x:Key="TitleUpdateCheck">Update Check</x:String>
+    <x:String x:Key="MessageNoUpdates">You're already on the latest version.</x:String>
 </ResourceDictionary>
