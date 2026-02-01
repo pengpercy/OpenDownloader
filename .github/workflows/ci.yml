@@ -31,3 +31,4 @@ jobs:
     uses: ./.github/workflows/package.yml
     with:
       version: ${{ needs.version.outputs.version }}
+    secrets: inherit

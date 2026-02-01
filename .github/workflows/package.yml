@@ -6,6 +6,21 @@ on:
         description: OpenDownloader package version
         required: true
         type: string
+    secrets:
+      MACOS_CERT_P12_BASE64:
+        required: false
+      MACOS_CERT_PASSWORD:
+        required: false
+      MACOS_KEYCHAIN_PASSWORD:
+        required: false
+      MACOS_CODESIGN_IDENTITY:
+        required: false
+      APPLE_ID:
+        required: false
+      APPLE_APP_SPECIFIC_PASSWORD:
+        required: false
+      APPLE_TEAM_ID:
+        required: false
 jobs:
   windows:
     name: Package Windows
