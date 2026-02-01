@@ -20,7 +20,7 @@ public partial class AboutWindow : Window
         Close();
     }
 
-    private void OnOpenRepoClick(object sender, RoutedEventArgs e)
+    private void OnRepoLinkClick(object sender, RoutedEventArgs e)
     {
         OpenUrl(RepoUrl);
     }

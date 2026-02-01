@@ -35,13 +35,12 @@
                            FontSize="13" Opacity="0.6" HorizontalAlignment="Center" 
                            TextWrapping="Wrap" TextAlignment="Center" Margin="0,10,0,0"/>
 
-                <Grid ColumnDefinitions="Auto, *" Margin="0,14,0,0" Width="320">
-                    <TextBlock Grid.Column="0" Text="{DynamicResource LabelRepository}" FontSize="12" Opacity="0.6" Margin="0,2,10,0"/>
-                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                        <SelectableTextBlock Text="{Binding RepositoryUrl}" FontSize="12" Opacity="0.85"/>
-                        <Button Classes="linkButton" Content="{DynamicResource ButtonOpenRepo}" Click="OnOpenRepoClick"/>
-                    </StackPanel>
-                </Grid>
+                <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,14,0,0" HorizontalAlignment="Center">
+                    <PathIcon Data="{StaticResource IconGitHub}" Width="16" Height="16" Opacity="0.75"/>
+                    <Button Classes="linkButton" Click="OnRepoLinkClick">
+                        <TextBlock Text="{Binding RepositoryUrl}" FontSize="12"/>
+                    </Button>
+                </StackPanel>
             </StackPanel>
 
             <!-- Footer -->
