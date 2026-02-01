@@ -1,16 +1,23 @@
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Threading.Tasks;
+using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Platform.Storage;
+using Avalonia.Styling;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OpenDownloader.Models;
 using OpenDownloader.Services;
 using OpenDownloader.Services.Aria2;
-using System.Collections.ObjectModel;
-using Avalonia.Styling;
-using Avalonia;
-using System.Threading.Tasks;
-using System.Linq;
 using OpenDownloader.Views;
-using Avalonia.Threading;
-using System;
 
 namespace OpenDownloader.ViewModels;
 
@@ -20,6 +27,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly TaskListView _taskListView;
     private readonly SettingsView _settingsView;
     private readonly DispatcherTimer _refreshTimer;
+    private readonly Dictionary<string, string> _lastStatusByGid = new();
 
     [ObservableProperty]
     private object _currentView = null!;
@@ -49,14 +57,32 @@ public partial class MainWindowViewModel : ViewModelBase
     public bool IsStopped => CurrentTitleKey == "MenuStopped";
     public bool IsSettings => CurrentTitleKey == "MenuSettings";
 
+    public Thickness TitleBarToolbarMargin
+    {
+        get
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                return new Thickness(0, 0, 140, 0);
+            }
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                return new Thickness(0);
+            }
+
+            return new Thickness(0, 0, 20, 0);
+        }
+    }
+
     [ObservableProperty]
     private ObservableCollection<DownloadTask> _tasks = new();
 
     [ObservableProperty]
-    private bool _isSettingsVisible = false;
+    private bool _isSettingsVisible;
 
     [ObservableProperty]
-    private bool _isAddTaskVisible = false;
+    private bool _isAddTaskVisible;
 
     [ObservableProperty]
     private string _newTaskUrl = string.Empty;
@@ -68,11 +94,11 @@ public partial class MainWindowViewModel : ViewModelBase
     private int _newTaskChunks = 4;
 
     [ObservableProperty]
-    private string _newTaskSavePath = System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.UserProfile), "Downloads");
+    private string _newTaskSavePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
 
     // Settings Properties
     [ObservableProperty]
-    private string _defaultSavePath = System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.UserProfile), "Downloads");
+    private string _defaultSavePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
 
     [ObservableProperty]
     private string _proxyAddress = string.Empty;
@@ -81,7 +107,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private int _proxyPort = 8080;
 
     [ObservableProperty]
-    private int _proxyTypeIndex = 0; // 0: HTTP, 1: SOCKS5
+    private int _proxyTypeIndex; // 0: HTTP, 1: SOCKS5
 
     public ObservableCollection<string> ProxyTypes { get; } = new() { "HTTP", "SOCKS5" };
 
@@ -181,7 +207,7 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             Interval = TimeSpan.FromSeconds(1)
         };
-        _refreshTimer.Tick += async (s, e) => await RefreshTaskListAsync();
+        _refreshTimer.Tick += async (_, _) => await RefreshTaskListAsync();
         _refreshTimer.Start();
     }
 
@@ -194,7 +220,8 @@ public partial class MainWindowViewModel : ViewModelBase
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Aria2 Init Failed: {ex.Message}");
+            Debug.WriteLine($"Aria2 Init Failed: {ex.Message}");
+            AppLog.Error(ex, "Aria2 Init Failed");
         }
     }
 
@@ -203,6 +230,23 @@ public partial class MainWindowViewModel : ViewModelBase
         try
         {
             var allTasks = await _aria2Service.GetGlobalStatusAsync();
+
+            foreach (var t in allTasks)
+            {
+                if (_lastStatusByGid.TryGetValue(t.Id, out var prev) && prev != "StatusError" && t.Status == "StatusError")
+                {
+                    AppLog.Warn($"Download failed: {t.Name} ({t.Id})");
+                }
+
+                _lastStatusByGid[t.Id] = t.Status;
+            }
+
+            var activeIds = new HashSet<string>(allTasks.Select(t => t.Id));
+            var idsToRemove = _lastStatusByGid.Keys.Where(id => !activeIds.Contains(id)).ToList();
+            foreach (var id in idsToRemove)
+            {
+                _lastStatusByGid.Remove(id);
+            }
             
             // Filter based on current view
             var filteredTasks = allTasks.Where(t => 
@@ -248,7 +292,8 @@ public partial class MainWindowViewModel : ViewModelBase
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Refresh Failed: {ex.Message}");
+            Debug.WriteLine($"Refresh Failed: {ex.Message}");
+            AppLog.Error(ex, "Refresh task list failed");
         }
     }
 
@@ -302,7 +347,7 @@ public partial class MainWindowViewModel : ViewModelBase
         // Keep previous save path or default
         if (string.IsNullOrEmpty(NewTaskSavePath))
         {
-            NewTaskSavePath = System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.UserProfile), "Downloads");
+            NewTaskSavePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
         }
         IsAddTaskVisible = true;
     }
@@ -319,9 +364,9 @@ public partial class MainWindowViewModel : ViewModelBase
     public async Task ChooseSavePath()
     {
         // ... (existing code) ...
-        if (Application.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop && desktop.MainWindow is { } mainWindow)
+        if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop && desktop.MainWindow is { } mainWindow)
         {
-            var folders = await mainWindow.StorageProvider.OpenFolderPickerAsync(new Avalonia.Platform.Storage.FolderPickerOpenOptions
+            var folders = await mainWindow.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
             {
                 Title = "Select Download Folder",
                 AllowMultiple = false
@@ -337,9 +382,9 @@ public partial class MainWindowViewModel : ViewModelBase
     [RelayCommand]
     public async Task ChooseDefaultSavePath()
     {
-        if (Application.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop && desktop.MainWindow is { } mainWindow)
+        if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop && desktop.MainWindow is { } mainWindow)
         {
-            var folders = await mainWindow.StorageProvider.OpenFolderPickerAsync(new Avalonia.Platform.Storage.FolderPickerOpenOptions
+            var folders = await mainWindow.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
             {
                 Title = "Select Default Download Folder",
                 AllowMultiple = false
@@ -369,7 +414,8 @@ public partial class MainWindowViewModel : ViewModelBase
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Update check failed: {ex.Message}");
+            Debug.WriteLine($"Update check failed: {ex.Message}");
+            AppLog.Error(ex, "Update check failed");
         }
         finally
         {
@@ -378,20 +424,20 @@ public partial class MainWindowViewModel : ViewModelBase
         
         if (release != null)
         {
-            if (Application.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop && desktop.MainWindow is { } mainWindow)
+            if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop && desktop.MainWindow is { } mainWindow)
             {
                 var dialog = new UpdateWindow(release);
-                dialog.ShowDialog(mainWindow);
+                await dialog.ShowDialog(mainWindow);
             }
         }
         else
         {
-            if (Application.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop && desktop.MainWindow is { } mainWindow)
+            if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop && desktop.MainWindow is { } mainWindow)
             {
                 var title = GetString("TitleUpdateCheck");
                 var message = GetString("MessageNoUpdates");
                 var dialog = new InfoDialog(title, message);
-                dialog.ShowDialog(mainWindow);
+                await dialog.ShowDialog(mainWindow);
             }
         }
     }
@@ -417,7 +463,7 @@ public partial class MainWindowViewModel : ViewModelBase
             {
                 if (Uri.TryCreate(NewTaskUrl, UriKind.Absolute, out var uri))
                 {
-                    NewTaskName = System.IO.Path.GetFileName(uri.LocalPath);
+                    NewTaskName = Path.GetFileName(uri.LocalPath);
                 }
             }
 
@@ -441,7 +487,8 @@ public partial class MainWindowViewModel : ViewModelBase
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Add Task Failed: {ex.Message}");
+            Debug.WriteLine($"Add Task Failed: {ex.Message}");
+            AppLog.Error(ex, "Add task failed");
         }
     }
 
@@ -465,9 +512,9 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         if (lang == "System")
         {
-            var culture = System.Globalization.CultureInfo.CurrentCulture;
+            var culture = CultureInfo.CurrentCulture;
             // Map system culture to supported languages
-            if (culture.Name.StartsWith("zh", System.StringComparison.OrdinalIgnoreCase))
+            if (culture.Name.StartsWith("zh", StringComparison.OrdinalIgnoreCase))
             {
                 LocalizationService.SwitchLanguage("zh-CN");
             }
@@ -510,7 +557,8 @@ public partial class MainWindowViewModel : ViewModelBase
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"PauseAll Failed: {ex.Message}");
+            Debug.WriteLine($"PauseAll Failed: {ex.Message}");
+            AppLog.Error(ex, "Pause all failed");
             _refreshTimer.Start();
             await RefreshTaskListAsync(); // Revert on error
         }
@@ -541,18 +589,19 @@ public partial class MainWindowViewModel : ViewModelBase
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"ResumeAll Failed: {ex.Message}");
+            Debug.WriteLine($"ResumeAll Failed: {ex.Message}");
+            AppLog.Error(ex, "Resume all failed");
             _refreshTimer.Start();
             await RefreshTaskListAsync();
         }
     }
 
     [RelayCommand]
-    public async Task DeleteTask(DownloadTask task)
+    public async Task DeleteTask(DownloadTask? task)
     {
         if (task != null)
         {
-            if (Application.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop && desktop.MainWindow is { } mainWindow)
+            if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop && desktop.MainWindow is { } mainWindow)
             {
                 var dialog = new ConfirmDeleteDialog(task.Name);
                 var result = await dialog.ShowDialog<bool>(mainWindow);
@@ -565,20 +614,21 @@ public partial class MainWindowViewModel : ViewModelBase
                     {
                         try
                         {
-                            if (System.IO.File.Exists(task.FilePath))
+                            if (File.Exists(task.FilePath))
                             {
-                                System.IO.File.Delete(task.FilePath);
+                                File.Delete(task.FilePath);
                             }
                             // Also try to delete .aria2 control file if exists
                             var aria2File = task.FilePath + ".aria2";
-                            if (System.IO.File.Exists(aria2File))
+                            if (File.Exists(aria2File))
                             {
-                                System.IO.File.Delete(aria2File);
+                                File.Delete(aria2File);
                             }
                         }
                         catch (Exception ex)
                         {
-                            System.Diagnostics.Debug.WriteLine($"Failed to delete file: {ex.Message}");
+                            Debug.WriteLine($"Failed to delete file: {ex.Message}");
+                            AppLog.Error(ex, $"Failed to delete file for task: {task.Name} ({task.Id})");
                         }
                     }
 
@@ -609,7 +659,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private DownloadTask? _selectedTask;
 
     [RelayCommand]
-    public async Task ToggleTaskState(DownloadTask task)
+    public async Task ToggleTaskState(DownloadTask? task)
     {
         if (task == null) return;
 
@@ -632,7 +682,7 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         if (task != null)
         {
-            if (Application.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop && desktop.MainWindow is { } mainWindow)
+            if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop && desktop.MainWindow is { } mainWindow)
             {
                 var dialog = new TaskDetailsWindow(task);
                 dialog.ShowDialog(mainWindow);
@@ -646,40 +696,41 @@ public partial class MainWindowViewModel : ViewModelBase
         if (task == null || string.IsNullOrEmpty(task.FilePath)) return;
 
         var path = task.FilePath;
-        var dir = System.IO.Path.GetDirectoryName(path);
+        var dir = Path.GetDirectoryName(path);
         
-        if (System.IO.Directory.Exists(dir))
+        if (Directory.Exists(dir))
         {
             try 
             {
-                if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
-                    System.Diagnostics.Process.Start("explorer.exe", $"/select,\"{path}\"");
+                    Process.Start("explorer.exe", $"/select,\"{path}\"");
                 }
-                else if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX))
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
                 {
-                    System.Diagnostics.Process.Start("open", $"-R \"{path}\"");
+                    Process.Start("open", $"-R \"{path}\"");
                 }
                 else
                 {
-                    System.Diagnostics.Process.Start("xdg-open", dir);
+                    Process.Start("xdg-open", dir);
                 }
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Open folder failed: {ex.Message}");
+                Debug.WriteLine($"Open folder failed: {ex.Message}");
+                AppLog.Error(ex, $"Open folder failed: {task.Name} ({task.Id})");
             }
         }
     }
 
     [RelayCommand]
-    public async Task CopyLink(DownloadTask task)
+    public async Task CopyLink(DownloadTask? task)
     {
         if (task == null || string.IsNullOrEmpty(task.Url)) return;
 
         try
         {
-            if (Application.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop && desktop.MainWindow is { } mainWindow)
+            if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop && desktop.MainWindow is { } mainWindow)
             {
                 var clipboard = mainWindow.Clipboard;
                 if (clipboard != null)
@@ -690,14 +741,15 @@ public partial class MainWindowViewModel : ViewModelBase
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Copy link failed: {ex.Message}");
+            Debug.WriteLine($"Copy link failed: {ex.Message}");
+            AppLog.Error(ex, $"Copy link failed: {task.Name} ({task.Id})");
         }
     }
 
     [RelayCommand]
     public void ShowAbout()
     {
-        if (Application.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop && desktop.MainWindow is { } mainWindow)
+        if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop && desktop.MainWindow is { } mainWindow)
         {
             var dialog = new AboutWindow
             {
@@ -714,7 +766,7 @@ public partial class MainWindowViewModel : ViewModelBase
         await _aria2Service.ShutdownAsync();
 
         // 2. Close App
-        if (Application.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop)
+        if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             desktop.Shutdown();
         }

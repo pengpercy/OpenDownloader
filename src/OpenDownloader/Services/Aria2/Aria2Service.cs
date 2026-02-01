@@ -42,6 +42,7 @@ public class Aria2Service : IAria2Service, IDisposable
         {
             // Fallback or error
             Debug.WriteLine($"Aria2 binary not found at: {binaryPath}");
+            AppLog.Warn($"Aria2 binary not found at: {binaryPath}");
             // Attempt to find in PATH if local binary missing?
             // For now, assume it exists as we packaged it.
         }
@@ -53,7 +54,10 @@ public class Aria2Service : IAria2Service, IDisposable
             {
                 Process.Start("chmod", $"+x \"{binaryPath}\"")?.WaitForExit();
             }
-            catch { /* Ignore if fails */ }
+            catch (Exception ex)
+            {
+                AppLog.Error(ex, $"Failed to chmod aria2 binary: {binaryPath}");
+            }
         }
 
         // 3. Start Process
@@ -92,10 +96,12 @@ public class Aria2Service : IAria2Service, IDisposable
             _aria2Process.Start();
             
             Debug.WriteLine($"Aria2 started. PID: {_aria2Process.Id}");
+            AppLog.Info($"Aria2 started. PID: {_aria2Process.Id}");
         }
         catch (Exception ex)
         {
             Debug.WriteLine($"Failed to start aria2: {ex.Message}");
+            AppLog.Error(ex, "Failed to start aria2");
             throw;
         }
 
@@ -114,7 +120,10 @@ public class Aria2Service : IAria2Service, IDisposable
             {
                 await _rpcClient.InvokeAsync<string>("shutdown");
             }
-            catch { /* Process might be dead already */ }
+            catch (Exception ex)
+            {
+                AppLog.Error(ex, "Failed to shutdown aria2 via RPC");
+            }
         }
 
         if (_aria2Process != null && !_aria2Process.HasExited)
@@ -266,8 +275,9 @@ public class Aria2Service : IAria2Service, IDisposable
         {
              await _rpcClient.InvokeAsync<string>("remove", gid);
         }
-        catch
+        catch (Exception ex)
         {
+            AppLog.Error(ex, $"Failed to remove task via aria2.remove, fallback to removeDownloadResult: {gid}");
             // Try removeDownloadResult if remove fails (e.g. task is complete/error)
             await _rpcClient.InvokeAsync<string>("removeDownloadResult", gid);
         }
@@ -309,7 +319,7 @@ public class Aria2Service : IAria2Service, IDisposable
         var filePath = "";
         var url = "";
 
-        if (status.Files != null && status.Files.Any())
+        if (status.Files.Any())
         {
             var file = status.Files.First();
             filePath = file.Path;
@@ -318,7 +328,7 @@ public class Aria2Service : IAria2Service, IDisposable
                 name = Path.GetFileName(filePath);
             }
             
-            if (file.Uris != null && file.Uris.Any())
+            if (file.Uris.Any())
             {
                 url = file.Uris.First().Uri;
             }

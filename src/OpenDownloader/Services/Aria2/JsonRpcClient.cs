@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
+using OpenDownloader.Services;
 
 namespace OpenDownloader.Services.Aria2;
 
@@ -116,6 +117,7 @@ public class JsonRpcClient
         catch (Exception ex)
         {
             Debug.WriteLine($"RPC Call Failed: {method} - {ex.Message}");
+            AppLog.Error(ex, $"RPC Call Failed: {method}");
             throw;
         }
     }

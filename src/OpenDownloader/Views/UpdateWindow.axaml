@@ -10,8 +10,8 @@
         Title="{DynamicResource TitleUpdateAvailable}"
         Width="640"
         Height="520"
-        MinWidth="560"
-        MinHeight="420"
+        MinWidth="640"
+        MinHeight="520"
         >
 
     <Border Classes="dialogRoot">
