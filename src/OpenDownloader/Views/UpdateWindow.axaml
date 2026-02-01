@@ -10,8 +10,6 @@
         Title="{DynamicResource TitleUpdateAvailable}"
         Width="640"
         Height="520"
-        MinWidth="640"
-        MinHeight="520"
         >
 
     <Border Classes="dialogRoot">
@@ -23,7 +21,8 @@
                               Foreground="{DynamicResource SystemAccentColorBrush}" />
                     <TextBlock Text="{DynamicResource TitleUpdateAvailable}" FontWeight="SemiBold" FontSize="20" VerticalAlignment="Center"/>
                 </StackPanel>
-                <TextBlock Text="{Binding VersionText}" FontSize="14" Opacity="0.7" Margin="36,0,0,0"/>
+                <TextBlock Text="{Binding UpdateFromToText}" FontSize="14" Opacity="0.7" Margin="36,0,0,0"
+                           IsVisible="{Binding !IsDownloading}"/>
             </StackPanel>
 
             <!-- Release Notes -->
@@ -34,17 +33,31 @@
                 <TextBlock Text="{Binding ReleaseNotes}" TextWrapping="Wrap" FontSize="13" Opacity="0.8" LineHeight="20"/>
             </ScrollViewer>
 
-            <!-- Progress (Hidden by default) -->
+            <!-- Progress & Install Status -->
             <StackPanel Grid.Row="1" IsVisible="{Binding IsDownloading}" VerticalAlignment="Center" Margin="0,0,0,20">
-                <TextBlock Text="{Binding StatusText}" HorizontalAlignment="Center" Margin="0,0,0,10"/>
-                <ProgressBar Value="{Binding DownloadProgress}" Maximum="1.0" Height="6" CornerRadius="3"/>
-                <TextBlock Text="{Binding DownloadProgress, StringFormat={}{0:P0}}" HorizontalAlignment="Right" FontSize="12" Opacity="0.6" Margin="0,4,0,0"/>
+                <TextBlock Text="{Binding StatusText}" HorizontalAlignment="Center" Margin="0,0,0,10"
+                           FontWeight="SemiBold" IsVisible="{Binding !IsReadyToInstall}"/>
+                <ProgressBar Value="{Binding DownloadProgress}" Maximum="1.0" Height="6" CornerRadius="3"
+                             IsVisible="{Binding !IsReadyToInstall}"/>
+                <TextBlock Text="{Binding DownloadProgress, StringFormat={}{0:P0}}" HorizontalAlignment="Right" FontSize="12" Opacity="0.6" Margin="0,4,0,0"
+                           IsVisible="{Binding !IsReadyToInstall}"/>
+
+                <!-- Ready to Install Message -->
+                <TextBlock Text="{Binding StatusText}" HorizontalAlignment="Center" FontSize="16" FontWeight="SemiBold"
+                           IsVisible="{Binding IsReadyToInstall}" TextAlignment="Center"/>
             </StackPanel>
 
-            <!-- Buttons -->
+            <!-- Buttons: Initial State -->
             <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="12" IsVisible="{Binding !IsDownloading}">
                 <Button Classes="dialogButton" Content="{DynamicResource ButtonLater}" Click="OnLaterClick"/>
                 <Button Content="{DynamicResource ButtonUpdateNow}" Click="OnUpdateClick" 
+                        Classes="dialogButton accent"/>
+            </StackPanel>
+
+            <!-- Buttons: Ready to Install State -->
+            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="12" IsVisible="{Binding IsReadyToInstall}">
+                <Button Classes="dialogButton" Content="{DynamicResource ButtonLater}" Click="OnLaterClick"/>
+                <Button Content="{DynamicResource ButtonInstallAndRelaunch}" Click="OnInstallClick" 
                         Classes="dialogButton accent"/>
             </StackPanel>
         </Grid>

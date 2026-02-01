@@ -86,8 +86,13 @@
     <!-- Update -->
     <x:String x:Key="TitleUpdateAvailable">Update Available</x:String>
     <x:String x:Key="LabelDownloadingUpdate">Downloading update...</x:String>
-    <x:String x:Key="ButtonUpdateNow">Update Now</x:String>
+    <x:String x:Key="ButtonUpdateNow">Download Now</x:String>
     <x:String x:Key="ButtonLater">Later</x:String>
+    <x:String x:Key="ButtonInstallAndRelaunch">Install and Relaunch</x:String>
+    <x:String x:Key="LabelCurrentVersion">Current Version</x:String>
+    <x:String x:Key="LabelNewVersion">New Version</x:String>
+    <x:String x:Key="LabelUpdateReady">Update downloaded successfully</x:String>
+    <x:String x:Key="UpdateFromTo">Update from {0} to {1}</x:String>
     <x:String x:Key="TitleUpdateCheck">Update Check</x:String>
     <x:String x:Key="MessageNoUpdates">You're already on the latest version.</x:String>
     <x:String x:Key="UpdateStatusPreparing">Preparing...</x:String>

@@ -26,6 +26,7 @@ public partial class UpdateWindow : Window
     public UpdateWindow(ReleaseInfo release) : this()
     {
         _viewModel.Release = release;
+        _viewModel.CurrentVersion = AppVersionProvider.GetCurrentVersion();
     }
 
     private void OnLaterClick(object sender, RoutedEventArgs e)
@@ -35,7 +36,21 @@ public partial class UpdateWindow : Window
 
     private async void OnUpdateClick(object sender, RoutedEventArgs e)
     {
-        await _viewModel.StartUpdateAsync(this);
+        // Change window size when starting download
+        this.Width = 480;
+        this.Height = 240;
+        this.MinWidth = 480;
+        this.MinHeight = 240;
+        
+        // Center window again after resize
+        WindowStartupLocation = WindowStartupLocation.CenterScreen;
+
+        await _viewModel.StartDownloadAsync(this);
+    }
+
+    private async void OnInstallClick(object sender, RoutedEventArgs e)
+    {
+        await _viewModel.ApplyUpdateAndRelaunchAsync();
     }
 }
 
@@ -48,21 +63,45 @@ public partial class UpdateViewModel : ObservableObject
     private bool _isDownloading = false;
 
     [ObservableProperty]
+    private bool _isReadyToInstall = false;
+
+    [ObservableProperty]
     private double _downloadProgress = 0;
 
     [ObservableProperty]
     private string _statusText = string.Empty;
 
+    [ObservableProperty]
+    private string _currentVersion = string.Empty;
+
     public string VersionText => Release.TagName.StartsWith("v", StringComparison.OrdinalIgnoreCase) ? Release.TagName : $"v{Release.TagName}";
     public string ReleaseNotes => Release.Body;
+
+    public string UpdateFromToText
+    {
+        get
+        {
+            var from = CurrentVersion.StartsWith("v") ? CurrentVersion : $"v{CurrentVersion}";
+            var to = VersionText;
+            return string.Format(CultureInfo.CurrentCulture, GetString("UpdateFromTo", "Update from {0} to {1}"), from, to);
+        }
+    }
 
     partial void OnReleaseChanged(ReleaseInfo value)
     {
         OnPropertyChanged(nameof(VersionText));
         OnPropertyChanged(nameof(ReleaseNotes));
+        OnPropertyChanged(nameof(UpdateFromToText));
     }
 
-    public async Task StartUpdateAsync(Window window)
+    partial void OnCurrentVersionChanged(string value)
+    {
+        OnPropertyChanged(nameof(UpdateFromToText));
+    }
+
+    private string? _downloadedFilePath;
+
+    public async Task StartDownloadAsync(Window window)
     {
         if (IsDownloading) return;
 
@@ -82,7 +121,7 @@ public partial class UpdateViewModel : ObservableObject
         var version = Release.TagName.TrimStart('v');
         var updateDir = Path.Combine(Path.GetTempPath(), "OpenDownloader", "updates", version);
         Directory.CreateDirectory(updateDir);
-        var destPath = Path.Combine(updateDir, asset.Name);
+        _downloadedFilePath = Path.Combine(updateDir, asset.Name);
 
         var progress = new Progress<double>(p =>
         {
@@ -93,13 +132,30 @@ public partial class UpdateViewModel : ObservableObject
 
         try
         {
-            await updateService.DownloadUpdateAsync(asset.BrowserDownloadUrl, destPath, progress);
-            StatusText = GetString("UpdateStatusApplying", "Applying update...");
+            await updateService.DownloadUpdateAsync(asset.BrowserDownloadUrl, _downloadedFilePath, progress);
+            IsReadyToInstall = true;
+            StatusText = GetString("LabelUpdateReady", "Update downloaded successfully");
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Download failed: {ex.Message}");
+            IsDownloading = false;
+            StatusText = GetString("UpdateStatusFailed", "Update failed.");
+        }
+    }
 
-            var applied = await UpdateApplier.TryApplyUpdateAsync(destPath, version);
+    public async Task ApplyUpdateAndRelaunchAsync()
+    {
+        if (string.IsNullOrEmpty(_downloadedFilePath)) return;
+
+        try
+        {
+            StatusText = GetString("UpdateStatusApplying", "Applying update...");
+            var version = Release.TagName.TrimStart('v');
+            var applied = await UpdateApplier.TryApplyUpdateAsync(_downloadedFilePath, version);
             if (!applied)
             {
-                OpenDownloadedFile(destPath);
+                OpenDownloadedFile(_downloadedFilePath);
             }
 
             if (Avalonia.Application.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop)
@@ -109,8 +165,7 @@ public partial class UpdateViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"Download failed: {ex.Message}");
-            IsDownloading = false;
+            Debug.WriteLine($"Apply update failed: {ex.Message}");
             StatusText = GetString("UpdateStatusFailed", "Update failed.");
         }
     }
