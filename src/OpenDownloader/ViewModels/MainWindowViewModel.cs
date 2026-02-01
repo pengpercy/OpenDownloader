@@ -28,6 +28,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly SettingsView _settingsView;
     private readonly DispatcherTimer _refreshTimer;
     private readonly Dictionary<string, string> _lastStatusByGid = new();
+    private bool _isShuttingDown;
 
     [ObservableProperty]
     private object _currentView = null!;
@@ -769,6 +770,21 @@ public partial class MainWindowViewModel : ViewModelBase
         if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             desktop.Shutdown();
+        }
+    }
+
+    public async Task ShutdownServicesAsync()
+    {
+        if (_isShuttingDown) return;
+        _isShuttingDown = true;
+
+        try
+        {
+            await _aria2Service.ShutdownAsync().ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            AppLog.Error(ex, "Shutdown services failed");
         }
     }
 }

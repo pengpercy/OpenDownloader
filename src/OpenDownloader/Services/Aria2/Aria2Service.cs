@@ -130,9 +130,24 @@ public class Aria2Service : IAria2Service, IDisposable
     {
         if (_rpcClient != null)
         {
-            try 
+            try
             {
-                await _rpcClient.InvokeAsync<string>("shutdown");
+                var shutdownTask = _rpcClient.InvokeAsync<string>("shutdown");
+                await Task.WhenAny(shutdownTask, Task.Delay(1000)).ConfigureAwait(false);
+                if (shutdownTask.IsCompleted)
+                {
+                    await shutdownTask.ConfigureAwait(false);
+                }
+                else
+                {
+                    _ = shutdownTask.ContinueWith(t =>
+                    {
+                        if (t.Exception != null)
+                        {
+                            AppLog.Error(t.Exception, "Aria2 shutdown RPC failed in background");
+                        }
+                    }, TaskScheduler.Default);
+                }
             }
             catch (Exception ex)
             {
@@ -142,10 +157,17 @@ public class Aria2Service : IAria2Service, IDisposable
 
         if (_aria2Process != null && !_aria2Process.HasExited)
         {
-            _aria2Process.WaitForExit(2000);
+            _aria2Process.WaitForExit(1500);
             if (!_aria2Process.HasExited)
             {
-                _aria2Process.Kill();
+                try
+                {
+                    _aria2Process.Kill(entireProcessTree: true);
+                }
+                catch
+                {
+                    _aria2Process.Kill();
+                }
             }
         }
     }
@@ -476,6 +498,24 @@ public class Aria2Service : IAria2Service, IDisposable
 
     public void Dispose()
     {
+        try
+        {
+            if (_aria2Process != null && !_aria2Process.HasExited)
+            {
+                try
+                {
+                    _aria2Process.Kill(entireProcessTree: true);
+                }
+                catch
+                {
+                    _aria2Process.Kill();
+                }
+            }
+        }
+        catch
+        {
+        }
+
         _aria2Process?.Dispose();
     }
 }

@@ -35,6 +35,16 @@ public partial class App : Application
             
             desktop.MainWindow = mainWindow;
 
+            mainWindow.Closing += (_, _) =>
+            {
+                viewModel.ShutdownServicesAsync().GetAwaiter().GetResult();
+            };
+
+            desktop.Exit += (_, _) =>
+            {
+                viewModel.ShutdownServicesAsync().GetAwaiter().GetResult();
+            };
+
             var updateChecked = false;
             mainWindow.Opened += async (_, _) =>
             {

@@ -75,7 +75,13 @@ public static class UpdateApplier
         bat.AppendLine("rmdir /s /q \"%EXTRACTED%\" 2>nul");
         bat.AppendLine("mkdir \"%EXTRACTED%\"");
         bat.AppendLine("powershell -NoProfile -ExecutionPolicy Bypass -Command \"Expand-Archive -LiteralPath '%ZIP%' -DestinationPath '%EXTRACTED%' -Force\"");
-        bat.AppendLine("robocopy \"%EXTRACTED%\" \"%TARGET%\" /E /NFL /NDL /NJH /NJS /NP");
+        bat.AppendLine("set \"SOURCE=%EXTRACTED%\"");
+        bat.AppendLine("for /f %%F in ('dir /b /a-d \"%EXTRACTED%\" 2^>nul ^| find /c /v \"\"') do set FILECOUNT=%%F");
+        bat.AppendLine("for /f %%D in ('dir /b /ad \"%EXTRACTED%\" 2^>nul ^| find /c /v \"\"') do set DIRCOUNT=%%D");
+        bat.AppendLine("if \"%FILECOUNT%\"==\"0\" if \"%DIRCOUNT%\"==\"1\" (");
+        bat.AppendLine("  for /f \"delims=\" %%D in ('dir /b /ad \"%EXTRACTED%\"') do set \"SOURCE=%EXTRACTED%\\%%D\"");
+        bat.AppendLine(")");
+        bat.AppendLine("robocopy \"%SOURCE%\" \"%TARGET%\" /E /NFL /NDL /NJH /NJS /NP");
         bat.AppendLine("start \"\" \"%RESTART%\"");
         File.WriteAllText(scriptPath, bat.ToString(), Encoding.UTF8);
 
