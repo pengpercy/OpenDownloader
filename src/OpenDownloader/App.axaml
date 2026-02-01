@@ -89,8 +89,6 @@
                 </ResourceDictionary>
             </ResourceDictionary.ThemeDictionaries>
 
-            <x:String x:Key="MenuQuit">Quit</x:String>
-
             <!-- Theme Colors Overrides (#508252) -->
             <Color x:Key="SystemAccentColor">#508252</Color>
             <Color x:Key="SystemAccentColorDark1">#406842</Color>
