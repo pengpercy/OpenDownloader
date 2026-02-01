@@ -57,10 +57,6 @@
         <TrimmerRootDescriptor Include="Roots.xml" />
     </ItemGroup>
 
-    <PropertyGroup>
-        <UsedAvaloniaProducts></UsedAvaloniaProducts>
-    </PropertyGroup>
-
     <ItemGroup>
         <Folder Include="Models\" />
         <Folder Include="Services\" />

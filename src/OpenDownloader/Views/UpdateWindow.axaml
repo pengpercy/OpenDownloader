@@ -29,6 +29,8 @@
             <ScrollViewer Grid.Row="1"
                           Margin="-24,0,-24,20"
                           Padding="24,0,24,0"
+                          VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled"
                           IsVisible="{Binding !IsDownloading}">
                 <TextBlock Text="{Binding ReleaseNotes}" TextWrapping="Wrap" FontSize="13" Opacity="0.8" LineHeight="20"/>
             </ScrollViewer>
