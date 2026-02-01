@@ -6,17 +6,28 @@ on:
   pull_request:
     branches: [master]
   workflow_dispatch:
+  workflow_call:
 
 jobs:
-  # 1. Build
   build:
     name: Build
     uses: ./.github/workflows/build.yml
 
-  # 2. Package (Dry run for verification)
+  version:
+    name: Prepare version string
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+      - name: Output version string
+        id: version
+        run: echo "version=$(cat VERSION)" >> "$GITHUB_OUTPUT"
+
   package:
-    needs: build
+    needs: [build, version]
     name: Package
     uses: ./.github/workflows/package.yml
     with:
-      version: "ci-build"
+      version: ${{ needs.version.outputs.version }}

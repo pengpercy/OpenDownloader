@@ -51,6 +51,7 @@ desktop-file-install resources/_common/applications/opendownloader.desktop --dir
     --set-icon com.opendownloader.app --set-key=Exec --set-value=AppRun
 mv OpenDownloader.AppDir/usr/share/applications/{opendownloader,com.opendownloader.app}.desktop
 cp resources/_common/icons/opendownloader.png OpenDownloader.AppDir/com.opendownloader.app.png
+ln -rsf OpenDownloader.AppDir/opt/opendownloader/OpenDownloader OpenDownloader.AppDir/opt/opendownloader/opendownloader
 ln -rsf OpenDownloader.AppDir/opt/opendownloader/opendownloader OpenDownloader.AppDir/AppRun
 ln -rsf OpenDownloader.AppDir/usr/share/applications/com.opendownloader.app.desktop OpenDownloader.AppDir
 cp resources/appimage/opendownloader.appdata.xml OpenDownloader.AppDir/usr/share/metainfo/com.opendownloader.app.appdata.xml
@@ -62,6 +63,7 @@ mkdir -p resources/deb/usr/bin
 mkdir -p resources/deb/usr/share/applications
 mkdir -p resources/deb/usr/share/icons
 cp -f OpenDownloader/* resources/deb/opt/opendownloader
+ln -rsf resources/deb/opt/opendownloader/OpenDownloader resources/deb/opt/opendownloader/opendownloader
 ln -rsf resources/deb/opt/opendownloader/opendownloader resources/deb/usr/bin
 cp -r resources/_common/applications resources/deb/usr/share
 cp -r resources/_common/icons resources/deb/usr/share

@@ -5,42 +5,78 @@ on:
 
 jobs:
   build:
-    name: Build ${{ matrix.rid }}
-    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         include:
-          - os: ubuntu-latest
-            rid: linux-x64
-          - os: ubuntu-latest
-            rid: linux-arm64
-          - os: windows-latest
-            rid: win-x64
-          - os: windows-latest
-            rid: win-arm64
-          - os: macos-15-intel
-            rid: osx-x64
-          - os: macos-latest
-            rid: osx-arm64
-
+          - name: Windows x64
+            os: windows-2022
+            runtime: win-x64
+          - name: Windows ARM64
+            os: windows-2022
+            runtime: win-arm64
+          - name: macOS (Intel)
+            os: macos-15-intel
+            runtime: osx-x64
+          - name: macOS (Apple Silicon)
+            os: macos-latest
+            runtime: osx-arm64
+          - name: Linux
+            os: ubuntu-latest
+            runtime: linux-x64
+            container: ubuntu:20.04
+          - name: Linux (arm64)
+            os: ubuntu-latest
+            runtime: linux-arm64
+            container: ubuntu:20.04
+    name: Build ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    container: ${{ matrix.container || '' }}
     steps:
-    - uses: actions/checkout@v4
+      - name: Install common CLI tools
+        if: startsWith(matrix.runtime, 'linux-')
+        run: |
+          export DEBIAN_FRONTEND=noninteractive
+          ln -fs /usr/share/zoneinfo/Etc/UTC /etc/localtime
+          apt-get update
+          apt-get install -y sudo
+          sudo apt-get install -y curl wget git unzip zip libicu66 tzdata clang
+      - name: Checkout sources
+        uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
 
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 10.0.x
+      - name: Configure arm64 packages
+        if: matrix.runtime == 'linux-arm64'
+        run: |
+          sudo dpkg --add-architecture arm64
+          echo 'deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports/ focal main restricted
+          deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports/ focal-updates main restricted
+          deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports/ focal-backports main restricted' \
+          | sudo tee /etc/apt/sources.list.d/arm64.list
+          sudo sed -i -e 's/^deb http/deb [arch=amd64] http/g' /etc/apt/sources.list
+          sudo sed -i -e 's/^deb mirror/deb [arch=amd64] mirror/g' /etc/apt/sources.list
+      - name: Install cross-compiling dependencies
+        if: matrix.runtime == 'linux-arm64'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y llvm gcc-aarch64-linux-gnu
+      - name: Build
+        run: dotnet build -c Release
+      - name: Publish
+        run: |
+          dotnet publish src/OpenDownloader/OpenDownloader.csproj -c Release -o publish -r ${{ matrix.runtime }} --self-contained -p:PublishSingleFile=true -p:PublishAot=false
 
-    - name: Restore dependencies
-      run: dotnet restore
+      - name: Tar artifact
+        if: startsWith(matrix.runtime, 'linux-') || startsWith(matrix.runtime, 'osx-')
+        run: |
+          tar -cvf "opendownloader.${{ matrix.runtime }}.tar" -C publish .
+          rm -r publish/*
+          mv "opendownloader.${{ matrix.runtime }}.tar" publish
 
-    - name: Publish
-      run: |
-        dotnet publish src/OpenDownloader/OpenDownloader.csproj -c Release -r ${{ matrix.rid }} --self-contained -p:PublishSingleFile=true -o publish/${{ matrix.rid }}
-
-    # Upload the raw publish output (to be packaged later)
-    - name: Upload Build Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: build-${{ matrix.rid }}
-        path: publish/${{ matrix.rid }}
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: opendownloader.${{ matrix.runtime }}
+          path: publish/*

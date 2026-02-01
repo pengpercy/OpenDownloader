@@ -5,16 +5,11 @@ on:
     tags:
       - 'v*'
 
-permissions:
-  contents: write
-
 jobs:
-  # 1. Build Job (Calls build.yml)
   build:
     name: Build
     uses: ./.github/workflows/build.yml
 
-  # 2. Extract Version
   version:
     name: Prepare Version
     runs-on: ubuntu-latest
@@ -27,7 +22,6 @@ jobs:
           TAG: ${{ github.ref_name }}
         run: echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
 
-  # 3. Package Job (Calls package.yml)
   package:
     needs: [build, version]
     name: Package
@@ -35,32 +29,29 @@ jobs:
     with:
       version: ${{ needs.version.outputs.version }}
 
-  # 4. Release Job
   release:
     needs: [package, version]
     name: Release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
-    - uses: actions/checkout@v4
-
-    - name: Download All Packages
-      uses: actions/download-artifact@v4
-      with:
-        pattern: package-*
-        path: dist
-        merge-multiple: true
-
-    - name: List Files
-      run: ls -R dist
-
-    - name: Create Release
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        TAG: ${{ github.ref_name }}
-        VERSION: ${{ needs.version.outputs.version }}
-      run: |
-        # Check if release exists, if not create it
-        gh release create "$TAG" --title "$TAG" --generate-notes || true
-        
-        # Upload assets
-        gh release upload "$TAG" dist/* --clobber
+      - name: Checkout sources
+        uses: actions/checkout@v4
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+          VERSION: ${{ needs.version.outputs.version }}
+        run: gh release create "$TAG" -t "$VERSION" --generate-notes || true
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: package.*
+          path: packages
+          merge-multiple: true
+      - name: Upload assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+        run: gh release upload "$TAG" packages/* --clobber
