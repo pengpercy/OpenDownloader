@@ -21,7 +21,7 @@ mkdir -p OpenDownloader.app/Contents/MacOS
 mkdir -p OpenDownloader.app/Contents/Resources
 cp -r OpenDownloader/* OpenDownloader.app/Contents/MacOS/
 rm -rf OpenDownloader
-ICON_SOURCE="../src/OpenDownloader/Assets/app_ico.png"
+ICON_SOURCE="../src/OpenDownloader/Assets/app_icon.png"
 ICONSET_DIR="App.iconset"
 rm -rf "$ICONSET_DIR"
 mkdir -p "$ICONSET_DIR"

@@ -25,7 +25,6 @@ esac
 APPIMAGETOOL_URL=https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage
 
 cd build
-cp -f ../src/OpenDownloader/Assets/app_ico.png resources/_common/icons/opendownloader.png
 
 if [[ ! -f "appimagetool" ]]; then
     curl -o appimagetool -L "$APPIMAGETOOL_URL"
