@@ -48,62 +48,57 @@ public partial class UpdateViewModel : ObservableObject
     [ObservableProperty]
     private double _downloadProgress = 0;
 
-    public string VersionText => $"v{Release.TagName}";
+    [ObservableProperty]
+    private string _statusText = string.Empty;
+
+    public string VersionText => Release.TagName.StartsWith("v", StringComparison.OrdinalIgnoreCase) ? Release.TagName : $"v{Release.TagName}";
     public string ReleaseNotes => Release.Body;
+
+    partial void OnReleaseChanged(ReleaseInfo value)
+    {
+        OnPropertyChanged(nameof(VersionText));
+        OnPropertyChanged(nameof(ReleaseNotes));
+    }
 
     public async Task StartUpdateAsync(Window window)
     {
-        IsDownloading = true;
-        var updateService = new UpdateService();
-        
-        // Determine asset based on OS
-        string assetName = "";
-        if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX))
-        {
-            // Prefer .dmg
-            assetName = ".dmg";
-        }
-        else if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
-        {
-            assetName = ".zip"; // Or .exe if we had one
-        }
-        else
-        {
-            assetName = ".tar.gz";
-        }
+        if (IsDownloading) return;
 
-        var asset = Release.Assets.FirstOrDefault(a => a.Name.EndsWith(assetName, StringComparison.OrdinalIgnoreCase));
-        if (asset == null)
+        IsDownloading = true;
+        StatusText = "Preparing...";
+        DownloadProgress = 0;
+
+        var updateService = new UpdateService();
+        var asset = UpdateAssetSelector.SelectPreferredAsset(Release);
+        if (asset is null)
         {
-            // Fallback or error
             IsDownloading = false;
+            StatusText = "No compatible update package found.";
             return;
         }
 
-        var downloadsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
-        var destPath = Path.Combine(downloadsPath, asset.Name);
+        var version = Release.TagName.TrimStart('v');
+        var updateDir = Path.Combine(Path.GetTempPath(), "OpenDownloader", "updates", version);
+        Directory.CreateDirectory(updateDir);
+        var destPath = Path.Combine(updateDir, asset.Name);
 
-        var progress = new Progress<double>(p => DownloadProgress = p);
+        var progress = new Progress<double>(p =>
+        {
+            DownloadProgress = p;
+            StatusText = $"Downloading... {(int)(p * 100)}%";
+        });
 
         try
         {
             await updateService.DownloadUpdateAsync(asset.BrowserDownloadUrl, destPath, progress);
-            
-            // Open file
-            if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX))
+            StatusText = "Applying update...";
+
+            var applied = await UpdateApplier.TryApplyUpdateAsync(destPath, version);
+            if (!applied)
             {
-                Process.Start("open", destPath);
-            }
-            else if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
-            {
-                Process.Start("explorer.exe", destPath);
-            }
-            else
-            {
-                Process.Start("xdg-open", destPath);
+                OpenDownloadedFile(destPath);
             }
 
-            // Quit App
             if (Avalonia.Application.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop)
             {
                 desktop.Shutdown();
@@ -113,6 +108,29 @@ public partial class UpdateViewModel : ObservableObject
         {
             Debug.WriteLine($"Download failed: {ex.Message}");
             IsDownloading = false;
+            StatusText = "Update failed.";
+        }
+    }
+
+    private static void OpenDownloadedFile(string path)
+    {
+        try
+        {
+            if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX))
+            {
+                Process.Start("open", path);
+            }
+            else if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
+            {
+                Process.Start("explorer.exe", path);
+            }
+            else
+            {
+                Process.Start("xdg-open", path);
+            }
+        }
+        catch
+        {
         }
     }
 }

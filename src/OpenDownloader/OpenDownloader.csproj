@@ -9,7 +9,8 @@
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
         <ApplicationIcon>Assets/app_ico.ico</ApplicationIcon>
-        <Version>1.0.12</Version>
+        <Version>1.0.13</Version>
+        <InformationalVersion>$(Version)</InformationalVersion>
     </PropertyGroup>
 
     <!-- Debug配置：只禁用AOT以支持设计器预览 -->

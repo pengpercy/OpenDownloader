@@ -4,6 +4,7 @@ using Avalonia.Data.Core;
 using Avalonia.Data.Core.Plugins;
 using System.Linq;
 using Avalonia.Markup.Xaml;
+using OpenDownloader.Services;
 using OpenDownloader.ViewModels;
 using OpenDownloader.Views;
 
@@ -32,12 +33,22 @@ public partial class App : Application
                 DataContext = viewModel,
             };
             
-            // Explicitly set the icon for macOS dock if needed
-            // Note: On macOS, the Dock icon is usually set by the CFBundleIconFile in Info.plist for bundled apps.
-            // For unpackaged builds (debugging), Avalonia tries to use the Window Icon.
-            // Ensure the window icon is loaded.
-            
             desktop.MainWindow = mainWindow;
+
+            var updateChecked = false;
+            mainWindow.Opened += async (_, _) =>
+            {
+                if (updateChecked) return;
+                updateChecked = true;
+
+                var currentVersion = AppVersionProvider.GetCurrentVersion();
+                var updateService = new UpdateService();
+                var release = await updateService.CheckForUpdatesAsync(currentVersion);
+                if (release is null) return;
+
+                var dialog = new UpdateWindow(release);
+                await dialog.ShowDialog(mainWindow);
+            };
         }
 
         base.OnFrameworkInitializationCompleted();

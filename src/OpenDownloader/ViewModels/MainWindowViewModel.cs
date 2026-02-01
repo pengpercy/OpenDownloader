@@ -86,7 +86,7 @@ public partial class MainWindowViewModel : ViewModelBase
     public ObservableCollection<string> ProxyTypes { get; } = new() { "HTTP", "SOCKS5" };
 
     [ObservableProperty]
-    private string _appVersion = "1.0.0";
+    private string _appVersion = "0.0.0";
 
     // Theme & Language Options
     public record ThemeOption(string Key, string Value);
@@ -151,6 +151,8 @@ public partial class MainWindowViewModel : ViewModelBase
     public MainWindowViewModel()
     {
         _aria2Service = new Aria2Service();
+
+        AppVersion = AppVersionProvider.GetCurrentVersion();
         
         // Initialize views
         _taskListView = new TaskListView();

@@ -13,13 +13,17 @@ namespace OpenDownloader.Services;
 
 public class UpdateService
 {
-    private const string GitHubApiUrl = "https://api.github.com/repos/percy/OpenDownloader/releases/latest";
+    private const string GitHubApiUrl = "https://api.github.com/repos/pengpercy/OpenDownloader/releases/latest";
     private readonly HttpClient _httpClient;
 
     public UpdateService()
     {
-        _httpClient = new HttpClient();
+        _httpClient = new HttpClient
+        {
+            Timeout = TimeSpan.FromSeconds(10)
+        };
         _httpClient.DefaultRequestHeaders.Add("User-Agent", "OpenDownloader");
+        _httpClient.DefaultRequestHeaders.Add("Accept", "application/vnd.github+json");
     }
 
     public async Task<ReleaseInfo?> CheckForUpdatesAsync(string currentVersion)
@@ -54,6 +58,23 @@ public class UpdateService
             Debug.WriteLine($"Update check failed: {ex.Message}");
         }
         return null;
+    }
+
+    public async Task<ReleaseInfo?> GetLatestReleaseAsync()
+    {
+        try
+        {
+            var response = await _httpClient.GetAsync(GitHubApiUrl);
+            if (!response.IsSuccessStatusCode) return null;
+
+            var json = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize(json, GitHubJsonContext.Default.ReleaseInfo);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Get latest release failed: {ex.Message}");
+            return null;
+        }
     }
 
     public async Task DownloadUpdateAsync(string downloadUrl, string destinationPath, IProgress<double> progress)
