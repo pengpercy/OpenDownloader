@@ -58,15 +58,19 @@ jobs:
     strategy:
       matrix:
         runtime: [osx-x64, osx-arm64]
+    env:
+      MACOS_CERT_P12_BASE64: ${{ secrets.MACOS_CERT_P12_BASE64 }}
+      MACOS_CERT_PASSWORD: ${{ secrets.MACOS_CERT_PASSWORD }}
+      MACOS_KEYCHAIN_PASSWORD: ${{ secrets.MACOS_KEYCHAIN_PASSWORD }}
+      MACOS_CODESIGN_IDENTITY: ${{ secrets.MACOS_CODESIGN_IDENTITY }}
+      APPLE_ID: ${{ secrets.APPLE_ID }}
+      APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
       - name: Import signing certificate
-        if: ${{ secrets.MACOS_CERT_P12_BASE64 != '' }}
-        env:
-          MACOS_CERT_P12_BASE64: ${{ secrets.MACOS_CERT_P12_BASE64 }}
-          MACOS_CERT_PASSWORD: ${{ secrets.MACOS_CERT_PASSWORD }}
-          MACOS_KEYCHAIN_PASSWORD: ${{ secrets.MACOS_KEYCHAIN_PASSWORD }}
+        if: ${{ env.MACOS_CERT_P12_BASE64 != '' }}
         run: |
           KEYCHAIN_PATH="$RUNNER_TEMP/build.keychain-db"
           security create-keychain -p "$MACOS_KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
@@ -86,17 +90,17 @@ jobs:
         env:
           VERSION: ${{ inputs.version }}
           RUNTIME: ${{ matrix.runtime }}
-          CODESIGN_IDENTITY: ${{ secrets.MACOS_CODESIGN_IDENTITY }}
+          CODESIGN_IDENTITY: ${{ env.MACOS_CODESIGN_IDENTITY }}
         run: |
           mkdir -p build/OpenDownloader
           tar -xf "build/opendownloader.${{ matrix.runtime }}.tar" -C build/OpenDownloader
           ./build/scripts/package.osx-app.sh
       - name: Notarize and staple DMG
-        if: ${{ secrets.APPLE_ID != '' && secrets.APPLE_APP_SPECIFIC_PASSWORD != '' && secrets.APPLE_TEAM_ID != '' }}
+        if: ${{ env.APPLE_ID != '' && env.APPLE_APP_SPECIFIC_PASSWORD != '' && env.APPLE_TEAM_ID != '' }}
         env:
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_ID: ${{ env.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ env.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ env.APPLE_TEAM_ID }}
           VERSION: ${{ inputs.version }}
           RUNTIME: ${{ matrix.runtime }}
         run: |
