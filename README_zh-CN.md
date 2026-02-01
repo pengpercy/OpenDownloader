@@ -17,8 +17,8 @@
 ## 界面预览
 
 <div align="center">
-  <img src="screenshots/theme_light.png" alt="浅色主题" width="45%">
-  <img src="screenshots/theme_dark.png" alt="深色主题" width="45%">
+  <img src="screenshots/theme_dark.png" alt="深色主题" width="100%">
+  <img src="screenshots/theme_light.png" alt="浅色主题" width="100%">
 </div>
 
 ## ✨ 核心特性

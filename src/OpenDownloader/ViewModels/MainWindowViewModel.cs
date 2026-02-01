@@ -119,10 +119,10 @@ public partial class MainWindowViewModel : ViewModelBase
     };
 
     [ObservableProperty]
-    private ThemeOption _selectedTheme;
+    private ThemeOption? _selectedTheme;
 
     [ObservableProperty]
-    private LanguageOption _selectedLanguage;
+    private LanguageOption? _selectedLanguage;
 
     partial void OnSelectedThemeChanged(ThemeOption? value)
     {

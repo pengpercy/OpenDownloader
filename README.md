@@ -17,8 +17,8 @@
 ## Screenshots
 
 <div align="center">
-  <img src="screenshots/theme_light.png" alt="Light Theme" width="45%">
-  <img src="screenshots/theme_dark.png" alt="Dark Theme" width="45%">
+  <img src="screenshots/theme_dark.png" alt="Dark Theme" width="100%">
+  <img src="screenshots/theme_light.png" alt="Light Theme" width="100%">
 </div>
 
 ## Features
