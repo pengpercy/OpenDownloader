@@ -20,6 +20,31 @@ namespace OpenDownloader.ViewModels;
 public partial class MainWindowViewModel
 {
     [RelayCommand]
+    public void OpenRepoUrl()
+    {
+        try
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                Process.Start(new ProcessStartInfo(RepositoryUrl) { UseShellExecute = true });
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                Process.Start("open", RepositoryUrl);
+            }
+            else
+            {
+                Process.Start("xdg-open", RepositoryUrl);
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"OpenRepoUrl Failed: {ex.Message}");
+            AppLog.Error(ex, "OpenRepoUrl failed");
+        }
+    }
+
+    [RelayCommand]
     public void TogglePane()
     {
         IsPaneOpen = !IsPaneOpen;

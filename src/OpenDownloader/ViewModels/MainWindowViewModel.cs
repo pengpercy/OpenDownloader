@@ -188,6 +188,7 @@ public partial class MainWindowViewModel : ViewModelBase
         SelectedLanguage = currentLang;
 
         OnPropertyChanged(nameof(EmptyStateSubtitleDownloadingText));
+        OnPropertyChanged(nameof(CheckUpdateButtonKey));
     }
 
     public MainWindowViewModel()

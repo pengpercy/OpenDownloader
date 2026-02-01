@@ -38,7 +38,7 @@
     <x:String x:Key="LabelProxyType">Protocol</x:String>
     <x:String x:Key="LabelProxyAddress">Address</x:String>
     <x:String x:Key="LabelProxyPort">Port</x:String>
-    <x:String x:Key="BtnCheckUpdate">Check for Updates</x:String>
+    <x:String x:Key="BtnCheckUpdate">Check Update</x:String>
     <x:String x:Key="BtnCheckingUpdate">Checking...</x:String>
     <x:String x:Key="LabelAboutContent">OpenDownloader is an open-source download manager.</x:String>
     <x:String x:Key="BtnBrowse">Browse</x:String>

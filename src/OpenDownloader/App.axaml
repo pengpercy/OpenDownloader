@@ -28,7 +28,7 @@
         <Style Selector="Button.dialogButton">
             <Setter Property="Height" Value="32" />
             <Setter Property="MinWidth" Value="96" />
-            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="CornerRadius" Value="5" />
             <Setter Property="HorizontalContentAlignment" Value="Center" />
             <Setter Property="VerticalContentAlignment" Value="Center" />
             <Setter Property="Padding" Value="14,0" />

@@ -22,6 +22,31 @@
             <Setter Property="FontSize" Value="12" />
             <Setter Property="CornerRadius" Value="4" />
         </Style>
+        
+        <!-- Task Card Selection Styles -->
+        <Style Selector="ListBoxItem:selected Border.taskCard">
+            <Setter Property="BorderBrush" Value="{DynamicResource SystemAccentColorBrush}" />
+            <Setter Property="BorderThickness" Value="2" />
+        </Style>
+        
+        <Style Selector="ListBoxItem:not(:selected) Border.taskCard">
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="2" />
+        </Style>
+
+        <!-- Override default ListBoxItem selection styles to avoid blue background -->
+        <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+        <Style Selector="ListBoxItem:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+        <Style Selector="ListBoxItem:selected:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+        <Style Selector="ListBoxItem:selected:focus /template/ ContentPresenter">
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
     </UserControl.Styles>
 
     <Grid>
