@@ -10,6 +10,21 @@ namespace OpenDownloader.Generators;
 [Generator]
 public class ViewLocatorGenerator : IIncrementalGenerator
 {
+    private sealed class NamedTypeSymbolComparer : IEqualityComparer<INamedTypeSymbol>
+    {
+        public bool Equals(INamedTypeSymbol? x, INamedTypeSymbol? y)
+        {
+            return SymbolEqualityComparer.Default.Equals(x, y);
+        }
+
+        public int GetHashCode(INamedTypeSymbol obj)
+        {
+            return SymbolEqualityComparer.Default.GetHashCode(obj);
+        }
+    }
+
+    private static readonly IEqualityComparer<INamedTypeSymbol> TypeComparer = new NamedTypeSymbolComparer();
+
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         // 1. Find all classes ending with "ViewModel"
@@ -65,27 +80,37 @@ public class ViewLocatorGenerator : IIncrementalGenerator
         System.Collections.Immutable.ImmutableArray<INamedTypeSymbol?> viewModels, 
         System.Collections.Immutable.ImmutableArray<INamedTypeSymbol?> views)
     {
+        var uniqueViewModels = viewModels
+            .Where(vm => vm is not null)
+            .Select(vm => vm!)
+            .Distinct(TypeComparer)
+            .ToList();
+
+        var uniqueViews = views
+            .Where(v => v is not null)
+            .Select(v => v!)
+            .Distinct(TypeComparer)
+            .ToList();
+
         var mappings = new List<(INamedTypeSymbol ViewModel, INamedTypeSymbol View)>();
 
-        foreach (var vm in viewModels)
+        foreach (var vm in uniqueViewModels)
         {
-            if (vm == null) continue;
-            
             var vmName = vm.Name;
             var coreName = vmName.Substring(0, vmName.Length - "ViewModel".Length);
             
             // Try finding exact match for coreName (e.g. MainWindow)
-            var view = views.FirstOrDefault(v => v != null && v.Name == coreName);
+            var view = uniqueViews.FirstOrDefault(v => v.Name == coreName);
             
             // If not found, try coreName + "View"
             if (view == null)
             {
-                view = views.FirstOrDefault(v => v != null && v.Name == coreName + "View");
+                view = uniqueViews.FirstOrDefault(v => v.Name == coreName + "View");
             }
 
             if (view != null)
             {
-                mappings.Add((vm, view!));
+                mappings.Add((vm, view));
             }
         }
 

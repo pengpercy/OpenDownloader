@@ -4,12 +4,13 @@
         <TargetFramework>net10.0</TargetFramework>
         <Nullable>enable</Nullable>
         <SuppressTrimAnalysisWarnings>false</SuppressTrimAnalysisWarnings>
+        <TreatAsLocalProperty>PublishAot;DisableAOT</TreatAsLocalProperty>
         <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
         <EnableRequestDelegateGenerator>true</EnableRequestDelegateGenerator>
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
         <ApplicationIcon>Assets/app_ico.ico</ApplicationIcon>
-        <Version>1.0.28</Version>
+        <Version>1.0.29</Version>
         <InformationalVersion>$(Version)</InformationalVersion>
     </PropertyGroup>
 
@@ -20,8 +21,8 @@
         <JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
     </PropertyGroup>
 
-    <!-- Release配置：保持原有AOT优化 -->
-    <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <!-- Release配置：AOT 优化（可通过 -p:DisableAOT=true 关闭） -->
+    <PropertyGroup Condition="'$(Configuration)' == 'Release' and '$(DisableAOT)' != 'true'">
         <!--AOT相关配置-->
         <PublishAot>true</PublishAot>
         <TrimMode>full</TrimMode>
@@ -34,7 +35,7 @@
         <IlcGenerateStackTraceData>false</IlcGenerateStackTraceData>
         <IlcOptimizationPreference>Size</IlcOptimizationPreference>
         <IlcFoldIdenticalMethodBodies>true</IlcFoldIdenticalMethodBodies>
-        <JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
+        <JsonSerializerIsReflectionEnabledByDefault>false</JsonSerializerIsReflectionEnabledByDefault>
         <StripSymbols>true</StripSymbols>
         <OptimizationPreference>Size</OptimizationPreference>
         <TieredCompilation>false</TieredCompilation>
@@ -55,6 +56,10 @@
     <ItemGroup>
         <TrimmerRootDescriptor Include="Roots.xml" />
     </ItemGroup>
+
+    <PropertyGroup>
+        <UsedAvaloniaProducts></UsedAvaloniaProducts>
+    </PropertyGroup>
 
     <ItemGroup>
         <Folder Include="Models\" />
@@ -81,6 +86,10 @@
     </ItemGroup>
 
   <ItemGroup>
-    <!-- <ProjectReference Include="..\OpenDownloader.Generators\OpenDownloader.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" /> -->
+    <ProjectReference Include="..\OpenDownloader.Generators\OpenDownloader.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <TrimmerRootAssembly Include="Avalonia.Themes.Fluent" />
   </ItemGroup>
 </Project>

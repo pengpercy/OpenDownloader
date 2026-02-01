@@ -6,7 +6,12 @@ namespace OpenDownloader.Views;
 
 public partial class AddTaskWindow : Window
 {
-    private readonly MainWindowViewModel _viewModel;
+    private readonly MainWindowViewModel? _viewModel;
+
+    public AddTaskWindow()
+    {
+        InitializeComponent();
+    }
 
     public AddTaskWindow(MainWindowViewModel viewModel)
     {
@@ -23,7 +28,7 @@ public partial class AddTaskWindow : Window
     private void OnDownloadClick(object sender, RoutedEventArgs e)
     {
         // Execute the view model command
-        if (_viewModel.StartDownloadCommand.CanExecute(null))
+        if (_viewModel != null && _viewModel.StartDownloadCommand.CanExecute(null))
         {
             _viewModel.StartDownloadCommand.Execute(null);
             Close();

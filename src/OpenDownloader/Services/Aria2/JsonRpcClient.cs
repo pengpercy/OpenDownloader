@@ -36,33 +36,33 @@ public class JsonRpcClient
         var paramArray = new JsonArray();
         if (!string.IsNullOrEmpty(_secret))
         {
-            paramArray.Add($"token:{_secret}");
+            paramArray.Add((JsonNode?)JsonValue.Create($"token:{_secret}"));
         }
         
         if (args != null)
         {
             foreach (var arg in args)
             {
-                if (arg == null) paramArray.Add(null);
-                else if (arg is string s) paramArray.Add(s);
-                else if (arg is int i) paramArray.Add(i);
+                if (arg == null) paramArray.Add((JsonNode?)null);
+                else if (arg is string s) paramArray.Add((JsonNode?)JsonValue.Create(s));
+                else if (arg is int i) paramArray.Add((JsonNode?)JsonValue.Create(i));
                 else if (arg is string[] sa) 
                 {
                     var arr = new JsonArray();
-                    foreach(var item in sa) arr.Add(item);
-                    paramArray.Add(arr);
+                    foreach(var item in sa) arr.Add((JsonNode?)JsonValue.Create(item));
+                    paramArray.Add((JsonNode)arr);
                 }
                 else if (arg is IEnumerable<string> es)
                 {
                     var arr = new JsonArray();
-                    foreach(var item in es) arr.Add(item);
-                    paramArray.Add(arr);
+                    foreach(var item in es) arr.Add((JsonNode?)JsonValue.Create(item));
+                    paramArray.Add((JsonNode)arr);
                 }
                 else if (arg is Dictionary<string, string> dict)
                 {
                     var obj = new JsonObject();
-                    foreach(var kvp in dict) obj.Add(kvp.Key, kvp.Value);
-                    paramArray.Add(obj);
+                    foreach(var kvp in dict) obj[kvp.Key] = JsonValue.Create(kvp.Value);
+                    paramArray.Add((JsonNode)obj);
                 }
                 else
                 {

@@ -39,7 +39,7 @@ jobs:
           ln -fs /usr/share/zoneinfo/Etc/UTC /etc/localtime
           apt-get update
           apt-get install -y sudo
-          sudo apt-get install -y curl wget git unzip zip libicu66 tzdata clang
+          sudo apt-get install -y curl wget git unzip zip libicu66 tzdata clang lld zlib1g-dev libssl-dev
       - name: Checkout sources
         uses: actions/checkout@v4
       - name: Setup .NET
@@ -61,12 +61,12 @@ jobs:
         if: matrix.runtime == 'linux-arm64'
         run: |
           sudo apt-get update
-          sudo apt-get install -y llvm gcc-aarch64-linux-gnu
+          sudo apt-get install -y llvm gcc-aarch64-linux-gnu libc6-dev-arm64-cross
       - name: Build
         run: dotnet build -c Release
       - name: Publish
         run: |
-          dotnet publish src/OpenDownloader/OpenDownloader.csproj -c Release -o publish -r ${{ matrix.runtime }} --self-contained -p:PublishSingleFile=true -p:PublishAot=${{ startsWith(matrix.runtime, 'win-') }}
+          dotnet publish src/OpenDownloader/OpenDownloader.csproj -c Release -o publish -r ${{ matrix.runtime }} --self-contained -p:PublishSingleFile=true -p:EnableCompressionInSingleFile=true
 
       - name: Tar artifact
         if: startsWith(matrix.runtime, 'linux-') || startsWith(matrix.runtime, 'osx-')
