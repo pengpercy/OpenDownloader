@@ -19,22 +19,8 @@
 
     <Border Classes="dialogRoot">
         <Grid RowDefinitions="Auto, Auto, Auto" Margin="24">
-            <!-- Header -->
-            <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Margin="0,0,0,20">
-                <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
-                    <PathIcon Data="{StaticResource IconInfo}" Width="20" Height="20" 
-                              Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}" />
-                    <TextBlock Text="{DynamicResource MenuDetails}" FontWeight="SemiBold" FontSize="18" 
-                               Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}"/>
-                </StackPanel>
-                <Button Grid.Column="1" Click="OnCloseClick" Theme="{StaticResource TransparentButton}" 
-                        Padding="8" CornerRadius="4">
-                    <PathIcon Data="{StaticResource IconCancel}" Width="12" Height="12" Opacity="0.6"/>
-                </Button>
-            </Grid>
-
             <!-- Content -->
-            <StackPanel Grid.Row="1" Spacing="16">
+            <StackPanel Grid.Row="0" Spacing="16">
                 <!-- File Name -->
                 <StackPanel Spacing="4">
                     <TextBlock Text="{DynamicResource LabelFileName}" FontSize="12" Opacity="0.6"/>
@@ -115,7 +101,7 @@
             </StackPanel>
 
             <!-- Footer -->
-            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10" Margin="0,24,0,0">
+            <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10" Margin="0,24,0,0">
                 <Button Content="{DynamicResource ButtonClose}" Click="OnCloseClick" 
                         Classes="dialogButton accent"/>
             </StackPanel>

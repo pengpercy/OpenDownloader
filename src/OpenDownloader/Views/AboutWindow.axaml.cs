@@ -15,11 +15,6 @@ public partial class AboutWindow : Window
         InitializeComponent();
     }
 
-    private void OnCloseClick(object sender, RoutedEventArgs e)
-    {
-        Close();
-    }
-
     private void OnRepoLinkClick(object sender, RoutedEventArgs e)
     {
         OpenUrl(RepoUrl);

@@ -10,25 +10,18 @@
         >
 
     <Border Classes="dialogRoot">
-        <Grid RowDefinitions="Auto, Auto, Auto, Auto" Margin="24">
-            <!-- Title -->
-            <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="10" Margin="0,0,0,16">
-                <PathIcon Data="{StaticResource IconTrash}" Width="20" Height="20" Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}" />
-                <TextBlock Text="{DynamicResource MenuDelete}" FontWeight="SemiBold" FontSize="18" VerticalAlignment="Center"
-                           Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}"/>
-            </StackPanel>
-
+        <Grid RowDefinitions="Auto, Auto, Auto" Margin="24">
             <!-- Message -->
-            <TextBlock Grid.Row="1" x:Name="MessageText" TextWrapping="Wrap" Margin="0,0,0,20"
+            <TextBlock Grid.Row="0" x:Name="MessageText" TextWrapping="Wrap" Margin="0,0,0,20"
                        VerticalAlignment="Top" FontSize="14" LineHeight="20"
                        Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}"/>
 
             <!-- Checkbox -->
-            <CheckBox Grid.Row="2" x:Name="DeleteFileCheckBox" Content="{DynamicResource LabelDeleteFile}" 
+            <CheckBox Grid.Row="1" x:Name="DeleteFileCheckBox" Content="{DynamicResource LabelDeleteFile}" 
                       Margin="0,0,0,24" FontSize="13"/>
 
             <!-- Buttons -->
-            <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="12">
+            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="12">
                 <Button Classes="dialogButton" Content="{DynamicResource ButtonCancel}" Click="OnCancelClick"/>
                 <Button Classes="dialogButton accent" Content="{DynamicResource ButtonConfirm}" Click="OnConfirmClick"/>
             </StackPanel>

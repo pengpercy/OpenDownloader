@@ -49,15 +49,15 @@
 
             <!-- Buttons: Initial State -->
             <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="12" IsVisible="{Binding !IsDownloading}">
-                <Button Classes="dialogButton" Content="{DynamicResource ButtonLater}" Click="OnLaterClick"/>
-                <Button Content="{DynamicResource ButtonUpdateNow}" Click="OnUpdateClick" 
+                <Button Classes="dialogButton" Content="{DynamicResource ButtonLater}" Click="OnLaterClick" IsCancel="True"/>
+                <Button Content="{DynamicResource ButtonUpdateNow}" Click="OnUpdateClick" IsDefault="True"
                         Classes="dialogButton accent"/>
             </StackPanel>
 
             <!-- Buttons: Ready to Install State -->
             <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="12" IsVisible="{Binding IsReadyToInstall}">
-                <Button Classes="dialogButton" Content="{DynamicResource ButtonLater}" Click="OnLaterClick"/>
-                <Button Content="{DynamicResource ButtonInstallAndRelaunch}" Click="OnInstallClick" 
+                <Button Classes="dialogButton" Content="{DynamicResource ButtonLater}" Click="OnLaterClick" IsCancel="True"/>
+                <Button Content="{DynamicResource ButtonInstallAndRelaunch}" Click="OnInstallClick" IsDefault="True"
                         Classes="dialogButton accent"/>
             </StackPanel>
         </Grid>

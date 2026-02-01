@@ -12,20 +12,12 @@
         >
 
     <Border Classes="dialogRoot">
-        <Grid RowDefinitions="Auto, Auto, Auto, Auto" Margin="30">
-            <!-- Close Button -->
-            <Button Grid.Row="0" Click="OnCloseClick" 
-                    HorizontalAlignment="Right" VerticalAlignment="Top"
-                    Theme="{StaticResource TransparentButton}" 
-                    Padding="8" CornerRadius="4" Margin="0,-10,-10,0">
-                <PathIcon Data="{StaticResource IconCancel}" Width="12" Height="12" Opacity="0.6"/>
-            </Button>
-
+        <Grid RowDefinitions="Auto, Auto, Auto" Margin="30">
             <!-- Logo -->
-            <Image Grid.Row="1" Source="/Assets/app_ico.ico" Width="80" Height="80" Margin="0,0,0,20"/>
+            <Image Grid.Row="0" Source="/Assets/app_ico.ico" Width="80" Height="80" Margin="0,0,0,20"/>
 
             <!-- App Info -->
-            <StackPanel Grid.Row="2" Spacing="8" HorizontalAlignment="Center">
+            <StackPanel Grid.Row="1" Spacing="8" HorizontalAlignment="Center">
                 <TextBlock Text="OpenDownloader" FontWeight="Bold" FontSize="20" HorizontalAlignment="Center"/>
                 <StackPanel Orientation="Horizontal" Spacing="4" HorizontalAlignment="Center" Opacity="0.7">
                     <TextBlock Text="{DynamicResource LabelVersion}" FontSize="14"/>
@@ -44,7 +36,7 @@
             </StackPanel>
 
             <!-- Footer -->
-            <StackPanel Grid.Row="3" Spacing="10" Margin="0,30,0,0" HorizontalAlignment="Center">
+            <StackPanel Grid.Row="2" Spacing="10" Margin="0,30,0,0" HorizontalAlignment="Center">
                 <TextBlock Text="{DynamicResource LabelCopyright}" FontSize="12" Opacity="0.5" HorizontalAlignment="Center"/>
             </StackPanel>
         </Grid>

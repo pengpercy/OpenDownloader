@@ -16,21 +16,13 @@
 
         <Style Selector="Window.dialog">
             <Setter Property="WindowStartupLocation" Value="CenterOwner" />
-            <Setter Property="SystemDecorations" Value="BorderOnly" />
             <Setter Property="CanResize" Value="False" />
-            <Setter Property="ExtendClientAreaToDecorationsHint" Value="True" />
-            <Setter Property="ExtendClientAreaChromeHints" Value="NoChrome" />
-            <Setter Property="ExtendClientAreaTitleBarHeightHint" Value="-1" />
-            <Setter Property="TransparencyLevelHint" Value="AcrylicBlur" />
-            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}" />
+            <Setter Property="SizeToContent" Value="WidthAndHeight" />
+            <Setter Property="ShowInTaskbar" Value="False" />
         </Style>
 
         <Style Selector="Border.dialogRoot">
-            <Setter Property="CornerRadius" Value="12" />
             <Setter Property="Background" Value="{DynamicResource WorkspaceBackgroundBrush}" />
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="BorderBrush" Value="{DynamicResource SystemControlForegroundBaseLowBrush}" />
-            <Setter Property="BoxShadow" Value="0 8 30 0 #3A000000" />
         </Style>
 
         <Style Selector="Button.dialogButton">

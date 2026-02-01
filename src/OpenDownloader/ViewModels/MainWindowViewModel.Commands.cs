@@ -70,7 +70,12 @@ public partial class MainWindowViewModel
         {
             NewTaskSavePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
         }
-        IsAddTaskVisible = true;
+        
+        if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime { MainWindow: { } mainWindow })
+        {
+            var dialog = new AddTaskWindow(this);
+            dialog.ShowDialog(mainWindow);
+        }
     }
 
     [RelayCommand]
@@ -335,7 +340,7 @@ public partial class MainWindowViewModel
     }
 
     [RelayCommand]
-    private async Task DeleteSelectedTasks()
+    public async Task DeleteSelectedTasks()
     {
         if (SelectedTask != null)
         {
@@ -359,22 +364,20 @@ public partial class MainWindowViewModel
     {
         if (task == null) return;
 
-        switch (task.Status)
+        if (task.Status == "StatusDownloading" || task.Status == "StatusWaiting")
         {
-            case "StatusDownloading":
-            case "StatusWaiting":
-                await _aria2Service.PauseAsync(task.Id);
-                break;
-            case "StatusPaused":
-                await _aria2Service.UnpauseAsync(task.Id);
-                break;
+            await _aria2Service.PauseAsync(task.Id);
+        }
+        else if (task.Status == "StatusPaused")
+        {
+            await _aria2Service.UnpauseAsync(task.Id);
         }
 
         await RefreshTaskListAsync();
     }
 
     [RelayCommand]
-    private void ShowTaskDetails(DownloadTask? task)
+    public void ShowTaskDetails(DownloadTask? task)
     {
         if (task == null) return;
         if (Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime { MainWindow: { } mainWindow }) return;
@@ -383,7 +386,7 @@ public partial class MainWindowViewModel
     }
 
     [RelayCommand]
-    private Task OpenFolder(DownloadTask? task)
+    public Task OpenFolder(DownloadTask? task)
     {
         if (task == null || string.IsNullOrEmpty(task.FilePath)) return Task.CompletedTask;
 
@@ -416,7 +419,7 @@ public partial class MainWindowViewModel
     }
 
     [RelayCommand]
-    private async Task CopyLink(DownloadTask? task)
+    public async Task CopyLink(DownloadTask? task)
     {
         if (task == null || string.IsNullOrEmpty(task.Url)) return;
 
@@ -439,7 +442,7 @@ public partial class MainWindowViewModel
     }
 
     [RelayCommand]
-    private void ShowAbout()
+    public void ShowAbout()
     {
         if (Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime { MainWindow: { } mainWindow }) return;
         var dialog = new AboutWindow
@@ -450,7 +453,7 @@ public partial class MainWindowViewModel
     }
 
     [RelayCommand]
-    private void QuitApp()
+    public void QuitApp()
     {
         _ = ShutdownServicesAsync();
 

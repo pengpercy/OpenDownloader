@@ -304,7 +304,6 @@
             </SplitView.Content>
         </SplitView>
 
-        <!-- New Task Overlay -->
-        <views:AddTaskView />
+        <!-- New Task Overlay (Removed, using AddTaskWindow instead) -->
     </Panel>
 </Window>
