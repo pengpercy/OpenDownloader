@@ -126,49 +126,45 @@ public class Aria2Service : IAria2Service, IDisposable
         await Task.Delay(1000);
     }
 
-    public async Task ShutdownAsync()
+    public Task ShutdownAsync()
     {
         if (_rpcClient != null)
         {
-            try
-            {
-                var shutdownTask = _rpcClient.InvokeAsync<string>("shutdown");
-                await Task.WhenAny(shutdownTask, Task.Delay(1000)).ConfigureAwait(false);
-                if (shutdownTask.IsCompleted)
-                {
-                    await shutdownTask.ConfigureAwait(false);
-                }
-                else
-                {
-                    _ = shutdownTask.ContinueWith(t =>
-                    {
-                        if (t.Exception != null)
-                        {
-                            AppLog.Error(t.Exception, "Aria2 shutdown RPC failed in background");
-                        }
-                    }, TaskScheduler.Default);
-                }
-            }
-            catch (Exception ex)
-            {
-                AppLog.Error(ex, "Failed to shutdown aria2 via RPC");
-            }
+            var client = _rpcClient;
+            _rpcClient = null;
+            _ = TryShutdownRpcAsync(client);
         }
 
         if (_aria2Process != null && !_aria2Process.HasExited)
         {
-            _aria2Process.WaitForExit(1500);
-            if (!_aria2Process.HasExited)
+            try
+            {
+                _aria2Process.Kill(entireProcessTree: true);
+            }
+            catch
             {
                 try
                 {
-                    _aria2Process.Kill(entireProcessTree: true);
+                    _aria2Process.Kill();
                 }
                 catch
                 {
-                    _aria2Process.Kill();
                 }
             }
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private static async Task TryShutdownRpcAsync(JsonRpcClient client)
+    {
+        try
+        {
+            await client.InvokeAsync<string>("shutdown").ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            AppLog.Error(ex, "Failed to shutdown aria2 via RPC");
         }
     }
 

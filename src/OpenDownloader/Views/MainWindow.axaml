@@ -266,8 +266,6 @@
                                     <PathIcon Data="{StaticResource IconPause}" Width="16" Height="16"
                                               Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}" />
                                 </Button>
-                                <!-- <Rectangle Width="1" Height="16" -->
-                                <!--            Fill="{DynamicResource SystemControlHighlightBaseLowBrush}" Margin="4,0" /> -->
                                 <Button Command="{Binding DeleteSelectedTasksCommand}"
                                         Background="Transparent"
                                         BorderThickness="0"

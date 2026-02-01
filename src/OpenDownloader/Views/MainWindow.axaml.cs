@@ -26,4 +26,5 @@ public partial class MainWindow : Window
             BeginMoveDrag(e);
         }
     }
+
 }

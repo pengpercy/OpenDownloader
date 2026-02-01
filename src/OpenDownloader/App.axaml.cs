@@ -37,12 +37,12 @@ public partial class App : Application
 
             mainWindow.Closing += (_, _) =>
             {
-                viewModel.ShutdownServicesAsync().GetAwaiter().GetResult();
+                _ = viewModel.ShutdownServicesAsync();
             };
 
             desktop.Exit += (_, _) =>
             {
-                viewModel.ShutdownServicesAsync().GetAwaiter().GetResult();
+                _ = viewModel.ShutdownServicesAsync();
             };
 
             var updateChecked = false;

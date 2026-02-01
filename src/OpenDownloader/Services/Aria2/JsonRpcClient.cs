@@ -84,10 +84,10 @@ public class JsonRpcClient
 
         try
         {
-            var response = await _httpClient.PostAsync(_rpcUrl, content);
+            var response = await _httpClient.PostAsync(_rpcUrl, content).ConfigureAwait(false);
             response.EnsureSuccessStatusCode();
 
-            var responseJson = await response.Content.ReadAsStringAsync();
+            var responseJson = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
             using var doc = JsonDocument.Parse(responseJson);
             
             if (doc.RootElement.TryGetProperty("error", out var error))
