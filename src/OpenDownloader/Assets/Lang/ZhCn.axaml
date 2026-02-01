@@ -87,4 +87,9 @@
     <x:String x:Key="ButtonLater">稍后</x:String>
     <x:String x:Key="TitleUpdateCheck">检查更新</x:String>
     <x:String x:Key="MessageNoUpdates">当前已是最新版本。</x:String>
+    <x:String x:Key="UpdateStatusPreparing">准备中...</x:String>
+    <x:String x:Key="UpdateStatusDownloading">正在下载... {0}%</x:String>
+    <x:String x:Key="UpdateStatusApplying">正在应用更新...</x:String>
+    <x:String x:Key="UpdateStatusNoPackage">未找到适用于当前系统的安装包。</x:String>
+    <x:String x:Key="UpdateStatusFailed">更新失败。</x:String>
 </ResourceDictionary>

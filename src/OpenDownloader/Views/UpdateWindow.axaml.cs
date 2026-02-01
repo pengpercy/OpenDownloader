@@ -7,6 +7,8 @@ using System.Linq;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Avalonia;
+using System.Globalization;
 
 namespace OpenDownloader.Views;
 
@@ -65,7 +67,7 @@ public partial class UpdateViewModel : ObservableObject
         if (IsDownloading) return;
 
         IsDownloading = true;
-        StatusText = "Preparing...";
+        StatusText = GetString("UpdateStatusPreparing", "Preparing...");
         DownloadProgress = 0;
 
         var updateService = new UpdateService();
@@ -73,7 +75,7 @@ public partial class UpdateViewModel : ObservableObject
         if (asset is null)
         {
             IsDownloading = false;
-            StatusText = "No compatible update package found.";
+            StatusText = GetString("UpdateStatusNoPackage", "No compatible update package found.");
             return;
         }
 
@@ -85,13 +87,14 @@ public partial class UpdateViewModel : ObservableObject
         var progress = new Progress<double>(p =>
         {
             DownloadProgress = p;
-            StatusText = $"Downloading... {(int)(p * 100)}%";
+            var percent = (int)(p * 100);
+            StatusText = string.Format(CultureInfo.CurrentCulture, GetString("UpdateStatusDownloading", "Downloading... {0}%"), percent);
         });
 
         try
         {
             await updateService.DownloadUpdateAsync(asset.BrowserDownloadUrl, destPath, progress);
-            StatusText = "Applying update...";
+            StatusText = GetString("UpdateStatusApplying", "Applying update...");
 
             var applied = await UpdateApplier.TryApplyUpdateAsync(destPath, version);
             if (!applied)
@@ -108,7 +111,7 @@ public partial class UpdateViewModel : ObservableObject
         {
             Debug.WriteLine($"Download failed: {ex.Message}");
             IsDownloading = false;
-            StatusText = "Update failed.";
+            StatusText = GetString("UpdateStatusFailed", "Update failed.");
         }
     }
 
@@ -132,5 +135,14 @@ public partial class UpdateViewModel : ObservableObject
         catch
         {
         }
+    }
+
+    private static string GetString(string key, string fallback)
+    {
+        if (Application.Current != null && Application.Current.TryGetResource(key, null, out var resource) && resource is string str)
+        {
+            return str;
+        }
+        return fallback;
     }
 }

@@ -87,4 +87,9 @@
     <x:String x:Key="ButtonLater">Later</x:String>
     <x:String x:Key="TitleUpdateCheck">Update Check</x:String>
     <x:String x:Key="MessageNoUpdates">You're already on the latest version.</x:String>
+    <x:String x:Key="UpdateStatusPreparing">Preparing...</x:String>
+    <x:String x:Key="UpdateStatusDownloading">Downloading... {0}%</x:String>
+    <x:String x:Key="UpdateStatusApplying">Applying update...</x:String>
+    <x:String x:Key="UpdateStatusNoPackage">No compatible update package found.</x:String>
+    <x:String x:Key="UpdateStatusFailed">Update failed.</x:String>
 </ResourceDictionary>
