@@ -66,7 +66,7 @@ jobs:
         run: dotnet build -c Release
       - name: Publish
         run: |
-          dotnet publish src/OpenDownloader/OpenDownloader.csproj -c Release -o publish -r ${{ matrix.runtime }} --self-contained -p:PublishSingleFile=true -p:PublishAot=false
+          dotnet publish src/OpenDownloader/OpenDownloader.csproj -c Release -o publish -r ${{ matrix.runtime }} --self-contained -p:PublishSingleFile=true -p:PublishAot=${{ startsWith(matrix.runtime, 'win-') }}
 
       - name: Tar artifact
         if: startsWith(matrix.runtime, 'linux-') || startsWith(matrix.runtime, 'osx-')
