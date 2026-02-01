@@ -163,11 +163,9 @@
                                 Margin="12,2,12,12">
                             <Grid ColumnDefinitions="40, *">
                                 <PathIcon Grid.Column="0" Data="{StaticResource IconAdd}"
-                                          Foreground="{DynamicResource SystemControlForegroundAccentBrush}"
                                           VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,1,0,0" />
                                 <TextBlock Grid.Column="1" Text="{DynamicResource BtnNewTask}"
-                                           VerticalAlignment="Center" FontWeight="SemiBold"
-                                           Foreground="{DynamicResource SystemControlForegroundAccentBrush}"
+                                           VerticalAlignment="Center"
                                            IsVisible="{Binding IsPaneOpen}" />
                             </Grid>
                         </Button>

@@ -74,6 +74,7 @@
     <x:String x:Key="LabelSize">大小</x:String>
     <x:String x:Key="LabelSpeed">速度</x:String>
     <x:String x:Key="LabelConnections">连接数</x:String>
+    <x:String x:Key="LabelSplit">分片数</x:String>
     <x:String x:Key="LabelProgress">进度</x:String>
     <x:String x:Key="ButtonClose">关闭</x:String>
     <x:String x:Key="LabelVersion">版本</x:String>
@@ -94,4 +95,9 @@
     <x:String x:Key="UpdateStatusApplying">正在应用更新...</x:String>
     <x:String x:Key="UpdateStatusNoPackage">未找到适用于当前系统的安装包。</x:String>
     <x:String x:Key="UpdateStatusFailed">更新失败。</x:String>
+
+    <x:String x:Key="EmptyStateTitleNoTasks">还没有下载任务</x:String>
+    <x:String x:Key="EmptyStateSubtitleDownloading">点击左侧“新建任务”，或按 ⌘N 开始下载。</x:String>
+    <x:String x:Key="EmptyStateSubtitleWaiting">当前没有等待中的任务。</x:String>
+    <x:String x:Key="EmptyStateSubtitleStopped">当前没有已完成或已停止的任务。</x:String>
 </ResourceDictionary>

@@ -74,6 +74,7 @@
     <x:String x:Key="LabelSize">Size</x:String>
     <x:String x:Key="LabelSpeed">Speed</x:String>
     <x:String x:Key="LabelConnections">Connections</x:String>
+    <x:String x:Key="LabelSplit">Split</x:String>
     <x:String x:Key="LabelProgress">Progress</x:String>
     <x:String x:Key="ButtonClose">Close</x:String>
     <x:String x:Key="LabelVersion">Version</x:String>
@@ -94,4 +95,9 @@
     <x:String x:Key="UpdateStatusApplying">Applying update...</x:String>
     <x:String x:Key="UpdateStatusNoPackage">No compatible update package found.</x:String>
     <x:String x:Key="UpdateStatusFailed">Update failed.</x:String>
+
+    <x:String x:Key="EmptyStateTitleNoTasks">No tasks yet</x:String>
+    <x:String x:Key="EmptyStateSubtitleDownloading">Click “New Task” on the left, or press ⌘N to start.</x:String>
+    <x:String x:Key="EmptyStateSubtitleWaiting">There are no waiting tasks.</x:String>
+    <x:String x:Key="EmptyStateSubtitleStopped">There are no completed or stopped tasks.</x:String>
 </ResourceDictionary>

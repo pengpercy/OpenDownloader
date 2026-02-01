@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
@@ -56,7 +57,7 @@ public class JsonRpcClient
                 }
                 else
                 {
-                    System.Diagnostics.Debug.WriteLine($"Warning: Unknown arg type {arg.GetType()} in RPC call");
+                    Debug.WriteLine($"Warning: Unknown arg type {arg.GetType()} in RPC call");
                 }
             }
         }
@@ -94,23 +95,27 @@ public class JsonRpcClient
                     // string can be deserialized directly or just taken
                     return (T)(object)(result.GetString() ?? "");
                 }
-                else if (typeof(T) == typeof(List<Aria2TaskStatus>))
+
+                if (typeof(T) == typeof(List<Aria2TaskStatus>))
                 {
                     return (T)(object)JsonSerializer.Deserialize(result.GetRawText(), Aria2JsonContext.Default.ListAria2TaskStatus)!;
                 }
-                else
+
+                if (typeof(T) == typeof(Dictionary<string, string>))
                 {
-                     // Fallback for types not explicitly handled but registered?
-                     // But we only use these two.
-                     throw new NotSupportedException($"Type {typeof(T)} is not supported in AOT RPC client.");
+                    return (T)(object)JsonSerializer.Deserialize(result.GetRawText(), Aria2JsonContext.Default.DictionaryStringString)!;
                 }
+
+                // Fallback for types not explicitly handled but registered?
+                // But we only use these two.
+                throw new NotSupportedException($"Type {typeof(T)} is not supported in AOT RPC client.");
             }
 
             return default;
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"RPC Call Failed: {method} - {ex.Message}");
+            Debug.WriteLine($"RPC Call Failed: {method} - {ex.Message}");
             throw;
         }
     }

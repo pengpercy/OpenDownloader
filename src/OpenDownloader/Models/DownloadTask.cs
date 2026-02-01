@@ -1,5 +1,5 @@
-using CommunityToolkit.Mvvm.ComponentModel;
 using System;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace OpenDownloader.Models;
 
@@ -35,7 +35,10 @@ public partial class DownloadTask : ObservableObject
     private string _timeLeft = string.Empty;
 
     [ObservableProperty]
-    private int _connections = 0;
+    private int _connections;
+
+    [ObservableProperty]
+    private int _split = 1;
 
     [ObservableProperty]
     private string _url = string.Empty;
@@ -49,7 +52,7 @@ public partial class DownloadTask : ObservableObject
     {
         string[] suffixes = { "B", "KB", "MB", "GB", "TB" };
         int counter = 0;
-        double number = (double)bytes;
+        double number = bytes;
         while (Math.Abs(number) >= 1024 && counter < suffixes.Length - 1)
         {
             counter++;

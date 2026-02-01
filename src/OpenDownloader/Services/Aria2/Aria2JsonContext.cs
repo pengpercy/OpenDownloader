@@ -14,6 +14,7 @@ namespace OpenDownloader.Services.Aria2;
 [JsonSerializable(typeof(Aria2Uri))]
 [JsonSerializable(typeof(string))]
 [JsonSerializable(typeof(int))]
+[JsonSerializable(typeof(Dictionary<string, string>))]
 public partial class Aria2JsonContext : JsonSerializerContext
 {
 }

@@ -55,7 +55,7 @@
                 </StackPanel>
 
                 <!-- Stats Grid -->
-                <Grid ColumnDefinitions="*, *" RowDefinitions="Auto, Auto, Auto" Margin="0,4,0,0">
+                <Grid ColumnDefinitions="*, *" RowDefinitions="Auto, Auto, Auto, Auto" Margin="0,4,0,0">
                     <!-- Status -->
                     <StackPanel Grid.Row="0" Grid.Column="0" Spacing="4" Margin="0,0,0,16">
                         <TextBlock Text="{DynamicResource LabelStatus}" FontSize="12" Opacity="0.6"/>
@@ -78,14 +78,26 @@
                         <TextBlock Text="{Binding Speed}" FontSize="13"/>
                     </StackPanel>
 
-                    <!-- Connections -->
+                    <!-- Split -->
                     <StackPanel Grid.Row="1" Grid.Column="1" Spacing="4" Margin="0,0,0,16">
+                        <TextBlock Text="{DynamicResource LabelSplit}" FontSize="12" Opacity="0.6"/>
+                        <TextBlock Text="{Binding Split}" FontSize="13"/>
+                    </StackPanel>
+
+                    <!-- Time Left -->
+                    <StackPanel Grid.Row="2" Grid.Column="0" Spacing="4" Margin="0,0,0,16">
+                        <TextBlock Text="{DynamicResource LabelTimeRemaining}" FontSize="12" Opacity="0.6"/>
+                        <TextBlock Text="{Binding TimeLeft}" FontSize="13"/>
+                    </StackPanel>
+
+                    <!-- Connections -->
+                    <StackPanel Grid.Row="2" Grid.Column="1" Spacing="4" Margin="0,0,0,16">
                         <TextBlock Text="{DynamicResource LabelConnections}" FontSize="12" Opacity="0.6"/>
                         <TextBlock Text="{Binding Connections}" FontSize="13"/>
                     </StackPanel>
                     
                     <!-- GID -->
-                    <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Spacing="4">
+                    <StackPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Spacing="4">
                         <TextBlock Text="GID" FontSize="12" Opacity="0.6"/>
                         <SelectableTextBlock Text="{Binding Id}" FontSize="12" FontFamily="Consolas, Monospace" Opacity="0.8"/>
                     </StackPanel>

@@ -63,6 +63,10 @@
         <Style Selector="Button.linkButton TextBlock">
             <Setter Property="TextDecorations" Value="Underline" />
         </Style>
+
+        <Style Selector="TextBlock">
+            <Setter Property="TextWrapping" Value="WrapWithOverflow" />
+        </Style>
     </Application.Styles>
 
     <NativeMenu.Menu>

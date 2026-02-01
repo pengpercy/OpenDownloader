@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -18,6 +19,7 @@ public class Aria2Service : IAria2Service, IDisposable
     private const int RpcPort = 16800;
     private const string RpcSecret = "OpenDownloaderSecret"; // In prod, generate random or user config
     private string _configDir = string.Empty;
+    private readonly ConcurrentDictionary<string, int> _splitCache = new();
 
     public async Task InitializeAsync()
     {
@@ -39,7 +41,7 @@ public class Aria2Service : IAria2Service, IDisposable
         if (!File.Exists(binaryPath))
         {
             // Fallback or error
-            System.Diagnostics.Debug.WriteLine($"Aria2 binary not found at: {binaryPath}");
+            Debug.WriteLine($"Aria2 binary not found at: {binaryPath}");
             // Attempt to find in PATH if local binary missing?
             // For now, assume it exists as we packaged it.
         }
@@ -57,15 +59,15 @@ public class Aria2Service : IAria2Service, IDisposable
         // 3. Start Process
         var args = new List<string>
         {
-            $"--enable-rpc=true",
+            "--enable-rpc=true",
             $"--rpc-listen-port={RpcPort}",
             $"--rpc-secret={RpcSecret}",
-            $"--rpc-allow-origin-all=true",
-            $"--rpc-listen-all=true", // Listen on all interfaces if needed, usually localhost is fine but 'all' avoids binding issues sometimes
+            "--rpc-allow-origin-all=true",
+            "--rpc-listen-all=true", // Listen on all interfaces if needed, usually localhost is fine but 'all' avoids binding issues sometimes
             $"--save-session=\"{sessionFile}\"",
             $"--input-file=\"{sessionFile}\"",
             $"--log=\"{logFile}\"",
-            $"--log-level=warn",
+            "--log-level=warn",
             "--max-concurrent-downloads=5",
             "--max-connection-per-server=16",
             "--split=16",
@@ -89,11 +91,11 @@ public class Aria2Service : IAria2Service, IDisposable
             _aria2Process = new Process { StartInfo = startInfo };
             _aria2Process.Start();
             
-            System.Diagnostics.Debug.WriteLine($"Aria2 started. PID: {_aria2Process.Id}");
+            Debug.WriteLine($"Aria2 started. PID: {_aria2Process.Id}");
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Failed to start aria2: {ex.Message}");
+            Debug.WriteLine($"Failed to start aria2: {ex.Message}");
             throw;
         }
 
@@ -196,7 +198,11 @@ public class Aria2Service : IAria2Service, IDisposable
         }
 
         // Params: [ [urls], options ]
-        var gid = await _rpcClient.InvokeAsync<string>("addUri", new object[] { new[] { url }, options });
+        var gid = await _rpcClient.InvokeAsync<string>("addUri", new[] { url }, options);
+        if (!string.IsNullOrWhiteSpace(gid))
+        {
+            _splitCache[gid] = split;
+        }
         return gid ?? string.Empty;
     }
 
@@ -212,6 +218,12 @@ public class Aria2Service : IAria2Service, IDisposable
         var active = await _rpcClient.InvokeAsync<List<Aria2TaskStatus>>("tellActive");
         var waiting = await _rpcClient.InvokeAsync<List<Aria2TaskStatus>>("tellWaiting", 0, 100);
         var stopped = await _rpcClient.InvokeAsync<List<Aria2TaskStatus>>("tellStopped", 0, 100);
+
+        var gids = Enumerable.Empty<string>();
+        if (active != null) gids = gids.Concat(active.Select(s => s.Gid));
+        if (waiting != null) gids = gids.Concat(waiting.Select(s => s.Gid));
+        if (stopped != null) gids = gids.Concat(stopped.Select(s => s.Gid));
+        _ = WarmSplitCacheAsync(gids);
 
         if (active != null) tasks.AddRange(active.Select(MapToDownloadTask));
         if (waiting != null) tasks.AddRange(waiting.Select(MapToDownloadTask));
@@ -371,6 +383,12 @@ public class Aria2Service : IAria2Service, IDisposable
             connections = 1;
         }
 
+        var split = connections > 0 ? connections : 1;
+        if (_splitCache.TryGetValue(status.Gid, out var cachedSplit) && cachedSplit > 0)
+        {
+            split = cachedSplit;
+        }
+
         return new DownloadTask
         {
             Id = status.Gid,
@@ -382,9 +400,39 @@ public class Aria2Service : IAria2Service, IDisposable
             Status = taskStatus,
             TimeLeft = timeLeft,
             Connections = connections,
+            Split = split,
             FilePath = filePath,
             Url = url
         };
+    }
+
+    private async Task WarmSplitCacheAsync(IEnumerable<string> gids)
+    {
+        if (_rpcClient == null) return;
+
+        var unique = gids.Where(g => !string.IsNullOrWhiteSpace(g)).Distinct().ToList();
+        if (unique.Count == 0) return;
+
+        foreach (var gid in unique)
+        {
+            if (_splitCache.ContainsKey(gid)) continue;
+
+            try
+            {
+                var options = await _rpcClient.InvokeAsync<Dictionary<string, string>>("getOption", gid);
+                if (options != null && options.TryGetValue("split", out var splitStr) && int.TryParse(splitStr, out var split) && split > 0)
+                {
+                    _splitCache[gid] = split;
+                }
+                else
+                {
+                    _splitCache.TryAdd(gid, 1);
+                }
+            }
+            catch
+            {
+            }
+        }
     }
 
     private string FormatSpeed(long bytesPerSec)
