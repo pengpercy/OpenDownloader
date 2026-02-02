@@ -1,0 +1,263 @@
+<views:DialogWindow xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                    xmlns:views="using:OpenDownloader.Views"
+                    xmlns:vm="using:OpenDownloader.ViewModels"
+                    xmlns:localConv="using:OpenDownloader.Converters"
+                    mc:Ignorable="d" d:DesignWidth="920" d:DesignHeight="640"
+                    x:Class="OpenDownloader.Views.SettingsWindow"
+                    x:DataType="vm:MainWindowViewModel"
+                    Title="{DynamicResource MenuSettings}"
+                    Width="920" Height="640"
+                    MinWidth="760" MinHeight="520"
+                    CanResize="True"
+                    ShowInTaskbar="False"
+                    WindowStartupLocation="CenterOwner"
+                    ExtendClientAreaToDecorationsHint="True"
+                    ExtendClientAreaChromeHints="PreferSystemChrome"
+                    ExtendClientAreaTitleBarHeightHint="44"
+                    Background="{DynamicResource WorkspaceBackgroundBrush}">
+    <views:DialogWindow.Resources>
+        <localConv:ResourceKeyToTextConverter x:Key="ResourceKeyToTextConverter" />
+    </views:DialogWindow.Resources>
+
+    <views:DialogWindow.Styles>
+        <Style Selector="Button.settingsNav">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="Padding" Value="12,10" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        </Style>
+        <Style Selector="Button.settingsNav:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundBaseLowBrush}" />
+        </Style>
+        <Style Selector="Button.settingsNav.active /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundBaseLowBrush}" />
+        </Style>
+        <Style Selector="Button.settingsNav TextBlock">
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Opacity" Value="0.9" />
+        </Style>
+        <Style Selector="Button.settingsNav PathIcon">
+            <Setter Property="Width" Value="16" />
+            <Setter Property="Height" Value="16" />
+            <Setter Property="Opacity" Value="0.85" />
+            <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseHighBrush}" />
+        </Style>
+        <Style Selector="Button.settingsNav.active TextBlock">
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="{DynamicResource SystemAccentColorBrush}" />
+        </Style>
+        <Style Selector="Button.settingsNav.active PathIcon">
+            <Setter Property="Foreground" Value="{DynamicResource SystemAccentColorBrush}" />
+        </Style>
+
+        <Style Selector="Border.settingsCard">
+            <Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}" />
+            <Setter Property="CornerRadius" Value="10" />
+            <Setter Property="BoxShadow" Value="{DynamicResource CardShadow}" />
+            <Setter Property="Padding" Value="18" />
+        </Style>
+
+        <Style Selector="Border.settingsDivider">
+            <Setter Property="Height" Value="1" />
+            <Setter Property="Background" Value="{DynamicResource SystemControlHighlightBaseLowBrush}" />
+            <Setter Property="Opacity" Value="0.35" />
+            <Setter Property="Margin" Value="0,14" />
+        </Style>
+    </views:DialogWindow.Styles>
+
+    <Grid ColumnDefinitions="240, 1, *">
+        <Border Grid.Column="1" Background="{DynamicResource SystemControlHighlightBaseLowBrush}" Opacity="0.55" />
+
+        <Grid Grid.Column="0" RowDefinitions="44, *" Background="{DynamicResource WorkspaceBackgroundBrush}">
+            <TextBlock Grid.Row="0"
+                       Text="{DynamicResource MenuSettings}"
+                       VerticalAlignment="Center"
+                       Margin="16,0,0,0"
+                       FontSize="14"
+                       FontWeight="SemiBold"
+                       Opacity="0.85" />
+
+            <StackPanel Grid.Row="1" Margin="10,10,10,12" Spacing="6">
+                <Button Classes="settingsNav" Classes.active="{Binding IsSettingsGeneral}"
+                        Command="{Binding SelectSettingsSectionCommand}"
+                        CommandParameter="{x:Static vm:SettingsSection.General}">
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <PathIcon Data="{StaticResource IconSettings}" />
+                        <TextBlock Text="{DynamicResource SettingsGeneral}" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+
+                <Button Classes="settingsNav" Classes.active="{Binding IsSettingsAppearance}"
+                        Command="{Binding SelectSettingsSectionCommand}"
+                        CommandParameter="{x:Static vm:SettingsSection.Appearance}">
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <PathIcon Data="{StaticResource IconAppearance}" />
+                        <TextBlock Text="{DynamicResource SettingsAppearance}" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+
+                <Button Classes="settingsNav" Classes.active="{Binding IsSettingsNetwork}"
+                        Command="{Binding SelectSettingsSectionCommand}"
+                        CommandParameter="{x:Static vm:SettingsSection.Network}">
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <PathIcon Data="{StaticResource IconNetwork}" />
+                        <TextBlock Text="{DynamicResource SettingsNetwork}" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+
+                <Button Classes="settingsNav" Classes.active="{Binding IsSettingsAdvanced}"
+                        Command="{Binding SelectSettingsSectionCommand}"
+                        CommandParameter="{x:Static vm:SettingsSection.Advanced}">
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <PathIcon Data="{StaticResource IconAdvanced}" />
+                        <TextBlock Text="{DynamicResource SettingsAdvanced}" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+
+                <Button Classes="settingsNav" Classes.active="{Binding IsSettingsAbout}"
+                        Command="{Binding SelectSettingsSectionCommand}"
+                        CommandParameter="{x:Static vm:SettingsSection.About}">
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <PathIcon Data="{StaticResource IconInfo}" />
+                        <TextBlock Text="{DynamicResource SettingsAbout}" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </Grid>
+
+        <Grid Grid.Column="2" RowDefinitions="Auto, *" Margin="24,18,24,24">
+            <TextBlock Grid.Row="0"
+                       Text="{Binding CurrentSettingsTitleKey, Converter={StaticResource ResourceKeyToTextConverter}}"
+                       FontSize="22"
+                       FontWeight="SemiBold" />
+
+            <ScrollViewer Grid.Row="1" Margin="0,16,0,0" VerticalScrollBarVisibility="Auto">
+                <StackPanel Spacing="14">
+                    <Border Classes="settingsCard" IsVisible="{Binding IsSettingsGeneral}">
+                        <StackPanel Spacing="14">
+                            <TextBlock Text="{DynamicResource SettingsGeneral}" FontSize="14" FontWeight="SemiBold" Opacity="0.85"/>
+
+                            <Border Classes="settingsDivider"/>
+
+                            <Grid ColumnDefinitions="220, *" RowDefinitions="Auto, Auto" RowSpacing="10">
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="{DynamicResource LabelLanguage}" VerticalAlignment="Center" Opacity="0.85"/>
+                                <ComboBox Grid.Row="0" Grid.Column="1" ItemsSource="{Binding LanguageOptions}" SelectedItem="{Binding SelectedLanguage}" HorizontalAlignment="Stretch">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Key, Converter={StaticResource ResourceKeyToTextConverter}}"/>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="{DynamicResource LabelAutoStart}" VerticalAlignment="Center" Opacity="0.85"/>
+                                <ToggleSwitch Grid.Row="1" Grid.Column="1" IsChecked="{Binding IsAutoStartEnabled}" HorizontalAlignment="Left"/>
+                            </Grid>
+
+                            <Border Classes="settingsDivider"/>
+
+                            <Grid ColumnDefinitions="220, *, Auto" RowDefinitions="Auto" ColumnSpacing="10">
+                                <TextBlock Grid.Column="0" Text="{DynamicResource LabelDefaultSavePath}" VerticalAlignment="Center" Opacity="0.85"/>
+                                <TextBox Grid.Column="1" Text="{Binding DefaultSavePath}" IsReadOnly="True"/>
+                                <Button Grid.Column="2" Command="{Binding ChooseDefaultSavePathCommand}" Padding="12,6">
+                                    <TextBlock Text="{DynamicResource BtnBrowse}"/>
+                                </Button>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Classes="settingsCard" IsVisible="{Binding IsSettingsAppearance}">
+                        <StackPanel Spacing="14">
+                            <TextBlock Text="{DynamicResource SettingsAppearance}" FontSize="14" FontWeight="SemiBold" Opacity="0.85"/>
+
+                            <Border Classes="settingsDivider"/>
+
+                            <Grid ColumnDefinitions="220, *" RowDefinitions="Auto, Auto" RowSpacing="10">
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="{DynamicResource LabelTheme}" VerticalAlignment="Center" Opacity="0.85"/>
+                                <ComboBox Grid.Row="0" Grid.Column="1" ItemsSource="{Binding ThemeOptions}" SelectedItem="{Binding SelectedTheme}" HorizontalAlignment="Stretch">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Key, Converter={StaticResource ResourceKeyToTextConverter}}"/>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="{DynamicResource LabelAccentColor}" VerticalAlignment="Center" Opacity="0.85"/>
+                                <ToggleSwitch Grid.Row="1" Grid.Column="1" IsChecked="{Binding IsAccentFollowSystem}" Content="{DynamicResource LabelFollowSystem}" />
+                            </Grid>
+
+                            <StackPanel Spacing="10" IsVisible="{Binding !IsAccentFollowSystem}">
+                                <Border Classes="settingsDivider" Margin="0,6"/>
+                                <Grid ColumnDefinitions="220, *, Auto" ColumnSpacing="10">
+                                    <TextBlock Grid.Column="0" Text="{DynamicResource LabelCustomAccent}" VerticalAlignment="Center" Opacity="0.85"/>
+                                    <TextBox Grid.Column="1" Text="{Binding CustomAccentColorHex}" Watermark="#RRGGBB"/>
+                                    <Border Grid.Column="2" Width="28" Height="28" CornerRadius="6" Background="{Binding CustomAccentPreviewBrush}" />
+                                </Grid>
+                                <Grid ColumnDefinitions="220, *, *, *" ColumnSpacing="10" RowDefinitions="Auto">
+                                    <TextBlock Grid.Column="0" Text="{DynamicResource LabelRgb}" VerticalAlignment="Center" Opacity="0.85"/>
+                                    <NumericUpDown Grid.Column="1" Minimum="0" Maximum="255" Value="{Binding CustomAccentR}" />
+                                    <NumericUpDown Grid.Column="2" Minimum="0" Maximum="255" Value="{Binding CustomAccentG}" />
+                                    <NumericUpDown Grid.Column="3" Minimum="0" Maximum="255" Value="{Binding CustomAccentB}" />
+                                </Grid>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Classes="settingsCard" IsVisible="{Binding IsSettingsNetwork}">
+                        <StackPanel Spacing="14">
+                            <TextBlock Text="{DynamicResource SettingsNetwork}" FontSize="14" FontWeight="SemiBold" Opacity="0.85"/>
+                            <Border Classes="settingsDivider"/>
+
+                            <Grid ColumnDefinitions="220, 120, 10, *, 10, 120" RowDefinitions="Auto, Auto, Auto" RowSpacing="10">
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="{DynamicResource LabelProxy}" VerticalAlignment="Center" Opacity="0.85"/>
+                                <ComboBox Grid.Row="0" Grid.Column="1" ItemsSource="{Binding ProxyTypes}" SelectedIndex="{Binding ProxyTypeIndex}" HorizontalAlignment="Stretch"/>
+                                <TextBox Grid.Row="0" Grid.Column="3" Text="{Binding ProxyAddress}" Watermark="127.0.0.1"/>
+                                <TextBox Grid.Row="0" Grid.Column="5" Text="{Binding ProxyPort}"/>
+
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="{DynamicResource LabelProxyUsername}" VerticalAlignment="Center" Opacity="0.85"/>
+                                <TextBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="5" Text="{Binding ProxyUsername}" />
+
+                                <TextBlock Grid.Row="2" Grid.Column="0" Text="{DynamicResource LabelProxyPassword}" VerticalAlignment="Center" Opacity="0.85"/>
+                                <TextBox Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="5" Text="{Binding ProxyPassword}" PasswordChar="•" />
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Classes="settingsCard" IsVisible="{Binding IsSettingsAdvanced}">
+                        <StackPanel Spacing="14">
+                            <TextBlock Text="{DynamicResource SettingsAdvanced}" FontSize="14" FontWeight="SemiBold" Opacity="0.85"/>
+                            <Border Classes="settingsDivider"/>
+                            <TextBlock Text="{DynamicResource SettingsAdvancedDesc}" Opacity="0.75" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Classes="settingsCard" IsVisible="{Binding IsSettingsAbout}">
+                        <StackPanel Spacing="14">
+                            <TextBlock Text="{DynamicResource SettingsAbout}" FontSize="14" FontWeight="SemiBold" Opacity="0.85"/>
+                            <Border Classes="settingsDivider"/>
+                            <StackPanel Orientation="Horizontal" Spacing="16">
+                                <Image Source="/Assets/app_ico.ico" Width="64" Height="64" VerticalAlignment="Top"/>
+                                <StackPanel Spacing="6">
+                                    <TextBlock Text="OpenDownloader" FontWeight="Bold" FontSize="18"/>
+                                    <StackPanel Orientation="Horizontal" Spacing="5" Opacity="0.7">
+                                        <TextBlock Text="{DynamicResource LabelVersion}"/>
+                                        <TextBlock Text="{Binding AppVersion}"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,4,0,0">
+                                        <PathIcon Data="{StaticResource IconGitHub}" Width="16" Height="16" Opacity="0.75"/>
+                                        <Button Classes="linkButton" Command="{Binding OpenRepoUrlCommand}">
+                                            <TextBlock Text="{Binding RepositoryUrl}" FontSize="12"/>
+                                        </Button>
+                                    </StackPanel>
+                                </StackPanel>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</views:DialogWindow>
