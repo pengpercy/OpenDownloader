@@ -50,11 +50,16 @@
     </UserControl.Styles>
 
     <Grid>
-        <ListBox ItemsSource="{Binding Tasks}"
-                 SelectedItem="{Binding SelectedTask}"
-                 Margin="20,10,20,20"
-                 Background="Transparent"
-                 IsVisible="{Binding Tasks.Count, Converter={StaticResource CollectionIsEmptyConverter}, ConverterParameter=not}">
+        <ListBox x:Name="TasksListBox"
+                  ItemsSource="{Binding Tasks}"
+                  SelectedItem="{Binding SelectedTask}"
+                  Margin="20,10,20,20"
+                  Background="Transparent"
+                   SelectionMode="Multiple"
+                   PointerPressed="OnPointerPressed"
+                   KeyDown="OnKeyDown"
+                  SelectionChanged="OnSelectionChanged"
+                  IsVisible="{Binding Tasks.Count, Converter={StaticResource CollectionIsEmptyConverter}, ConverterParameter=not}">
             <ListBox.ItemTemplate>
                 <DataTemplate DataType="models:DownloadTask">
                     <!-- Use CardBackgroundBrush for high contrast card effect -->

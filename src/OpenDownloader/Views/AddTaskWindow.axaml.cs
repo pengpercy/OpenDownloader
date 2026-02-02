@@ -1,10 +1,9 @@
-using Avalonia.Controls;
 using Avalonia.Interactivity;
 using OpenDownloader.ViewModels;
 
 namespace OpenDownloader.Views;
 
-public partial class AddTaskWindow : Window
+public partial class AddTaskWindow : DialogWindow
 {
     private readonly MainWindowViewModel? _viewModel;
 

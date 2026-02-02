@@ -1,9 +1,9 @@
-using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 
 namespace OpenDownloader.Views;
 
-public partial class ConfirmDeleteDialog : Window
+public partial class ConfirmDeleteDialog : DialogWindow
 {
     public bool DeleteFile => DeleteFileCheckBox.IsChecked ?? false;
 
@@ -57,7 +57,9 @@ public partial class ConfirmDeleteDialog : Window
 
     private string GetString(string key)
     {
-        if (Avalonia.Application.Current != null && Avalonia.Application.Current.TryFindResource(key, out var resource) && resource is string str)
+        if (Avalonia.Application.Current != null &&
+            Avalonia.Application.Current.TryGetResource(key, null, out var resource) &&
+            resource is string str)
         {
             return str;
         }

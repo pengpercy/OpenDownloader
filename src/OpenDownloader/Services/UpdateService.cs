@@ -85,8 +85,8 @@ public class UpdateService
         var totalBytes = response.Content.Headers.ContentLength ?? -1L;
         var canReportProgress = totalBytes != -1;
 
-        using var stream = await response.Content.ReadAsStreamAsync();
-        using var fileStream = new FileStream(destinationPath, FileMode.Create, FileAccess.Write, FileShare.None);
+        await using var stream = await response.Content.ReadAsStreamAsync();
+        await using var fileStream = new FileStream(destinationPath, FileMode.Create, FileAccess.Write, FileShare.None);
 
         var buffer = new byte[8192];
         long totalRead = 0;

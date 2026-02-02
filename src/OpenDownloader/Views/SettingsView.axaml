@@ -62,6 +62,10 @@
                         </ComboBox>
                     </StackPanel>
 
+                    <StackPanel Spacing="8" Margin="0,5,0,0">
+                         <CheckBox IsChecked="{Binding IsAutoStartEnabled}" Content="{DynamicResource LabelAutoStart}" />
+                    </StackPanel>
+
                     <StackPanel Spacing="8">
                         <TextBlock Text="{DynamicResource LabelDefaultSavePath}" FontWeight="Medium"/>
                         <Grid ColumnDefinitions="*, Auto">

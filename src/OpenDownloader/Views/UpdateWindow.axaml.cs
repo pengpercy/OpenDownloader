@@ -12,7 +12,7 @@ using System.Globalization;
 
 namespace OpenDownloader.Views;
 
-public partial class UpdateWindow : Window
+public partial class UpdateWindow : DialogWindow
 {
     private readonly UpdateViewModel _viewModel;
 

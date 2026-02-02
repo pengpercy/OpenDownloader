@@ -11,6 +11,7 @@ public interface IAria2Service
     
     // Core RPC methods
     Task<string> AddUriAsync(string url, string filename, string savePath, int split = 4);
+    Task ApplyProxyAsync(string proxyType, string proxyAddress, int proxyPort, string proxyUsername, string proxyPassword);
     Task<List<DownloadTask>> GetGlobalStatusAsync();
     Task PauseAsync(string gid);
     Task PauseAllAsync();

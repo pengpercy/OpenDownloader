@@ -1,9 +1,8 @@
-using Avalonia.Controls;
 using Avalonia.Interactivity;
 
 namespace OpenDownloader.Views;
 
-public partial class InfoDialog : Window
+public partial class InfoDialog : DialogWindow
 {
     public InfoDialog()
     {
@@ -21,4 +20,3 @@ public partial class InfoDialog : Window
         Close();
     }
 }
-

@@ -1,5 +1,9 @@
+using System;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
+using OpenDownloader.Helpers;
+using OpenDownloader.ViewModels;
 
 namespace OpenDownloader.Views;
 
@@ -8,6 +12,15 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        Opened += (_, _) => UpdateMacTitleBarInsets();
+        ScalingChanged += (_, _) => UpdateMacTitleBarInsets();
+        PropertyChanged += (_, e) =>
+        {
+            if (e.Property == WindowStateProperty)
+            {
+                UpdateMacTitleBarInsets();
+            }
+        };
     }
 
     private void Sidebar_PointerPressed(object? sender, PointerPressedEventArgs e)
@@ -25,6 +38,26 @@ public partial class MainWindow : Window
         {
             BeginMoveDrag(e);
         }
+    }
+
+    private void UpdateMacTitleBarInsets()
+    {
+        if (DataContext is not MainWindowViewModel vm) return;
+        if (!vm.IsMacLikeLayout) return;
+
+        var titleBarHeight = ExtendClientAreaTitleBarHeightHint > 0 ? ExtendClientAreaTitleBarHeightHint : 44d;
+
+        var trafficLightsRight = 60d;
+        if (vm.IsMacOS)
+        {
+            var handle = TryGetPlatformHandle()?.Handle ?? IntPtr.Zero;
+            if (MacTitleBarInsets.TryGetTrafficLightsRight(handle, out var right))
+            {
+                trafficLightsRight = right;
+            }
+        }
+
+        vm.UpdateMacTitleBarInsets(trafficLightsRight, titleBarHeight);
     }
 
 }

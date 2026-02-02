@@ -1,8 +1,10 @@
-<Window xmlns="https://github.com/avaloniaui"
+<views:DialogWindow xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="using:OpenDownloader.ViewModels"
+        xmlns:views="using:OpenDownloader.Views"
+        xmlns:controls="using:OpenDownloader.Controls"
         mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="300"
         x:Class="OpenDownloader.Views.AboutWindow"
         x:DataType="vm:MainWindowViewModel"
@@ -11,8 +13,8 @@
         Width="400" SizeToContent="Height"
         >
 
-    <Border Classes="dialogRoot">
-        <Grid RowDefinitions="Auto, Auto, Auto" Margin="30">
+    <controls:DialogHost Title="{Binding $parent[Window].Title}">
+        <Grid RowDefinitions="Auto, Auto, Auto" Margin="6">
             <!-- Logo -->
             <Image Grid.Row="0" Source="/Assets/app_ico.ico" Width="80" Height="80" Margin="0,0,0,20"/>
 
@@ -40,5 +42,5 @@
                 <TextBlock Text="{DynamicResource LabelCopyright}" FontSize="12" Opacity="0.5" HorizontalAlignment="Center"/>
             </StackPanel>
         </Grid>
-    </Border>
-</Window>
+    </controls:DialogHost>
+</views:DialogWindow>

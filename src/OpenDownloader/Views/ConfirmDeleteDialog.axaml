@@ -1,7 +1,9 @@
-<Window xmlns="https://github.com/avaloniaui"
+<views:DialogWindow xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:views="using:OpenDownloader.Views"
+        xmlns:controls="using:OpenDownloader.Controls"
         mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="180"
         x:Class="OpenDownloader.Views.ConfirmDeleteDialog"
         Classes="dialog"
@@ -9,8 +11,8 @@
         Width="400" SizeToContent="Height"
         >
 
-    <Border Classes="dialogRoot">
-        <Grid RowDefinitions="Auto, Auto, Auto" Margin="24">
+    <controls:DialogHost Title="{Binding $parent[Window].Title}">
+        <Grid RowDefinitions="Auto, Auto, Auto">
             <!-- Message -->
             <TextBlock Grid.Row="0" x:Name="MessageText" TextWrapping="Wrap" Margin="0,0,0,20"
                        VerticalAlignment="Top" FontSize="14" LineHeight="20"
@@ -22,9 +24,9 @@
 
             <!-- Buttons -->
             <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="12">
-                <Button Classes="dialogButton" Content="{DynamicResource ButtonCancel}" Click="OnCancelClick"/>
-                <Button Classes="dialogButton accent" Content="{DynamicResource ButtonConfirm}" Click="OnConfirmClick"/>
+                <Button Classes="dialogButton" Content="{DynamicResource ButtonCancel}" Click="OnCancelClick" IsCancel="True"/>
+                <Button Classes="dialogButton accent" Content="{DynamicResource ButtonConfirm}" Click="OnConfirmClick" IsDefault="True"/>
             </StackPanel>
         </Grid>
-    </Border>
-</Window>
+    </controls:DialogHost>
+</views:DialogWindow>

@@ -78,11 +78,24 @@ public partial class MainWindowViewModel
     }
 
     [RelayCommand]
-    public void ShowSettings()
+    public async Task ShowSettings()
     {
-        IsSettingsVisible = true;
-        CurrentTitleKey = "MenuSettings";
-        CurrentView = _settingsView;
+        if (Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime { MainWindow: { } mainWindow }) return;
+
+        SelectedSettingsSection = SettingsSection.General;
+
+        var window = new SettingsWindow
+        {
+            DataContext = this
+        };
+
+        await window.ShowDialog(mainWindow);
+    }
+
+    [RelayCommand]
+    public void SelectSettingsSection(SettingsSection section)
+    {
+        SelectedSettingsSection = section;
     }
 
     [RelayCommand]
@@ -365,119 +378,6 @@ public partial class MainWindowViewModel
     }
 
     [RelayCommand]
-    public async Task DeleteSelectedTasks()
-    {
-        if (SelectedTask != null)
-        {
-            await _aria2Service.RemoveAsync(SelectedTask.Id);
-            SelectedTask = null;
-            await RefreshTaskListAsync();
-        }
-    }
-
-    [RelayCommand]
-    public async Task RefreshTasks()
-    {
-        await RefreshTaskListAsync();
-    }
-
-    [ObservableProperty]
-    private DownloadTask? _selectedTask;
-
-    [RelayCommand]
-    public async Task ToggleTaskState(DownloadTask? task)
-    {
-        if (task == null) return;
-
-        if (task.Status == "StatusDownloading" || task.Status == "StatusWaiting")
-        {
-            await _aria2Service.PauseAsync(task.Id);
-        }
-        else if (task.Status == "StatusPaused")
-        {
-            await _aria2Service.UnpauseAsync(task.Id);
-        }
-
-        await RefreshTaskListAsync();
-    }
-
-    [RelayCommand]
-    public void ShowTaskDetails(DownloadTask? task)
-    {
-        if (task == null) return;
-        if (Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime { MainWindow: { } mainWindow }) return;
-        var dialog = new TaskDetailsWindow(task);
-        dialog.ShowDialog(mainWindow);
-    }
-
-    [RelayCommand]
-    public Task OpenFolder(DownloadTask? task)
-    {
-        if (task == null || string.IsNullOrEmpty(task.FilePath)) return Task.CompletedTask;
-
-        var path = task.FilePath;
-        var dir = Path.GetDirectoryName(path);
-
-        if (!Directory.Exists(dir)) return Task.CompletedTask;
-        try
-        {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                Process.Start("explorer.exe", $"/select,\"{path}\"");
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                Process.Start("open", $"-R \"{path}\"");
-            }
-            else
-            {
-                Process.Start("xdg-open", dir);
-            }
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"Open folder failed: {ex.Message}");
-            AppLog.Error(ex, $"Open folder failed: {task.Name} ({task.Id})");
-        }
-
-        return Task.CompletedTask;
-    }
-
-    [RelayCommand]
-    public async Task CopyLink(DownloadTask? task)
-    {
-        if (task == null || string.IsNullOrEmpty(task.Url)) return;
-
-        try
-        {
-            if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime { MainWindow: { } mainWindow })
-            {
-                var clipboard = mainWindow.Clipboard;
-                if (clipboard != null)
-                {
-                    await clipboard.SetTextAsync(task.Url);
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"Copy link failed: {ex.Message}");
-            AppLog.Error(ex, $"Copy link failed: {task.Name} ({task.Id})");
-        }
-    }
-
-    [RelayCommand]
-    public void ShowAbout()
-    {
-        if (Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime { MainWindow: { } mainWindow }) return;
-        var dialog = new AboutWindow
-        {
-            DataContext = this
-        };
-        dialog.ShowDialog(mainWindow);
-    }
-
-    [RelayCommand]
     public void QuitApp()
     {
         _ = ShutdownServicesAsync();
@@ -487,6 +387,7 @@ public partial class MainWindowViewModel
             desktop.Shutdown();
         }
     }
+
 
     public async Task ShutdownServicesAsync()
     {

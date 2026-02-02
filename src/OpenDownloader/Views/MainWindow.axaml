@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:views="using:OpenDownloader.Views"
+        xmlns:localConv="using:OpenDownloader.Converters"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
         Width="1080" Height="720"
         MinWidth="800" MinHeight="600"
@@ -53,10 +54,10 @@
 
         <!-- Hover State (Foreground) - NEW -->
         <Style Selector="Button.sidebar:pointerover TextBlock">
-            <Setter Property="Foreground" Value="{DynamicResource SidebarActiveForegroundBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource SystemAccentColorBrush}" />
         </Style>
         <Style Selector="Button.sidebar:pointerover PathIcon">
-            <Setter Property="Foreground" Value="{DynamicResource SidebarActiveForegroundBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource SystemAccentColorBrush}" />
         </Style>
 
         <!-- Active State -->
@@ -68,11 +69,11 @@
         </Style>
         <!-- Active Text/Icon with Theme Support -->
         <Style Selector="Button.sidebar.active TextBlock">
-            <Setter Property="Foreground" Value="{DynamicResource SidebarActiveForegroundBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource SystemAccentColorBrush}" />
             <Setter Property="FontWeight" Value="SemiBold" />
         </Style>
         <Style Selector="Button.sidebar.active PathIcon">
-            <Setter Property="Foreground" Value="{DynamicResource SidebarActiveForegroundBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource SystemAccentColorBrush}" />
             <Setter Property="Width" Value="14" />
             <Setter Property="Height" Value="14" />
         </Style>
@@ -163,7 +164,7 @@
                                 HorizontalAlignment="Left"
                                 VerticalAlignment="Center"
                                 Margin="{Binding SidebarToggleMargin}"
-                                IsVisible="{Binding IsNotMacOS}"
+                                IsVisible="{Binding IsWindowsLikeLayout}"
                                 HotKey="Ctrl+B">
                             <PathIcon Data="{StaticResource IconMenu}" Width="16" Height="16"
                                       Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}" Opacity="0.8" />
@@ -234,7 +235,7 @@
                 <Grid RowDefinitions="52, *">
                     <!-- Title Bar -->
                     <Border Grid.Row="0"
-                            Background="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}"
+                            Background="{DynamicResource WorkspaceBackgroundBrush}"
                             BorderThickness="1,0,0,1"
                             BorderBrush="{DynamicResource SystemControlHighlightBaseLowBrush}"
                             PointerPressed="TitleBar_PointerPressed">
@@ -243,23 +244,8 @@
                             <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left"
                                         VerticalAlignment="Center" Margin="8,0,0,0" Spacing="8"
                                         >
-                                <Button Command="{Binding TogglePaneCommand}"
-                                        Background="Transparent"
-                                        BorderThickness="0"
-                                        Width="32"
-                                        Height="32"
-                                        IsVisible="{Binding IsMacOS}"
-                                        HotKey="Ctrl+B">
-                                    <PathIcon Data="{StaticResource IconSidebar}" Width="16" Height="16"
-                                              Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}" Opacity="0.8" />
-                                </Button>
-
-                                <StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding !IsSettingsVisible}">
-                                    <Border Width="1" Height="16"
-                                            Background="{DynamicResource SystemControlHighlightBaseLowBrush}"
-                                            Opacity="0.6"
-                                            IsVisible="{Binding IsMacOS}" />
-
+                                <StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding !IsSettingsVisible}"
+                                            Margin="{Binding TitleBarToolsMargin}">
                                     <Button Command="{Binding ResumeAllCommand}"
                                             Background="Transparent"
                                             BorderThickness="0"
@@ -304,6 +290,62 @@
             </SplitView.Content>
         </SplitView>
 
-        <!-- New Task Overlay (Removed, using AddTaskWindow instead) -->
+        <Button Command="{Binding TogglePaneCommand}"
+                Background="Transparent"
+                BorderThickness="0"
+                Width="32"
+                Height="32"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                Margin="{Binding MacToggleMargin}"
+                IsVisible="{Binding IsMacLikeLayout}"
+                HotKey="Ctrl+B">
+            <PathIcon Data="{StaticResource IconSidebar}" Width="16" Height="16"
+                      Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}" Opacity="0.8" />
+        </Button>
+
+        <!-- Toast Container -->
+        <ItemsControl ItemsSource="{Binding Toasts}" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,50,20,0">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Border Margin="0,0,0,10" Padding="12,10" CornerRadius="6"
+                            Background="{DynamicResource CardBackgroundBrush}"
+                            BoxShadow="0 4 12 0 #20000000"
+                            MinWidth="260" MaxWidth="320">
+                        <Border.Styles>
+                            <Style Selector="Border">
+                                <Style.Animations>
+                                    <Animation Duration="0:0:0.3" Easing="CubicEaseOut">
+                                        <KeyFrame Cue="0%">
+                                            <Setter Property="Opacity" Value="0"/>
+                                            <Setter Property="TranslateTransform.X" Value="20"/>
+                                        </KeyFrame>
+                                        <KeyFrame Cue="100%">
+                                            <Setter Property="Opacity" Value="1"/>
+                                            <Setter Property="TranslateTransform.X" Value="0"/>
+                                        </KeyFrame>
+                                    </Animation>
+                                </Style.Animations>
+                            </Style>
+                        </Border.Styles>
+                        <Grid ColumnDefinitions="Auto, *">
+                            <!-- Icon/Color Strip -->
+                            <Border Grid.Column="0" Width="4" VerticalAlignment="Stretch" Margin="0,0,12,0" CornerRadius="2">
+                                <Border.Background>
+                                    <MultiBinding Converter="{x:Static localConv:ToastTypeToBrushConverter.Instance}">
+                                        <Binding Path="Type" />
+                                    </MultiBinding>
+                                </Border.Background>
+                            </Border>
+                            
+                            <StackPanel Grid.Column="1" Spacing="2">
+                                <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="13" />
+                                <TextBlock Text="{Binding Message}" FontSize="12" Opacity="0.8" TextWrapping="Wrap" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
     </Panel>
 </Window>

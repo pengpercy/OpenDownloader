@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 
 namespace OpenDownloader.Views;
 
-public partial class AboutWindow : Window
+public partial class AboutWindow : DialogWindow
 {
     private const string RepoUrl = "https://github.com/pengpercy/OpenDownloader";
 

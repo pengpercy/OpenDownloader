@@ -7,6 +7,7 @@
     <x:String x:Key="MenuSettings">Settings</x:String>
     <x:String x:Key="LabelTheme">Theme</x:String>
     <x:String x:Key="LabelLanguage">Language</x:String>
+    <x:String x:Key="LabelAutoStart">Auto Start at Launch</x:String>
     <x:String x:Key="LanguageSystem">System</x:String>
     <x:String x:Key="ThemeDark">Dark</x:String>
     <x:String x:Key="ThemeLight">Light</x:String>
@@ -38,10 +39,23 @@
     <x:String x:Key="LabelProxyType">Protocol</x:String>
     <x:String x:Key="LabelProxyAddress">Address</x:String>
     <x:String x:Key="LabelProxyPort">Port</x:String>
+    <x:String x:Key="LabelProxyUsername">Username</x:String>
+    <x:String x:Key="LabelProxyPassword">Password</x:String>
+    <x:String x:Key="LabelAccentColor">Accent Color</x:String>
+    <x:String x:Key="LabelFollowSystem">Follow system (Default)</x:String>
+    <x:String x:Key="LabelCustomAccent">Custom Accent</x:String>
+    <x:String x:Key="LabelRgb">RGB</x:String>
     <x:String x:Key="BtnCheckUpdate">Check Update</x:String>
     <x:String x:Key="BtnCheckingUpdate">Checking...</x:String>
     <x:String x:Key="LabelAboutContent">OpenDownloader is an open-source download manager.</x:String>
     <x:String x:Key="BtnBrowse">Browse</x:String>
+
+    <x:String x:Key="SettingsGeneral">General</x:String>
+    <x:String x:Key="SettingsAppearance">Appearance</x:String>
+    <x:String x:Key="SettingsNetwork">Network</x:String>
+    <x:String x:Key="SettingsAdvanced">Advanced</x:String>
+    <x:String x:Key="SettingsAbout">About</x:String>
+    <x:String x:Key="SettingsAdvancedDesc">Advanced options will be added here.</x:String>
 
     <!-- Native Menu -->
     <x:String x:Key="MenuAbout">About OpenDownloader</x:String>
@@ -57,6 +71,8 @@
     <x:String x:Key="StatusCompleted">Completed</x:String>
     <x:String x:Key="StatusPaused">Paused</x:String>
     <x:String x:Key="StatusError">Error</x:String>
+    <x:String x:Key="NotificationDownloadComplete">Download Complete</x:String>
+    <x:String x:Key="NotificationDownloadFailed">Download Failed</x:String>
 
     <!-- Time -->
     <x:String x:Key="TimeMoreThanOneDay">> 1 Day</x:String>

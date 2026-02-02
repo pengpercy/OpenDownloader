@@ -26,7 +26,7 @@ public partial class App : Application
             DisableAvaloniaDataAnnotationValidation();
             
             var viewModel = new MainWindowViewModel();
-            this.DataContext = viewModel;
+            DataContext = viewModel;
 
             var mainWindow = new MainWindow
             {

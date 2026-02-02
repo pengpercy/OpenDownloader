@@ -247,6 +247,36 @@ public class Aria2Service : IAria2Service, IDisposable
         return gid ?? string.Empty;
     }
 
+    public async Task ApplyProxyAsync(string proxyType, string proxyAddress, int proxyPort, string proxyUsername, string proxyPassword)
+    {
+        if (_rpcClient == null) return;
+
+        var options = new Dictionary<string, string>();
+
+        var address = proxyAddress?.Trim() ?? string.Empty;
+        if (string.IsNullOrWhiteSpace(address) || proxyPort <= 0)
+        {
+            options["all-proxy"] = string.Empty;
+            options["all-proxy-user"] = string.Empty;
+            options["all-proxy-passwd"] = string.Empty;
+        }
+        else
+        {
+            var scheme = string.Equals(proxyType, "SOCKS5", StringComparison.OrdinalIgnoreCase) ? "socks5" : "http";
+            options["all-proxy"] = $"{scheme}://{address}:{proxyPort}";
+            options["all-proxy-user"] = proxyUsername?.Trim() ?? string.Empty;
+            options["all-proxy-passwd"] = proxyPassword ?? string.Empty;
+        }
+
+        try
+        {
+            await _rpcClient.InvokeAsync<string>("changeGlobalOption", options).ConfigureAwait(false);
+        }
+        catch
+        {
+        }
+    }
+
     public async Task<List<DownloadTask>> GetGlobalStatusAsync()
     {
         if (_rpcClient == null) return new List<DownloadTask>();

@@ -9,6 +9,7 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Media;
 using Avalonia.Platform.Storage;
 using Avalonia.Styling;
 using Avalonia.Threading;
@@ -18,17 +19,22 @@ using OpenDownloader.Models;
 using OpenDownloader.Services;
 using OpenDownloader.Services.Aria2;
 using OpenDownloader.Views;
+using OpenDownloader.Helpers;
 
 namespace OpenDownloader.ViewModels;
 
 public partial class MainWindowViewModel : ViewModelBase
 {
     private readonly IAria2Service _aria2Service;
+    private readonly SettingsService _settingsService;
+    private readonly AutoStartService _autoStartService;
+    private readonly NotificationService _notificationService;
     private readonly TaskListView _taskListView;
     private readonly SettingsView _settingsView;
     private readonly DispatcherTimer _refreshTimer;
     private readonly Dictionary<string, string> _lastStatusByGid = new();
     private bool _isShuttingDown;
+    private readonly bool _windowControlsOnLeft;
 
     [ObservableProperty]
     private object _currentView = null!;
@@ -59,7 +65,39 @@ public partial class MainWindowViewModel : ViewModelBase
     public bool IsSettings => CurrentTitleKey == "MenuSettings";
 
     public bool IsMacOS => RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
-    public bool IsNotMacOS => !IsMacOS;
+    public bool IsLinux => RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
+    public bool IsMacLikeLayout => IsMacOS || (IsLinux && _windowControlsOnLeft);
+    public bool IsWindowsLikeLayout => !IsMacLikeLayout;
+    public bool IsNotMacOS => !IsMacLikeLayout;
+
+    [ObservableProperty]
+    private SettingsSection _selectedSettingsSection = SettingsSection.General;
+
+    public string CurrentSettingsTitleKey => SelectedSettingsSection switch
+    {
+        SettingsSection.General => "SettingsGeneral",
+        SettingsSection.Appearance => "SettingsAppearance",
+        SettingsSection.Network => "SettingsNetwork",
+        SettingsSection.Advanced => "SettingsAdvanced",
+        SettingsSection.About => "SettingsAbout",
+        _ => "MenuSettings"
+    };
+
+    public bool IsSettingsGeneral => SelectedSettingsSection == SettingsSection.General;
+    public bool IsSettingsAppearance => SelectedSettingsSection == SettingsSection.Appearance;
+    public bool IsSettingsNetwork => SelectedSettingsSection == SettingsSection.Network;
+    public bool IsSettingsAdvanced => SelectedSettingsSection == SettingsSection.Advanced;
+    public bool IsSettingsAbout => SelectedSettingsSection == SettingsSection.About;
+
+    partial void OnSelectedSettingsSectionChanged(SettingsSection value)
+    {
+        OnPropertyChanged(nameof(CurrentSettingsTitleKey));
+        OnPropertyChanged(nameof(IsSettingsGeneral));
+        OnPropertyChanged(nameof(IsSettingsAppearance));
+        OnPropertyChanged(nameof(IsSettingsNetwork));
+        OnPropertyChanged(nameof(IsSettingsAdvanced));
+        OnPropertyChanged(nameof(IsSettingsAbout));
+    }
 
     public Thickness SidebarToggleMargin
     {
@@ -70,7 +108,193 @@ public partial class MainWindowViewModel : ViewModelBase
     }
 
     [ObservableProperty]
+    private Thickness _macToggleMargin = new(76, 6, 0, 0);
+
+    [ObservableProperty]
+    private Thickness _titleBarToolsMargin = new(0);
+
+    partial void OnIsPaneOpenChanged(bool value)
+    {
+        UpdateTitleBarToolsMargin();
+    }
+
+    public void UpdateMacTitleBarInsets(double trafficLightsRight, double titleBarHeight)
+    {
+        var spacing = 8d;
+        var toggleSize = 32d;
+        var top = Math.Max(0, (titleBarHeight - toggleSize) / 2);
+        var left = Math.Max(0, trafficLightsRight + spacing);
+
+        MacToggleMargin = new Thickness(left, top, 0, 0);
+        UpdateTitleBarToolsMargin();
+    }
+
+    private void UpdateTitleBarToolsMargin()
+    {
+        if (!IsMacLikeLayout)
+        {
+            TitleBarToolsMargin = new Thickness(0);
+            return;
+        }
+
+        var baseLeft = 8d;
+        var toggleWidth = 32d;
+        var spacing = 8d;
+        var desiredLeft = Math.Max(0, (MacToggleMargin.Left + toggleWidth + spacing) - baseLeft);
+        TitleBarToolsMargin = new Thickness(desiredLeft, 0, 0, 0);
+    }
+
+    [ObservableProperty]
     private ObservableCollection<DownloadTask> _tasks = new();
+
+    [ObservableProperty]
+    private DownloadTask? _selectedTask;
+
+    public List<DownloadTask> SelectedTasks { get; private set; } = new();
+
+    public void UpdateSelectedTasks(List<DownloadTask> tasks)
+    {
+        SelectedTasks = tasks;
+        DeleteSelectedTasksCommand.NotifyCanExecuteChanged();
+    }
+
+    [RelayCommand(CanExecute = nameof(CanDeleteSelectedTasks))]
+    public async Task DeleteSelectedTasks()
+    {
+        if (SelectedTasks.Count > 0)
+        {
+            var tasksToDelete = SelectedTasks.ToList(); // Clone list to avoid modification issues during enumeration
+
+            if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime { MainWindow: { } mainWindow })
+            {
+                var dialog = new ConfirmDeleteDialog(tasksToDelete.Count == 1 ? tasksToDelete[0].Name : $"{tasksToDelete.Count} tasks");
+                var result = await dialog.ShowDialog<bool>(mainWindow);
+                
+                if (result)
+                {
+                    foreach (var task in tasksToDelete)
+                    {
+                        await _aria2Service.RemoveAsync(task.Id);
+                        
+                        if (dialog.DeleteFile && !string.IsNullOrEmpty(task.FilePath))
+                        {
+                            try
+                            {
+                                if (File.Exists(task.FilePath)) File.Delete(task.FilePath);
+                                var aria2File = task.FilePath + ".aria2";
+                                if (File.Exists(aria2File)) File.Delete(aria2File);
+                            }
+                            catch { /* Ignore delete errors */ }
+                        }
+                    }
+                    
+                    SelectedTask = null;
+                    await RefreshTaskListAsync();
+                }
+            }
+        }
+    }
+
+    private bool CanDeleteSelectedTasks() => SelectedTasks.Count > 0;
+
+    [RelayCommand]
+    public async Task RefreshTasks()
+    {
+        await RefreshTaskListAsync();
+    }
+
+    [RelayCommand]
+    public async Task ToggleTaskState(DownloadTask? task)
+    {
+        if (task == null) return;
+
+        if (task.Status == "StatusDownloading" || task.Status == "StatusWaiting")
+        {
+            await _aria2Service.PauseAsync(task.Id);
+        }
+        else if (task.Status == "StatusPaused")
+        {
+            await _aria2Service.UnpauseAsync(task.Id);
+        }
+
+        await RefreshTaskListAsync();
+    }
+
+    [RelayCommand]
+    public void ShowTaskDetails(DownloadTask? task)
+    {
+        if (task == null) return;
+        if (Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime { MainWindow: { } mainWindow }) return;
+        var dialog = new TaskDetailsWindow(task);
+        dialog.ShowDialog(mainWindow);
+    }
+
+    [RelayCommand]
+    public Task OpenFolder(DownloadTask? task)
+    {
+        if (task == null || string.IsNullOrEmpty(task.FilePath)) return Task.CompletedTask;
+
+        var path = task.FilePath;
+        var dir = Path.GetDirectoryName(path);
+
+        if (!Directory.Exists(dir)) return Task.CompletedTask;
+        try
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                Process.Start("explorer.exe", $"/select,\"{path}\"");
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                Process.Start("open", $"-R \"{path}\"");
+            }
+            else
+            {
+                Process.Start("xdg-open", dir);
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Open folder failed: {ex.Message}");
+            AppLog.Error(ex, $"Open folder failed: {task.Name} ({task.Id})");
+        }
+
+        return Task.CompletedTask;
+    }
+
+    [RelayCommand]
+    public async Task CopyLink(DownloadTask? task)
+    {
+        if (task == null || string.IsNullOrEmpty(task.Url)) return;
+
+        try
+        {
+            if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime { MainWindow: { } mainWindow })
+            {
+                var clipboard = mainWindow.Clipboard;
+                if (clipboard != null)
+                {
+                    await clipboard.SetTextAsync(task.Url);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Copy link failed: {ex.Message}");
+            AppLog.Error(ex, $"Copy link failed: {task.Name} ({task.Id})");
+        }
+    }
+
+    [RelayCommand]
+    public void ShowAbout()
+    {
+        if (Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime { MainWindow: { } mainWindow }) return;
+        var dialog = new AboutWindow
+        {
+            DataContext = this
+        };
+        dialog.ShowDialog(mainWindow);
+    }
 
     [ObservableProperty]
     private bool _isSettingsVisible;
@@ -144,6 +368,110 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty]
     private LanguageOption? _selectedLanguage;
 
+    [ObservableProperty]
+    private bool _isAutoStartEnabled;
+
+    partial void OnIsAutoStartEnabledChanged(bool value)
+    {
+        _autoStartService.SetAutoStart(value);
+        _settingsService.Settings.AutoStart = value;
+        _settingsService.Save();
+    }
+
+    [ObservableProperty]
+    private bool _isAccentFollowSystem = true;
+
+    [ObservableProperty]
+    private string _customAccentColorHex = "#508252";
+
+    [ObservableProperty]
+    private SolidColorBrush _customAccentPreviewBrush = new(Color.Parse("#508252"));
+
+    [ObservableProperty]
+    private int _customAccentR = 80;
+
+    [ObservableProperty]
+    private int _customAccentG = 130;
+
+    [ObservableProperty]
+    private int _customAccentB = 82;
+
+    private bool _isUpdatingAccent;
+
+    partial void OnIsAccentFollowSystemChanged(bool value)
+    {
+        _settingsService.Settings.AccentMode = value ? "System" : "Custom";
+        if (value)
+        {
+            _settingsService.Settings.CustomAccentColor = string.Empty;
+        }
+        else
+        {
+            _settingsService.Settings.CustomAccentColor = CustomAccentColorHex;
+        }
+        _settingsService.Save();
+        ThemeAccentService.Apply(_settingsService.Settings.AccentMode, _settingsService.Settings.CustomAccentColor);
+    }
+
+    partial void OnCustomAccentColorHexChanged(string value)
+    {
+        if (_isUpdatingAccent) return;
+
+        if (Color.TryParse(value, out var c))
+        {
+            CustomAccentPreviewBrush = new SolidColorBrush(c);
+            _isUpdatingAccent = true;
+            CustomAccentR = c.R;
+            CustomAccentG = c.G;
+            CustomAccentB = c.B;
+            _isUpdatingAccent = false;
+        }
+
+        if (IsAccentFollowSystem) return;
+
+        _settingsService.Settings.AccentMode = "Custom";
+        _settingsService.Settings.CustomAccentColor = value;
+        _settingsService.Save();
+        ThemeAccentService.Apply("Custom", value);
+    }
+
+    partial void OnCustomAccentRChanged(int value)
+    {
+        UpdateCustomAccentFromRgb();
+    }
+
+    partial void OnCustomAccentGChanged(int value)
+    {
+        UpdateCustomAccentFromRgb();
+    }
+
+    partial void OnCustomAccentBChanged(int value)
+    {
+        UpdateCustomAccentFromRgb();
+    }
+
+    private void UpdateCustomAccentFromRgb()
+    {
+        if (_isUpdatingAccent) return;
+
+        var r = (byte)Math.Clamp(CustomAccentR, 0, 255);
+        var g = (byte)Math.Clamp(CustomAccentG, 0, 255);
+        var b = (byte)Math.Clamp(CustomAccentB, 0, 255);
+        var hex = $"#{r:X2}{g:X2}{b:X2}";
+
+        _isUpdatingAccent = true;
+        CustomAccentColorHex = hex;
+        _isUpdatingAccent = false;
+
+        if (!IsAccentFollowSystem)
+        {
+            _settingsService.Settings.AccentMode = "Custom";
+            _settingsService.Settings.CustomAccentColor = hex;
+            _settingsService.Save();
+            ThemeAccentService.Apply("Custom", hex);
+        }
+    }
+
     public string EmptyStateSubtitleDownloadingText
     {
         get
@@ -159,6 +487,8 @@ public partial class MainWindowViewModel : ViewModelBase
         if (value != null)
         {
             SetTheme(value.Value);
+            _settingsService.Settings.Theme = value.Value;
+            _settingsService.Save();
         }
     }
 
@@ -166,7 +496,10 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         if (value == null) return;
         SetLanguage(value.Value);
-            
+        
+        _settingsService.Settings.Language = value.Value;
+        _settingsService.Save();
+        
         // Refresh ThemeOptions to trigger converter update for localized strings
         var currentTheme = SelectedTheme;
         var themes = ThemeOptions.ToList();
@@ -193,6 +526,11 @@ public partial class MainWindowViewModel : ViewModelBase
 
     public MainWindowViewModel()
     {
+        _windowControlsOnLeft = DetectWindowControlsOnLeft();
+        _settingsService = new SettingsService();
+        _autoStartService = new AutoStartService();
+        _notificationService = new NotificationService();
+        _notificationService.ToastRequested += (s, msg) => ShowToast(msg);
         _aria2Service = new Aria2Service();
 
         AppVersion = AppVersionProvider.GetCurrentVersion();
@@ -204,8 +542,36 @@ public partial class MainWindowViewModel : ViewModelBase
         ShowDownloading();
         
         // Initialize selections
-        SelectedTheme = ThemeOptions.FirstOrDefault(t => t.Value == "System") ?? ThemeOptions[2];
-        SelectedLanguage = LanguageOptions.FirstOrDefault(l => l.Value == "zh-CN") ?? LanguageOptions[2];
+        var savedTheme = _settingsService.Settings.Theme;
+        SelectedTheme = ThemeOptions.FirstOrDefault(t => t.Value == savedTheme) ?? ThemeOptions.FirstOrDefault(t => t.Value == "System") ?? ThemeOptions[2];
+
+        var savedLang = _settingsService.Settings.Language;
+        SelectedLanguage = LanguageOptions.FirstOrDefault(l => l.Value == savedLang) ?? LanguageOptions.FirstOrDefault(l => l.Value == "System") ?? LanguageOptions[2];
+
+        IsAutoStartEnabled = _settingsService.Settings.AutoStart;
+
+        if (!string.IsNullOrWhiteSpace(_settingsService.Settings.DefaultSavePath))
+        {
+            DefaultSavePath = _settingsService.Settings.DefaultSavePath;
+        }
+        else
+        {
+            _settingsService.Settings.DefaultSavePath = DefaultSavePath;
+            _settingsService.Save();
+        }
+
+        ProxyAddress = _settingsService.Settings.ProxyAddress;
+        ProxyPort = _settingsService.Settings.ProxyPort;
+        ProxyTypeIndex = string.Equals(_settingsService.Settings.ProxyType, "SOCKS5", StringComparison.OrdinalIgnoreCase) ? 1 : 0;
+        ProxyUsername = _settingsService.Settings.ProxyUsername;
+        ProxyPassword = _settingsService.Settings.ProxyPassword;
+
+        IsAccentFollowSystem = !string.Equals(_settingsService.Settings.AccentMode, "Custom", StringComparison.OrdinalIgnoreCase);
+        if (!string.IsNullOrWhiteSpace(_settingsService.Settings.CustomAccentColor))
+        {
+            CustomAccentColorHex = _settingsService.Settings.CustomAccentColor;
+        }
+        ThemeAccentService.Apply(_settingsService.Settings.AccentMode, _settingsService.Settings.CustomAccentColor);
 
         // Initialize Aria2 and Timer
         _ = InitializeAria2Async();
@@ -218,17 +584,158 @@ public partial class MainWindowViewModel : ViewModelBase
         _refreshTimer.Start();
     }
 
+    private bool DetectWindowControlsOnLeft()
+    {
+        if (IsMacOS) return true;
+        if (!IsLinux) return false;
+
+        try
+        {
+            var output = TryReadProcessStdOut("gsettings", "get org.gnome.desktop.wm.preferences button-layout");
+            if (!string.IsNullOrWhiteSpace(output))
+            {
+                var raw = output.Trim().Trim('\'', '"');
+                var parts = raw.Split(':', 2);
+                var leftPart = parts.Length > 0 ? parts[0] : string.Empty;
+                var rightPart = parts.Length > 1 ? parts[1] : string.Empty;
+
+                static bool HasButton(string s)
+                {
+                    s = s.ToLowerInvariant();
+                    return s.Contains("close") || s.Contains("maximize") || s.Contains("minimize");
+                }
+
+                if (HasButton(leftPart) && !HasButton(rightPart)) return true;
+                if (!HasButton(leftPart) && HasButton(rightPart)) return false;
+                if (HasButton(leftPart)) return true;
+            }
+        }
+        catch
+        {
+        }
+
+        return false;
+    }
+
+    private static string? TryReadProcessStdOut(string fileName, string arguments)
+    {
+        try
+        {
+            using var process = new Process();
+            process.StartInfo = new ProcessStartInfo
+            {
+                FileName = fileName,
+                Arguments = arguments,
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true
+            };
+
+            if (!process.Start()) return null;
+            var output = process.StandardOutput.ReadToEnd();
+            process.WaitForExit(300);
+            return output;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    // Toast Notifications
+    [ObservableProperty]
+    private ObservableCollection<ToastMessage> _toasts = new();
+
+    private void ShowToast(ToastMessage message)
+    {
+        Dispatcher.UIThread.Invoke(() =>
+        {
+            Toasts.Add(message);
+            // Auto remove after 3 seconds
+            Task.Delay(3000).ContinueWith(_ => 
+            {
+                Dispatcher.UIThread.Invoke(() => Toasts.Remove(message));
+            });
+        });
+    }
+
     private async Task InitializeAria2Async()
     {
         try 
         {
             await _aria2Service.InitializeAsync();
+            _ = ApplyProxySettingsAsync();
             await RefreshTaskListAsync();
         }
         catch (Exception ex)
         {
             Debug.WriteLine($"Aria2 Init Failed: {ex.Message}");
             AppLog.Error(ex, "Aria2 Init Failed");
+        }
+    }
+
+    [ObservableProperty]
+    private string _proxyUsername = string.Empty;
+
+    [ObservableProperty]
+    private string _proxyPassword = string.Empty;
+
+    partial void OnDefaultSavePathChanged(string value)
+    {
+        _settingsService.Settings.DefaultSavePath = value;
+        _settingsService.Save();
+    }
+
+    partial void OnProxyAddressChanged(string value)
+    {
+        _settingsService.Settings.ProxyAddress = value;
+        _settingsService.Save();
+        _ = ApplyProxySettingsAsync();
+    }
+
+    partial void OnProxyPortChanged(int value)
+    {
+        _settingsService.Settings.ProxyPort = value;
+        _settingsService.Save();
+        _ = ApplyProxySettingsAsync();
+    }
+
+    partial void OnProxyTypeIndexChanged(int value)
+    {
+        _settingsService.Settings.ProxyType = value == 1 ? "SOCKS5" : "HTTP";
+        _settingsService.Save();
+        _ = ApplyProxySettingsAsync();
+    }
+
+    partial void OnProxyUsernameChanged(string value)
+    {
+        _settingsService.Settings.ProxyUsername = value;
+        _settingsService.Save();
+        _ = ApplyProxySettingsAsync();
+    }
+
+    partial void OnProxyPasswordChanged(string value)
+    {
+        _settingsService.Settings.ProxyPassword = value;
+        _settingsService.Save();
+        _ = ApplyProxySettingsAsync();
+    }
+
+    private async Task ApplyProxySettingsAsync()
+    {
+        try
+        {
+            var address = ProxyAddress?.Trim() ?? string.Empty;
+            var port = ProxyPort;
+            var type = ProxyTypeIndex == 1 ? "SOCKS5" : "HTTP";
+            var user = ProxyUsername?.Trim() ?? string.Empty;
+            var pass = ProxyPassword ?? string.Empty;
+
+            await _aria2Service.ApplyProxyAsync(type, address, port, user, pass);
+        }
+        catch
+        {
         }
     }
 
@@ -240,9 +747,17 @@ public partial class MainWindowViewModel : ViewModelBase
 
             foreach (var t in allTasks)
             {
-                if (_lastStatusByGid.TryGetValue(t.Id, out var prev) && prev != "StatusError" && t.Status == "StatusError")
+                if (_lastStatusByGid.TryGetValue(t.Id, out var prev))
                 {
-                    AppLog.Warn($"Download failed: {t.Name} ({t.Id})");
+                    if (prev != "StatusError" && t.Status == "StatusError")
+                    {
+                        AppLog.Warn($"Download failed: {t.Name} ({t.Id})");
+                        _notificationService.ShowNotification(GetString("NotificationDownloadFailed"), t.Name, ToastType.Error);
+                    }
+                    else if (prev == "StatusDownloading" && t.Status == "StatusCompleted")
+                    {
+                        _notificationService.ShowNotification(GetString("NotificationDownloadComplete"), t.Name, ToastType.Success);
+                    }
                 }
 
                 _lastStatusByGid[t.Id] = t.Status;

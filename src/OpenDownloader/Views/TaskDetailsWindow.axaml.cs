@@ -1,10 +1,9 @@
-using Avalonia.Controls;
 using Avalonia.Interactivity;
 using OpenDownloader.Models;
 
 namespace OpenDownloader.Views;
 
-public partial class TaskDetailsWindow : Window
+public partial class TaskDetailsWindow : DialogWindow
 {
     public TaskDetailsWindow()
     {
