@@ -1,9 +1,16 @@
 using System;
 using System.IO;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using OpenDownloader.Models;
 
 namespace OpenDownloader.Services;
+
+[JsonSourceGenerationOptions(WriteIndented = true)]
+[JsonSerializable(typeof(AppSettings))]
+internal partial class SettingsJsonContext : JsonSerializerContext
+{
+}
 
 public class SettingsService
 {
@@ -26,7 +33,7 @@ public class SettingsService
             if (File.Exists(ConfigPath))
             {
                 var json = File.ReadAllText(ConfigPath);
-                return JsonSerializer.Deserialize<AppSettings>(json) ?? new AppSettings();
+                return JsonSerializer.Deserialize(json, SettingsJsonContext.Default.AppSettings) ?? new AppSettings();
             }
         }
         catch
@@ -46,7 +53,7 @@ public class SettingsService
                 Directory.CreateDirectory(dir!);
             }
 
-            var json = JsonSerializer.Serialize(Settings, new JsonSerializerOptions { WriteIndented = true });
+            var json = JsonSerializer.Serialize(Settings, SettingsJsonContext.Default.AppSettings);
             File.WriteAllText(ConfigPath, json);
         }
         catch
