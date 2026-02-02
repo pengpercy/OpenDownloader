@@ -22,6 +22,7 @@
             <Setter Property="ShowInTaskbar" Value="False" />
             <Setter Property="ExtendClientAreaToDecorationsHint" Value="True" />
             <Setter Property="ExtendClientAreaChromeHints" Value="PreferSystemChrome" />
+            <Setter Property="ExtendClientAreaTitleBarHeightHint" Value="44" />
             <Setter Property="Background" Value="{DynamicResource WorkspaceBackgroundBrush}" />
             <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseHighBrush}" />
         </Style>
@@ -34,14 +35,20 @@
             <Setter Property="Template">
                 <ControlTemplate>
                     <Border Classes="dialogRoot">
-                        <Grid RowDefinitions="Auto, *" Margin="24">
-                            <TextBlock Grid.Row="0"
-                                       Text="{TemplateBinding Title}"
-                                       FontSize="16"
-                                       FontWeight="SemiBold"
-                                       Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}"
-                                       Margin="0,0,0,14"/>
-                            <ContentPresenter Grid.Row="1" />
+                        <Grid RowDefinitions="44, *">
+                            <Border Grid.Row="0"
+                                    Background="{DynamicResource WorkspaceBackgroundBrush}">
+                                <TextBlock Text="{TemplateBinding Title}"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           FontSize="14"
+                                           FontWeight="SemiBold"
+                                           Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}" />
+                            </Border>
+                            <ContentPresenter Grid.Row="1"
+                                              Margin="24,16,24,24"
+                                              Content="{TemplateBinding Content}"
+                                              ContentTemplate="{TemplateBinding ContentTemplate}" />
                         </Grid>
                     </Border>
                 </ControlTemplate>
@@ -104,6 +111,8 @@
                 <ResourceDictionary x:Key="Light">
                     <SolidColorBrush x:Key="WorkspaceBackgroundBrush" Color="#F2F3F5" />
                     <SolidColorBrush x:Key="CardBackgroundBrush" Color="#FFFFFF" />
+                    <SolidColorBrush x:Key="SidebarActiveForeground" Color="{DynamicResource SystemAccentColor}" />
+                    <SolidColorBrush x:Key="SidebarHoverForeground" Color="{DynamicResource SystemAccentColor}" />
                     <BoxShadows x:Key="CardShadow">0 2 2 0 #10000000</BoxShadows>
                     <BoxShadows x:Key="CardHoverShadow">0 2 2 0 #406842</BoxShadows>
                 </ResourceDictionary>
@@ -111,6 +120,8 @@
                     <SolidColorBrush x:Key="WorkspaceBackgroundBrush" Color="#1E1E1E" />
                     <SolidColorBrush x:Key="CardBackgroundBrush" Color="#2D2D2D" />
                     <SolidColorBrush x:Key="SystemControlHighlightBaseLowBrush" Color="#000000" />
+                    <SolidColorBrush x:Key="SidebarActiveForeground" Color="White" />
+                    <SolidColorBrush x:Key="SidebarHoverForeground" Color="White" />
                     <BoxShadows x:Key="CardShadow">0 2 2 0 #40000000</BoxShadows>
                     <BoxShadows x:Key="CardHoverShadow">0 2 2 0 #406842</BoxShadows>
                 </ResourceDictionary>
@@ -150,13 +161,14 @@
     </Application.Styles>
     <TrayIcon.Icons>
         <TrayIcons>
-            <TrayIcon Icon="/Assets/app_ico.ico" ToolTipText="OpenDownloader">
+            <TrayIcon Icon="/Assets/app_ico.ico" ToolTipText="OpenDownloader" Clicked="TrayIcon_OnClicked">
                 <TrayIcon.Menu>
                     <NativeMenu>
-                        <NativeMenuItem Header="{DynamicResource BtnNewTask}" Command="{Binding ShowAddTaskCommand}" />
-                        <NativeMenuItem Header="{DynamicResource MenuSettings}" Command="{Binding ShowSettingsCommand}" />
+                        <NativeMenuItem Header="{DynamicResource BtnNewTask}" Gesture="Cmd+N" Command="{Binding ShowAddTaskCommand}" />
+                        <NativeMenuItem Header="{DynamicResource MenuSettings}" Gesture="Cmd+," Command="{Binding ShowSettingsCommand}" />
+                        <NativeMenuItem Header="{DynamicResource MenuCheckUpdate}" Command="{Binding CheckForUpdatesCommand}" />
                         <NativeMenuItemSeparator />
-                        <NativeMenuItem Header="{DynamicResource MenuQuit}" Command="{Binding QuitAppCommand}" />
+                        <NativeMenuItem Header="{DynamicResource MenuQuit}" Gesture="Cmd+Q" Command="{Binding QuitAppCommand}" />
                     </NativeMenu>
                 </TrayIcon.Menu>
             </TrayIcon>

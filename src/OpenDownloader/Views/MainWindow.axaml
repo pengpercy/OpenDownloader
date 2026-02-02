@@ -54,10 +54,10 @@
 
         <!-- Hover State (Foreground) - NEW -->
         <Style Selector="Button.sidebar:pointerover TextBlock">
-            <Setter Property="Foreground" Value="{DynamicResource SystemAccentColorBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource SidebarHoverForeground}" />
         </Style>
         <Style Selector="Button.sidebar:pointerover PathIcon">
-            <Setter Property="Foreground" Value="{DynamicResource SystemAccentColorBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource SidebarHoverForeground}" />
         </Style>
 
         <!-- Active State -->
@@ -69,11 +69,11 @@
         </Style>
         <!-- Active Text/Icon with Theme Support -->
         <Style Selector="Button.sidebar.active TextBlock">
-            <Setter Property="Foreground" Value="{DynamicResource SystemAccentColorBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource SidebarActiveForeground}" />
             <Setter Property="FontWeight" Value="SemiBold" />
         </Style>
         <Style Selector="Button.sidebar.active PathIcon">
-            <Setter Property="Foreground" Value="{DynamicResource SystemAccentColorBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource SidebarActiveForeground}" />
             <Setter Property="Width" Value="14" />
             <Setter Property="Height" Value="14" />
         </Style>
@@ -218,8 +218,29 @@
                     </StackPanel>
 
                     <StackPanel Grid.Row="2" Spacing="4">
-                        <Button Command="{Binding ShowSettingsCommand}" Classes="sidebar"
-                                Classes.active="{Binding IsSettings}">
+                        <Button Classes="sidebar" Classes.active="{Binding IsSettings}">
+                            <Button.Flyout>
+                                <MenuFlyout Placement="Top">
+                                    <MenuItem Header="{DynamicResource MenuSettings}" Command="{Binding ShowSettingsCommand}" InputGesture="Cmd+,">
+                                        <MenuItem.Icon>
+                                            <PathIcon Data="{StaticResource IconSettings}" Width="14" Height="14"/>
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem Header="{DynamicResource MenuCheckUpdate}" Command="{Binding CheckForUpdatesCommand}">
+                                        <MenuItem.Icon>
+                                            <PathIcon Data="{StaticResource IconRefresh}" Width="14" Height="14"/>
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem Header="{DynamicResource SettingsAbout}" Command="{Binding ShowAboutCommand}">
+                                        <MenuItem.Icon>
+                                            <PathIcon Data="{StaticResource IconInfo}" Width="14" Height="14"/>
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <Separator/>
+                                    <MenuItem Header="{DynamicResource MenuQuit}" Command="{Binding QuitAppCommand}" InputGesture="Cmd+Q">
+                                    </MenuItem>
+                                </MenuFlyout>
+                            </Button.Flyout>
                             <Grid ColumnDefinitions="40, *">
                                 <PathIcon Grid.Column="0" Data="{StaticResource IconSettings}" Width="14" Height="14"
                                           VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,1,0,0" />

@@ -59,8 +59,8 @@
 
     <!-- Native Menu -->
     <x:String x:Key="MenuAbout">关于 OpenDownloader</x:String>
-    <x:String x:Key="MenuCheckUpdate">检查更新...</x:String>
-    <x:String x:Key="MenuQuit">退出 OpenDownloader</x:String>
+    <x:String x:Key="MenuCheckUpdate">检查更新</x:String>
+    <x:String x:Key="MenuQuit">退出</x:String>
     <x:String x:Key="MenuFile">文件</x:String>
     <x:String x:Key="MenuView">视图</x:String>
     <x:String x:Key="MenuDelete">删除</x:String>

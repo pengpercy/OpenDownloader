@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core;
 using Avalonia.Data.Core.Plugins;
+using System;
 using System.Linq;
 using Avalonia.Markup.Xaml;
 using OpenDownloader.Services;
@@ -75,6 +76,14 @@ public partial class App : Application
         foreach (var plugin in dataValidationPluginsToRemove)
         {
             BindingPlugins.DataValidators.Remove(plugin);
+        }
+    }
+
+    private void TrayIcon_OnClicked(object? sender, EventArgs e)
+    {
+        if (DataContext is MainWindowViewModel vm)
+        {
+            vm.ToggleMainWindow();
         }
     }
 }

@@ -7,11 +7,32 @@
         xmlns:controls="using:OpenDownloader.Controls"
         mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="300"
         x:Class="OpenDownloader.Views.AboutWindow"
+        xmlns:localConv="using:OpenDownloader.Converters"
         x:DataType="vm:MainWindowViewModel"
         Classes="dialog"
         Title="{DynamicResource MenuAbout}"
         Width="400" SizeToContent="Height"
         >
+
+    <views:DialogWindow.Resources>
+        <localConv:ResourceKeyToTextConverter x:Key="ResourceKeyToTextConverter" />
+    </views:DialogWindow.Resources>
+
+    <views:DialogWindow.Styles>
+        <Style Selector="PathIcon.spin">
+            <Setter Property="RenderTransformOrigin" Value="50%,50%" />
+            <Style.Animations>
+                <Animation Duration="0:0:1" IterationCount="Infinite">
+                    <KeyFrame Cue="0%">
+                        <Setter Property="RotateTransform.Angle" Value="0" />
+                    </KeyFrame>
+                    <KeyFrame Cue="100%">
+                        <Setter Property="RotateTransform.Angle" Value="360" />
+                    </KeyFrame>
+                </Animation>
+            </Style.Animations>
+        </Style>
+    </views:DialogWindow.Styles>
 
     <controls:DialogHost Title="{Binding $parent[Window].Title}">
         <Grid RowDefinitions="Auto, Auto, Auto" Margin="6">
@@ -35,6 +56,21 @@
                         <TextBlock Text="{Binding RepositoryUrl}" FontSize="12"/>
                     </Button>
                 </StackPanel>
+
+                <Button IsEnabled="{Binding !IsCheckingForUpdates}" 
+                        Command="{Binding CheckForUpdatesCommand}" 
+                        HorizontalAlignment="Center" Margin="0,16,0,0">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Panel Width="16" Height="16">
+                            <PathIcon Data="{StaticResource IconRefresh}" Width="16" Height="16" 
+                                      IsVisible="{Binding !IsCheckingForUpdates}"/>
+                            <PathIcon Data="{StaticResource IconRefresh}" Width="16" Height="16" 
+                                      Classes="spin"
+                                      IsVisible="{Binding IsCheckingForUpdates}"/>
+                        </Panel>
+                        <TextBlock Text="{Binding CheckUpdateButtonKey, Converter={StaticResource ResourceKeyToTextConverter}}" FontSize="13"/>
+                    </StackPanel>
+                </Button>
             </StackPanel>
 
             <!-- Footer -->

@@ -19,23 +19,25 @@ public class DialogWindow : Window
     {
         base.OnKeyDown(e);
 
-        if (e.Key == Key.Escape)
+        switch (e.Key)
         {
-            Close();
-            e.Handled = true;
-            return;
-        }
-
-        if (e.Key == Key.Enter)
-        {
-            var defaultButton = this.GetVisualDescendants()
-                .OfType<Button>()
-                .FirstOrDefault(b => b.IsDefault);
-
-            if (defaultButton != null)
-            {
-                defaultButton.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            case Key.Escape:
+                Close();
                 e.Handled = true;
+                return;
+            case Key.Enter:
+            {
+                var defaultButton = this.GetVisualDescendants()
+                    .OfType<Button>()
+                    .FirstOrDefault(b => b.IsDefault);
+
+                if (defaultButton != null)
+                {
+                    defaultButton.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+                    e.Handled = true;
+                }
+
+                break;
             }
         }
     }

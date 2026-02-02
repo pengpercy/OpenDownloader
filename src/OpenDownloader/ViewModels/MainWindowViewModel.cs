@@ -8,6 +8,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Media;
 using Avalonia.Platform.Storage;
@@ -137,11 +138,29 @@ public partial class MainWindowViewModel : ViewModelBase
             return;
         }
 
-        var baseLeft = 8d;
-        var toggleWidth = 32d;
-        var spacing = 8d;
-        var desiredLeft = Math.Max(0, (MacToggleMargin.Left + toggleWidth + spacing) - baseLeft);
-        TitleBarToolsMargin = new Thickness(desiredLeft, 0, 0, 0);
+        if (IsPaneOpen)
+        {
+            // 当侧边栏展开时，工具栏应紧贴分栏线。
+            // 由于 XAML 中 StackPanel 已有 Margin="8,0,0,0"，这里设为 0 即可。
+            TitleBarToolsMargin = new Thickness(0);
+        }
+        else
+        {
+            // 当侧边栏折叠时，需要避开 Mac 风格的 Toggle 按钮。
+            var compactWidth = 64d; // SplitView.CompactPaneLength
+            var baseMargin = 8d;    // StackPanel 的基础 Margin
+            var toggleWidth = 32d;
+            var spacing = 8d;
+            
+            // Toggle 按钮的右边界位置
+            var toggleRightEdge = MacToggleMargin.Left + toggleWidth + spacing;
+            // 工具栏在不加额外 Margin 时的起始位置
+            var toolbarStartWithoutExtraMargin = compactWidth + baseMargin;
+            
+            // 计算需要额外偏移的量
+            var desiredExtraMargin = Math.Max(0, toggleRightEdge - toolbarStartWithoutExtraMargin);
+            TitleBarToolsMargin = new Thickness(desiredExtraMargin, 0, 0, 0);
+        }
     }
 
     [ObservableProperty]
@@ -294,6 +313,25 @@ public partial class MainWindowViewModel : ViewModelBase
             DataContext = this
         };
         dialog.ShowDialog(mainWindow);
+    }
+
+    [RelayCommand]
+    public void ToggleMainWindow()
+    {
+        if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime { MainWindow: { } window })
+        {
+            if (!window.IsVisible)
+            {
+                window.Show();
+            }
+            
+            if (window.WindowState == WindowState.Minimized)
+            {
+                window.WindowState = WindowState.Normal;
+            }
+            
+            window.Activate();
+        }
     }
 
     [ObservableProperty]
@@ -591,6 +629,57 @@ public partial class MainWindowViewModel : ViewModelBase
 
         try
         {
+            var desktop = Environment.GetEnvironmentVariable("XDG_CURRENT_DESKTOP")?.ToUpperInvariant() ?? "";
+            
+            // Check for KDE Plasma
+            if (desktop.Contains("KDE") || desktop.Contains("PLASMA"))
+            {
+                // Try Plasma 6 first
+                var outputKde = TryReadProcessStdOut("kreadconfig6", "--file kwinrc --group org.kde.kwin.decoration --key ButtonsOnLeft");
+                if (string.IsNullOrEmpty(outputKde))
+                {
+                    // Fallback to Plasma 5
+                    outputKde = TryReadProcessStdOut("kreadconfig5", "--file kwinrc --group org.kde.kwin.decoration --key ButtonsOnLeft");
+                }
+
+                if (!string.IsNullOrWhiteSpace(outputKde))
+                {
+                    // Check if any of the standard window controls (Close, Maximize, Minimize) are on the left
+                    // X: Close, A: Maximize, I: Minimize
+                    var layout = outputKde.Trim().ToUpperInvariant();
+                    if (layout.Contains('X') || layout.Contains('A') || layout.Contains('I'))
+                    {
+                        return true;
+                    }
+                }
+                
+                // If we are in KDE and detected right-side controls (or empty left side), return false.
+                return false;
+            }
+
+            // Check for Xfce
+            if (desktop.Contains("XFCE"))
+            {
+                var outputXfce = TryReadProcessStdOut("xfconf-query", "-c xfwm4 -p /general/button_layout");
+                if (!string.IsNullOrWhiteSpace(outputXfce))
+                {
+                    // Format is usually "O|HMC" or "CHM|" where | is title
+                    // O: Menu, H: Hide/Min, M: Max, C: Close
+                    var layout = outputXfce.Trim().ToUpperInvariant();
+                    var parts = layout.Split('|');
+                    if (parts.Length > 0)
+                    {
+                        var leftPart = parts[0];
+                        if (leftPart.Contains('C') || leftPart.Contains('M') || leftPart.Contains('H'))
+                        {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+
+            // Fallback to GNOME/GTK detection
             var output = TryReadProcessStdOut("gsettings", "get org.gnome.desktop.wm.preferences button-layout");
             if (!string.IsNullOrWhiteSpace(output))
             {
@@ -612,6 +701,7 @@ public partial class MainWindowViewModel : ViewModelBase
         }
         catch
         {
+            // Ignore errors, default to false (Windows-like)
         }
 
         return false;

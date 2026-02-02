@@ -59,8 +59,8 @@
 
     <!-- Native Menu -->
     <x:String x:Key="MenuAbout">About OpenDownloader</x:String>
-    <x:String x:Key="MenuCheckUpdate">Check for Updates...</x:String>
-    <x:String x:Key="MenuQuit">Quit OpenDownloader</x:String>
+    <x:String x:Key="MenuCheckUpdate">Check for Updates</x:String>
+    <x:String x:Key="MenuQuit">Quit</x:String>
     <x:String x:Key="MenuFile">File</x:String>
     <x:String x:Key="MenuView">View</x:String>
     <x:String x:Key="MenuDelete">Delete</x:String>
