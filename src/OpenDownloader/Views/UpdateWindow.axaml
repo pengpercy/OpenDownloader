@@ -19,9 +19,9 @@
     <Design.DataContext>
         <views:UpdateViewModel>
             <views:UpdateViewModel.Release>
-                <services:ReleaseInfo TagName="v1.0.31" Body="🚀 版本发布 v1.0.31&#x0a;&#x0a;✨ 改进：&#x0a;- 🎨 主窗口标题栏与内容区背景做了轻微区分，更有层次感。&#x0a;- 🎯 左下角设置悬浮菜单：hover 背景稳定使用主题强调色（跟随系统主题也生效）。&#x0a;- 📝 更新窗口发布说明支持 Markdown 渲染（更适合长文与列表）。&#x0a;&#x0a;🧹 工程清理：&#x0a;- 移除了冗余的 Markdown 渲染库依赖，统一使用 LiveMarkdown.Avalonia。" />
+                <services:ReleaseInfo TagName="v1.0.32" Body="🚀 版本发布 v1.0.32&#x0a;&#x0a;🐛 修复：&#x0a;- 🪟 Windows CI 构建失败：修正 CommunityToolkit.WinUI.Notifications 的 NuGet 版本号，确保 Windows ARM64 等平台可正常还原与构建。&#x0a;&#x0a;✨ 保持：&#x0a;- 其他功能与界面改动与 v1.0.31 一致。" />
             </views:UpdateViewModel.Release>
-            <views:UpdateViewModel.CurrentVersion>1.0.30</views:UpdateViewModel.CurrentVersion>
+            <views:UpdateViewModel.CurrentVersion>1.0.31</views:UpdateViewModel.CurrentVersion>
         </views:UpdateViewModel>
     </Design.DataContext>
 
