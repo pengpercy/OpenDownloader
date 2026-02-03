@@ -373,8 +373,6 @@ public class Aria2Service : IAria2Service, IDisposable
             "removed" => "StatusStopped",
             _ => "StatusStopped"
         };
-        
-        if (taskStatus == "StatusCompleted") taskStatus = "StatusStopped"; // Reuse stopped for now as per MockDataService logic
 
         // Name, Path, Url
         var name = "Unknown";

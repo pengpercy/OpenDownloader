@@ -737,16 +737,14 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty]
     private ObservableCollection<ToastMessage> _toasts = new();
 
-    private void ShowToast(ToastMessage message)
+    private async void ShowToast(ToastMessage message)
     {
-        Dispatcher.UIThread.Invoke(() =>
+        await Dispatcher.UIThread.InvokeAsync(async () =>
         {
             Toasts.Add(message);
             // Auto remove after 3 seconds
-            Task.Delay(3000).ContinueWith(_ => 
-            {
-                Dispatcher.UIThread.Invoke(() => Toasts.Remove(message));
-            });
+            await Task.Delay(3000);
+            Toasts.Remove(message);
         });
     }
 
@@ -844,7 +842,7 @@ public partial class MainWindowViewModel : ViewModelBase
                         AppLog.Warn($"Download failed: {t.Name} ({t.Id})");
                         _notificationService.ShowNotification(GetString("NotificationDownloadFailed"), t.Name, ToastType.Error);
                     }
-                    else if (prev == "StatusDownloading" && t.Status == "StatusCompleted")
+                    else if (prev != "StatusCompleted" && t.Status == "StatusCompleted")
                     {
                         _notificationService.ShowNotification(GetString("NotificationDownloadComplete"), t.Name, ToastType.Success);
                     }

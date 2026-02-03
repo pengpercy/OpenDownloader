@@ -79,6 +79,8 @@
             <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
         </PackageReference>
         <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+        <!-- 仅在 Windows 编译时引入通知库 -->
+        <PackageReference Include="CommunityToolkit.WinUI.Notifications" Version="8.4.0" Condition="$([MSBuild]::IsOSPlatform('Windows'))" />
     </ItemGroup>
 
   <ItemGroup>
