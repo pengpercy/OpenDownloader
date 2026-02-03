@@ -13,24 +13,19 @@ public class NotificationService
 
     public void ShowNotification(string title, string message, ToastType type = ToastType.Info)
     {
-        // Check if main window is active
-        if (IsMainWindowActive())
+        // Always show in-app Toast notification
+        ToastRequested?.Invoke(this, new ToastMessage { Title = title, Message = message, Type = type });
+
+        // Always show native system notification
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
         {
-            ToastRequested?.Invoke(this, new ToastMessage { Title = title, Message = message, Type = type });
+            ShowMacNotification(title, message);
         }
-        else
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            // Otherwise show native notification
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                ShowMacNotification(title, message);
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                ShowWindowsNotification(title, message);
-            }
-            // Linux support can be added with notify-send
+            ShowWindowsNotification(title, message);
         }
+        // Linux support can be added with notify-send
     }
 
     private bool IsMainWindowActive()
