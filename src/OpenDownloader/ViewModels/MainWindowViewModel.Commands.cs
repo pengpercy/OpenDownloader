@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Media;
 using Avalonia.Platform.Storage;
 using Avalonia.Styling;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -22,25 +23,36 @@ public partial class MainWindowViewModel
     [RelayCommand]
     public void OpenRepoUrl()
     {
+        OpenUrl(RepositoryUrl);
+    }
+
+    [RelayCommand]
+    public void OpenFeedbackUrl()
+    {
+        OpenUrl(FeedbackUrl);
+    }
+
+    private void OpenUrl(string url)
+    {
         try
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                Process.Start(new ProcessStartInfo(RepositoryUrl) { UseShellExecute = true });
+                Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
-                Process.Start("open", RepositoryUrl);
+                Process.Start("open", url);
             }
             else
             {
-                Process.Start("xdg-open", RepositoryUrl);
+                Process.Start("xdg-open", url);
             }
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"OpenRepoUrl Failed: {ex.Message}");
-            AppLog.Error(ex, "OpenRepoUrl failed");
+            Debug.WriteLine($"OpenUrl Failed: {ex.Message}");
+            AppLog.Error(ex, $"OpenUrl failed for {url}");
         }
     }
 
@@ -161,11 +173,18 @@ public partial class MainWindowViewModel
     }
 
     [RelayCommand]
-    public async Task CheckForUpdates()
+    public async Task CheckForUpdates(object? parameter)
     {
         if (IsCheckingForUpdates) return;
-        IsCheckingForUpdates = true;
+        
+        var isFromAbout = parameter?.ToString() == "About";
+        
+        if (isFromAbout)
+        {
+            IsUpdateCheckStatusVisible = false;
+        }
 
+        IsCheckingForUpdates = true;
         var updateService = new UpdateService();
         var currentVersion = AppVersion.TrimStart('v');
 
@@ -188,15 +207,27 @@ public partial class MainWindowViewModel
 
         if (release != null)
         {
-            var dialog = new UpdateWindow(release);
+            var dialog = new UpdateWindow(release, _settingsService);
             await dialog.ShowDialog(mainWindow);
         }
         else
         {
-            var title = GetString("TitleUpdateCheck");
-            var message = GetString("MessageNoUpdates");
-            var dialog = new InfoDialog(title, message);
-            await dialog.ShowDialog(mainWindow);
+            if (isFromAbout)
+            {
+                UpdateCheckStatusText = GetString("MessageNoUpdates");
+                UpdateCheckStatusBrush = Brushes.Gray;
+                IsUpdateCheckStatusVisible = true;
+                
+                // Hide after 5 seconds
+                _ = Task.Delay(5000).ContinueWith(_ => IsUpdateCheckStatusVisible = false, TaskScheduler.FromCurrentSynchronizationContext());
+            }
+            else
+            {
+                var title = GetString("TitleUpdateCheck");
+                var message = GetString("MessageNoUpdates");
+                var dialog = new InfoDialog(title, message);
+                await dialog.ShowDialog(mainWindow);
+            }
         }
     }
 

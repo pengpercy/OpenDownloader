@@ -13,4 +13,6 @@ public class AppSettings
     public int ProxyPort { get; set; } = 8080;
     public string ProxyUsername { get; set; } = string.Empty;
     public string ProxyPassword { get; set; } = string.Empty;
+    public bool AutoInstallUpdates { get; set; } = false;
+    public string SkipVersion { get; set; } = string.Empty;
 }

@@ -10,7 +10,7 @@
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
         <ApplicationIcon>Assets/app_ico.ico</ApplicationIcon>
-        <Version>1.0.30</Version>
+        <Version>1.0.31</Version>
         <InformationalVersion>$(Version)</InformationalVersion>
     </PropertyGroup>
 
@@ -73,12 +73,16 @@
         <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.11" />
         <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.11" />
         <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.3.11" />
+        <PackageReference Include="Avalonia.Controls.ColorPicker" Version="11.3.11" />
+        <PackageReference Include="LiveMarkdown.Avalonia" Version="1.7.0" />
         <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
         <PackageReference Include="Avalonia.Diagnostics" Version="11.3.11">
             <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
             <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
         </PackageReference>
         <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+        <!-- 仅在 Windows 编译时引入通知库 -->
+        <PackageReference Include="CommunityToolkit.WinUI.Notifications" Version="8.4.0" Condition="$([MSBuild]::IsOSPlatform('Windows'))" />
     </ItemGroup>
 
   <ItemGroup>
