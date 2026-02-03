@@ -60,6 +60,7 @@
     <!-- Native Menu -->
     <x:String x:Key="MenuAbout">About OpenDownloader</x:String>
     <x:String x:Key="MenuCheckUpdate">Check for Updates</x:String>
+    <x:String x:Key="MenuFeedback">Feedback</x:String>
     <x:String x:Key="MenuQuit">Quit</x:String>
     <x:String x:Key="MenuFile">File</x:String>
     <x:String x:Key="MenuView">View</x:String>
@@ -111,6 +112,12 @@
     <x:String x:Key="UpdateFromTo">Update from {0} to {1}</x:String>
     <x:String x:Key="TitleUpdateCheck">Update Check</x:String>
     <x:String x:Key="MessageNoUpdates">You're already on the latest version.</x:String>
+    <x:String x:Key="TitleNewVersionAvailable">A new version of {0} is available!</x:String>
+    <x:String x:Key="UpdateDescription">{0} {1} is now available - you have {2}. Would you like to download it now?</x:String>
+    <x:String x:Key="ButtonSkipVersion">Skip This Version</x:String>
+    <x:String x:Key="ButtonRemindLater">Remind Me Later</x:String>
+    <x:String x:Key="ButtonInstallUpdate">Install Update</x:String>
+    <x:String x:Key="LabelAutoUpdate">Automatically download and install updates in the future</x:String>
     <x:String x:Key="UpdateStatusPreparing">Preparing...</x:String>
     <x:String x:Key="UpdateStatusDownloading">Downloading... {0}%</x:String>
     <x:String x:Key="UpdateStatusApplying">Applying update...</x:String>

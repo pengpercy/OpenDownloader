@@ -60,6 +60,7 @@
     <!-- Native Menu -->
     <x:String x:Key="MenuAbout">关于 OpenDownloader</x:String>
     <x:String x:Key="MenuCheckUpdate">检查更新</x:String>
+    <x:String x:Key="MenuFeedback">意见反馈</x:String>
     <x:String x:Key="MenuQuit">退出</x:String>
     <x:String x:Key="MenuFile">文件</x:String>
     <x:String x:Key="MenuView">视图</x:String>
@@ -111,7 +112,13 @@
     <x:String x:Key="UpdateFromTo">从 {0} 升级到 {1}</x:String>
     <x:String x:Key="TitleUpdateCheck">检查更新</x:String>
     <x:String x:Key="MessageNoUpdates">当前已是最新版本。</x:String>
-    <x:String x:Key="UpdateStatusPreparing">准备中...</x:String>
+    <x:String x:Key="TitleNewVersionAvailable">发现新版本 {0}！</x:String>
+    <x:String x:Key="UpdateDescription">{0} {1} 现已可用 - 您当前版本为 {2}。是否立即下载？</x:String>
+    <x:String x:Key="ButtonSkipVersion">跳过此版本</x:String>
+    <x:String x:Key="ButtonRemindLater">稍后提醒我</x:String>
+    <x:String x:Key="ButtonInstallUpdate">安装更新</x:String>
+    <x:String x:Key="LabelAutoUpdate">以后自动下载并安装更新</x:String>
+    <x:String x:Key="UpdateStatusPreparing">正在准备...</x:String>
     <x:String x:Key="UpdateStatusDownloading">正在下载... {0}%</x:String>
     <x:String x:Key="UpdateStatusApplying">正在应用更新...</x:String>
     <x:String x:Key="UpdateStatusNoPackage">未找到适用于当前系统的安装包。</x:String>

@@ -371,9 +371,19 @@ public partial class MainWindowViewModel : ViewModelBase
     private string _appVersion = "0.0.0";
 
     public string RepositoryUrl => "https://github.com/pengpercy/OpenDownloader";
+    public string FeedbackUrl => "https://github.com/pengpercy/OpenDownloader/issues/new";
 
     [ObservableProperty]
     private bool _isCheckingForUpdates;
+
+    [ObservableProperty]
+    private string _updateCheckStatusText = string.Empty;
+
+    [ObservableProperty]
+    private IBrush _updateCheckStatusBrush = Brushes.Gray;
+
+    [ObservableProperty]
+    private bool _isUpdateCheckStatusVisible;
 
     public string CheckUpdateButtonKey => IsCheckingForUpdates ? "BtnCheckingUpdate" : "BtnCheckUpdate";
 
@@ -385,6 +395,7 @@ public partial class MainWindowViewModel : ViewModelBase
     // Theme & Language Options
     public record ThemeOption(string Key, string Value);
     public record LanguageOption(string Key, string Value);
+    public record AccentModeOption(string Key, string Value);
 
     public ObservableCollection<ThemeOption> ThemeOptions { get; } =
     [
@@ -400,11 +411,20 @@ public partial class MainWindowViewModel : ViewModelBase
         new("中文", "zh-CN")
     ];
 
+    public ObservableCollection<AccentModeOption> AccentModeOptions { get; } =
+    [
+        new("LabelFollowSystem", "System"),
+        new("LabelCustomAccent", "Custom")
+    ];
+
     [ObservableProperty]
     private ThemeOption? _selectedTheme;
 
     [ObservableProperty]
     private LanguageOption? _selectedLanguage;
+
+    [ObservableProperty]
+    private AccentModeOption? _selectedAccentMode;
 
     [ObservableProperty]
     private bool _isAutoStartEnabled;
@@ -417,7 +437,19 @@ public partial class MainWindowViewModel : ViewModelBase
     }
 
     [ObservableProperty]
+    private bool _isAutoInstallUpdatesEnabled;
+
+    partial void OnIsAutoInstallUpdatesEnabledChanged(bool value)
+    {
+        _settingsService.Settings.AutoInstallUpdates = value;
+        _settingsService.Save();
+    }
+
+    [ObservableProperty]
     private bool _isAccentFollowSystem = true;
+
+    [ObservableProperty]
+    private Color _customAccentColor = Color.Parse("#508252");
 
     [ObservableProperty]
     private string _customAccentColorHex = "#508252";
@@ -425,21 +457,17 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty]
     private SolidColorBrush _customAccentPreviewBrush = new(Color.Parse("#508252"));
 
-    [ObservableProperty]
-    private int _customAccentR = 80;
-
-    [ObservableProperty]
-    private int _customAccentG = 130;
-
-    [ObservableProperty]
-    private int _customAccentB = 82;
-
     private bool _isUpdatingAccent;
 
-    partial void OnIsAccentFollowSystemChanged(bool value)
+    partial void OnSelectedAccentModeChanged(AccentModeOption? value)
     {
-        _settingsService.Settings.AccentMode = value ? "System" : "Custom";
-        if (value)
+        if (value == null) return;
+        
+        var mode = value.Value;
+        IsAccentFollowSystem = mode == "System";
+        _settingsService.Settings.AccentMode = mode;
+        
+        if (IsAccentFollowSystem)
         {
             _settingsService.Settings.CustomAccentColor = string.Empty;
         }
@@ -447,8 +475,28 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             _settingsService.Settings.CustomAccentColor = CustomAccentColorHex;
         }
+        
         _settingsService.Save();
         ThemeAccentService.Apply(_settingsService.Settings.AccentMode, _settingsService.Settings.CustomAccentColor);
+    }
+
+    partial void OnCustomAccentColorChanged(Color value)
+    {
+        if (_isUpdatingAccent) return;
+
+        var hex = $"#{value.R:X2}{value.G:X2}{value.B:X2}";
+        
+        _isUpdatingAccent = true;
+        CustomAccentColorHex = hex;
+        CustomAccentPreviewBrush = new SolidColorBrush(value);
+        _isUpdatingAccent = false;
+
+        if (IsAccentFollowSystem) return;
+
+        _settingsService.Settings.AccentMode = "Custom";
+        _settingsService.Settings.CustomAccentColor = hex;
+        _settingsService.Save();
+        ThemeAccentService.Apply("Custom", hex);
     }
 
     partial void OnCustomAccentColorHexChanged(string value)
@@ -459,9 +507,7 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             CustomAccentPreviewBrush = new SolidColorBrush(c);
             _isUpdatingAccent = true;
-            CustomAccentR = c.R;
-            CustomAccentG = c.G;
-            CustomAccentB = c.B;
+            CustomAccentColor = c;
             _isUpdatingAccent = false;
         }
 
@@ -471,43 +517,6 @@ public partial class MainWindowViewModel : ViewModelBase
         _settingsService.Settings.CustomAccentColor = value;
         _settingsService.Save();
         ThemeAccentService.Apply("Custom", value);
-    }
-
-    partial void OnCustomAccentRChanged(int value)
-    {
-        UpdateCustomAccentFromRgb();
-    }
-
-    partial void OnCustomAccentGChanged(int value)
-    {
-        UpdateCustomAccentFromRgb();
-    }
-
-    partial void OnCustomAccentBChanged(int value)
-    {
-        UpdateCustomAccentFromRgb();
-    }
-
-    private void UpdateCustomAccentFromRgb()
-    {
-        if (_isUpdatingAccent) return;
-
-        var r = (byte)Math.Clamp(CustomAccentR, 0, 255);
-        var g = (byte)Math.Clamp(CustomAccentG, 0, 255);
-        var b = (byte)Math.Clamp(CustomAccentB, 0, 255);
-        var hex = $"#{r:X2}{g:X2}{b:X2}";
-
-        _isUpdatingAccent = true;
-        CustomAccentColorHex = hex;
-        _isUpdatingAccent = false;
-
-        if (!IsAccentFollowSystem)
-        {
-            _settingsService.Settings.AccentMode = "Custom";
-            _settingsService.Settings.CustomAccentColor = hex;
-            _settingsService.Save();
-            ThemeAccentService.Apply("Custom", hex);
-        }
     }
 
     public string EmptyStateSubtitleDownloadingText
@@ -587,6 +596,10 @@ public partial class MainWindowViewModel : ViewModelBase
         SelectedLanguage = LanguageOptions.FirstOrDefault(l => l.Value == savedLang) ?? LanguageOptions.FirstOrDefault(l => l.Value == "System") ?? LanguageOptions[2];
 
         IsAutoStartEnabled = _settingsService.Settings.AutoStart;
+        IsAutoInstallUpdatesEnabled = _settingsService.Settings.AutoInstallUpdates;
+
+        var savedAccentMode = _settingsService.Settings.AccentMode;
+        SelectedAccentMode = AccentModeOptions.FirstOrDefault(a => a.Value == savedAccentMode) ?? AccentModeOptions[0];
 
         if (!string.IsNullOrWhiteSpace(_settingsService.Settings.DefaultSavePath))
         {
@@ -607,7 +620,15 @@ public partial class MainWindowViewModel : ViewModelBase
         IsAccentFollowSystem = !string.Equals(_settingsService.Settings.AccentMode, "Custom", StringComparison.OrdinalIgnoreCase);
         if (!string.IsNullOrWhiteSpace(_settingsService.Settings.CustomAccentColor))
         {
-            CustomAccentColorHex = _settingsService.Settings.CustomAccentColor;
+            var hex = _settingsService.Settings.CustomAccentColor;
+            if (Color.TryParse(hex, out var c))
+            {
+                _isUpdatingAccent = true;
+                CustomAccentColor = c;
+                CustomAccentColorHex = hex;
+                CustomAccentPreviewBrush = new SolidColorBrush(c);
+                _isUpdatingAccent = false;
+            }
         }
         ThemeAccentService.Apply(_settingsService.Settings.AccentMode, _settingsService.Settings.CustomAccentColor);
 

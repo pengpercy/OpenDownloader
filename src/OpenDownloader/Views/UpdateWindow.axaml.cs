@@ -7,8 +7,10 @@ using System.Linq;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Avalonia;
 using System.Globalization;
+using LiveMarkdown.Avalonia;
 
 namespace OpenDownloader.Views;
 
@@ -21,21 +23,34 @@ public partial class UpdateWindow : DialogWindow
         InitializeComponent();
         _viewModel = new UpdateViewModel();
         DataContext = _viewModel;
+
+        if (Design.IsDesignMode)
+        {
+            LocalizationService.SwitchLanguage("zh-CN");
+        }
     }
 
-    public UpdateWindow(ReleaseInfo release) : this()
+    public UpdateWindow(ReleaseInfo release, SettingsService? settingsService = null) : this()
     {
         _viewModel.Release = release;
         _viewModel.CurrentVersion = AppVersionProvider.GetCurrentVersion();
+        _viewModel.SettingsService = settingsService;
+        
+        if (settingsService != null)
+        {
+            _viewModel.AutoInstallUpdates = settingsService.Settings.AutoInstallUpdates;
+        }
     }
 
     private void OnLaterClick(object sender, RoutedEventArgs e)
     {
+        _viewModel.SaveSettings();
         Close();
     }
 
     private async void OnUpdateClick(object sender, RoutedEventArgs e)
     {
+        _viewModel.SaveSettings();
         // Change window size when starting download
         this.Width = 480;
         this.Height = 240;
@@ -56,6 +71,8 @@ public partial class UpdateWindow : DialogWindow
 
 public partial class UpdateViewModel : ObservableObject
 {
+    public SettingsService? SettingsService { get; set; }
+
     [ObservableProperty]
     private ReleaseInfo _release = new();
 
@@ -74,8 +91,21 @@ public partial class UpdateViewModel : ObservableObject
     [ObservableProperty]
     private string _currentVersion = string.Empty;
 
+    [ObservableProperty]
+    private bool _autoInstallUpdates;
+
+    public ObservableStringBuilder ReleaseNotesBuilder { get; } = new();
+
+    public string AppName => "OpenDownloader";
+
+    public string WindowTitle => GetString("TitleUpdateAvailable", "Update Available");
+
     public string VersionText => Release.TagName.StartsWith("v", StringComparison.OrdinalIgnoreCase) ? Release.TagName : $"v{Release.TagName}";
     public string ReleaseNotes => Release.Body;
+
+    public string UpdateTitleText => string.Format(CultureInfo.CurrentCulture, GetString("TitleNewVersionAvailable", "A new version of {0} is available!"), AppName);
+
+    public string UpdateDescriptionText => string.Format(CultureInfo.CurrentCulture, GetString("UpdateDescription", "{0} {1} is now available - you have {2}. Would you like to download it now?"), AppName, VersionText, CurrentVersion.StartsWith("v") ? CurrentVersion : $"v{CurrentVersion}");
 
     public string UpdateFromToText
     {
@@ -87,19 +117,65 @@ public partial class UpdateViewModel : ObservableObject
         }
     }
 
+    public string ButtonSkipText => GetString("ButtonSkipVersion", "Skip This Version");
+    public string ButtonLaterText => GetString("ButtonRemindLater", "Remind Me Later");
+    public string ButtonInstallText => GetString("ButtonInstallUpdate", "Install Update");
+    public string ButtonInstallRelaunchText => GetString("ButtonInstallAndRelaunch", "Install and Relaunch");
+    public string AutoUpdateLabelText => GetString("LabelAutoUpdate", "Automatically download and install updates in the future");
+
     partial void OnReleaseChanged(ReleaseInfo value)
     {
+        ReleaseNotesBuilder.Clear();
+        ReleaseNotesBuilder.Append(Release.Body ?? string.Empty);
+
         OnPropertyChanged(nameof(VersionText));
         OnPropertyChanged(nameof(ReleaseNotes));
         OnPropertyChanged(nameof(UpdateFromToText));
+        OnPropertyChanged(nameof(UpdateTitleText));
+        OnPropertyChanged(nameof(UpdateDescriptionText));
+        OnPropertyChanged(nameof(ButtonSkipText));
+        OnPropertyChanged(nameof(ButtonLaterText));
+        OnPropertyChanged(nameof(ButtonInstallText));
+        OnPropertyChanged(nameof(AutoUpdateLabelText));
     }
 
     partial void OnCurrentVersionChanged(string value)
     {
         OnPropertyChanged(nameof(UpdateFromToText));
+        OnPropertyChanged(nameof(UpdateDescriptionText));
     }
 
     private string? _downloadedFilePath;
+
+    [RelayCommand]
+    public void SkipThisVersion()
+    {
+        if (SettingsService != null)
+        {
+            SettingsService.Settings.SkipVersion = Release.TagName;
+            SettingsService.Settings.AutoInstallUpdates = AutoInstallUpdates;
+            SettingsService.Save();
+        }
+    }
+
+    [RelayCommand]
+    public void RemindMeLater()
+    {
+        if (SettingsService != null)
+        {
+            SettingsService.Settings.AutoInstallUpdates = AutoInstallUpdates;
+            SettingsService.Save();
+        }
+    }
+
+    public void SaveSettings()
+    {
+        if (SettingsService != null)
+        {
+            SettingsService.Settings.AutoInstallUpdates = AutoInstallUpdates;
+            SettingsService.Save();
+        }
+    }
 
     public async Task StartDownloadAsync(Window window)
     {

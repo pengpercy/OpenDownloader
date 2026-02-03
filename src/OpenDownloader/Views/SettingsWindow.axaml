@@ -5,6 +5,7 @@
                     xmlns:views="using:OpenDownloader.Views"
                     xmlns:vm="using:OpenDownloader.ViewModels"
                     xmlns:localConv="using:OpenDownloader.Converters"
+                    xmlns:cp="clr-namespace:Avalonia.Controls;assembly=Avalonia.Controls.ColorPicker"
                     mc:Ignorable="d" d:DesignWidth="920" d:DesignHeight="640"
                     x:Class="OpenDownloader.Views.SettingsWindow"
                     x:DataType="vm:MainWindowViewModel"
@@ -35,6 +36,9 @@
                     </KeyFrame>
                 </Animation>
             </Style.Animations>
+        </Style>
+        <Style Selector="FlyoutPresenter.colorPickerFlyout">
+            <Setter Property="Padding" Value="0" />
         </Style>
 
         <Style Selector="Button.settingsNav">
@@ -139,13 +143,15 @@
             </StackPanel>
         </Grid>
 
-        <Grid Grid.Column="2" RowDefinitions="Auto, *" Margin="28,20,28,28">
+    <Grid Grid.Column="2" RowDefinitions="Auto, Auto, *" Margin="28,20,28,28">
             <TextBlock Grid.Row="0"
                        Text="{Binding CurrentSettingsTitleKey, Converter={StaticResource ResourceKeyToTextConverter}}"
-                       FontSize="22"
+                       FontSize="18"
                        FontWeight="SemiBold" />
 
-            <ScrollViewer Grid.Row="1" Margin="0,20,0,0" VerticalScrollBarVisibility="Auto">
+            <Border Grid.Row="1" Height="1" Background="{DynamicResource SystemControlHighlightBaseLowBrush}" Opacity="0.3" Margin="0,16,0,0" />
+
+            <ScrollViewer Grid.Row="2" Margin="0,20,0,0" VerticalScrollBarVisibility="Auto">
                 <StackPanel Spacing="18">
                     <Border Classes="settingsCard" IsVisible="{Binding IsSettingsGeneral}">
                         <StackPanel Spacing="14">
@@ -153,7 +159,7 @@
 
                             <Border Classes="settingsDivider"/>
 
-                            <Grid ColumnDefinitions="200, *" RowDefinitions="Auto, Auto" RowSpacing="14">
+                            <Grid ColumnDefinitions="200, *" RowDefinitions="Auto, Auto, Auto" RowSpacing="14">
                                 <TextBlock Grid.Row="0" Grid.Column="0" Text="{DynamicResource LabelLanguage}" VerticalAlignment="Center" Opacity="0.85" FontSize="13"/>
                                 <ComboBox Grid.Row="0" Grid.Column="1" ItemsSource="{Binding LanguageOptions}" SelectedItem="{Binding SelectedLanguage}" HorizontalAlignment="Stretch">
                                     <ComboBox.ItemTemplate>
@@ -165,15 +171,21 @@
 
                                 <TextBlock Grid.Row="1" Grid.Column="0" Text="{DynamicResource LabelAutoStart}" VerticalAlignment="Center" Opacity="0.85" FontSize="13"/>
                                 <ToggleSwitch Grid.Row="1" Grid.Column="1" IsChecked="{Binding IsAutoStartEnabled}" HorizontalAlignment="Left"/>
+
+                                <TextBlock Grid.Row="2" Grid.Column="0" Text="{DynamicResource LabelAutoUpdate}" VerticalAlignment="Center" Opacity="0.85" FontSize="13"/>
+                                <ToggleSwitch Grid.Row="2" Grid.Column="1" IsChecked="{Binding IsAutoInstallUpdatesEnabled}" HorizontalAlignment="Left"/>
                             </Grid>
 
                             <Border Classes="settingsDivider"/>
 
-                            <Grid ColumnDefinitions="200, *, Auto" RowDefinitions="Auto" ColumnSpacing="12">
+                            <Grid ColumnDefinitions="200, *, Auto" RowDefinitions="Auto">
                                 <TextBlock Grid.Column="0" Text="{DynamicResource LabelDefaultSavePath}" VerticalAlignment="Center" Opacity="0.85" FontSize="13"/>
-                                <TextBox Grid.Column="1" Text="{Binding DefaultSavePath}" IsReadOnly="True" FontSize="13"/>
-                                <Button Grid.Column="2" Command="{Binding ChooseDefaultSavePathCommand}" Padding="14,8">
-                                    <TextBlock Text="{DynamicResource BtnBrowse}" FontSize="13"/>
+                                <TextBox Grid.Column="1" Text="{Binding DefaultSavePath}" IsReadOnly="True" FontSize="13" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                <Button Grid.Column="2" Command="{Binding ChooseDefaultSavePathCommand}" VerticalAlignment="Center">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <PathIcon Data="{StaticResource IconFolder}" Width="14" Height="14" Opacity="0.8"/>
+                                        <TextBlock Text="{DynamicResource BtnBrowse}" FontSize="13"/>
+                                    </StackPanel>
                                 </Button>
                             </Grid>
                         </StackPanel>
@@ -196,21 +208,38 @@
                                 </ComboBox>
 
                                 <TextBlock Grid.Row="1" Grid.Column="0" Text="{DynamicResource LabelAccentColor}" VerticalAlignment="Center" Opacity="0.85" FontSize="13"/>
-                                <ToggleSwitch Grid.Row="1" Grid.Column="1" IsChecked="{Binding IsAccentFollowSystem}" Content="{DynamicResource LabelFollowSystem}" />
+                                <ComboBox Grid.Row="1" Grid.Column="1" ItemsSource="{Binding AccentModeOptions}" SelectedItem="{Binding SelectedAccentMode}" HorizontalAlignment="Stretch">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Key, Converter={StaticResource ResourceKeyToTextConverter}}" FontSize="13"/>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
                             </Grid>
 
                             <StackPanel Spacing="14" IsVisible="{Binding !IsAccentFollowSystem}">
                                 <Border Classes="settingsDivider" Margin="0,8"/>
-                                <Grid ColumnDefinitions="200, *, Auto" ColumnSpacing="12">
+                                <Grid ColumnDefinitions="200, *">
                                     <TextBlock Grid.Column="0" Text="{DynamicResource LabelCustomAccent}" VerticalAlignment="Center" Opacity="0.85" FontSize="13"/>
-                                    <TextBox Grid.Column="1" Text="{Binding CustomAccentColorHex}" Watermark="#RRGGBB" FontSize="13"/>
-                                    <Border Grid.Column="2" Width="32" Height="32" CornerRadius="8" Background="{Binding CustomAccentPreviewBrush}" />
-                                </Grid>
-                                <Grid ColumnDefinitions="200, *, *, *" ColumnSpacing="12" RowDefinitions="Auto">
-                                    <TextBlock Grid.Column="0" Text="{DynamicResource LabelRgb}" VerticalAlignment="Center" Opacity="0.85" FontSize="13"/>
-                                    <NumericUpDown Grid.Column="1" Minimum="0" Maximum="255" Value="{Binding CustomAccentR}" FontSize="13"/>
-                                    <NumericUpDown Grid.Column="2" Minimum="0" Maximum="255" Value="{Binding CustomAccentG}" FontSize="13"/>
-                                    <NumericUpDown Grid.Column="3" Minimum="0" Maximum="255" Value="{Binding CustomAccentB}" FontSize="13"/>
+                                    <Button Grid.Column="1" HorizontalAlignment="Left" Padding="0" Background="Transparent" BorderThickness="0">
+                                        <Button.RenderTransform>
+                                            <ScaleTransform ScaleX="0.9" ScaleY="0.9" />
+                                        </Button.RenderTransform>
+                                        <StackPanel Orientation="Horizontal" Spacing="10">
+                                            <Border Width="28" Height="28" CornerRadius="6" Background="{Binding CustomAccentPreviewBrush}" />
+                                            <TextBlock Text="{Binding CustomAccentColorHex}" VerticalAlignment="Center" FontSize="13" Opacity="0.8"/>
+                                        </StackPanel>
+                                        <Button.Flyout>
+                                            <Flyout Placement="Bottom" FlyoutPresenterClasses="colorPickerFlyout">
+                                                <LayoutTransformControl>
+                                                    <LayoutTransformControl.LayoutTransform>
+                                                        <ScaleTransform ScaleX="0.9" ScaleY="0.9" />
+                                                    </LayoutTransformControl.LayoutTransform>
+                                                    <cp:ColorView Color="{Binding CustomAccentColor, Mode=TwoWay}" IsAlphaEnabled="False" />
+                                                </LayoutTransformControl>
+                                            </Flyout>
+                                        </Button.Flyout>
+                                    </Button>
                                 </Grid>
                             </StackPanel>
                         </StackPanel>
@@ -263,22 +292,33 @@
                                         </Button>
                                     </StackPanel>
                                     
-                                    <Button IsEnabled="{Binding !IsCheckingForUpdates}" 
-                                            Command="{Binding CheckForUpdatesCommand}" 
-                                            Margin="0,10,0,0" HorizontalAlignment="Left">
-                                        <StackPanel Orientation="Horizontal" Spacing="8">
-                                            <Panel Width="16" Height="16">
-                                                <!-- Static Icon (Visible when NOT checking) -->
-                                                <PathIcon Data="{StaticResource IconRefresh}" Width="16" Height="16" 
-                                                          IsVisible="{Binding !IsCheckingForUpdates}"/>
-                                                <!-- Spinning Icon (Visible when checking) -->
-                                                <PathIcon Data="{StaticResource IconRefresh}" Width="16" Height="16" 
-                                                          Classes="spin"
-                                                          IsVisible="{Binding IsCheckingForUpdates}"/>
-                                            </Panel>
-                                            <TextBlock Text="{Binding CheckUpdateButtonKey, Converter={StaticResource ResourceKeyToTextConverter}}" FontSize="13"/>
-                                        </StackPanel>
-                                    </Button>
+                                    <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,10,0,0">
+                                        <Button IsEnabled="{Binding !IsCheckingForUpdates}" 
+                                                Command="{Binding CheckForUpdatesCommand}" 
+                                                CommandParameter="About"
+                                                HorizontalAlignment="Left">
+                                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                                <Panel Width="16" Height="16">
+                                                    <!-- Static Icon (Visible when NOT checking) -->
+                                                    <PathIcon Data="{StaticResource IconRefresh}" Width="16" Height="16" 
+                                                              IsVisible="{Binding !IsCheckingForUpdates}"/>
+                                                    <!-- Spinning Icon (Visible when checking) -->
+                                                    <PathIcon Data="{StaticResource IconRefresh}" Width="16" Height="16" 
+                                                              Classes="spin"
+                                                              IsVisible="{Binding IsCheckingForUpdates}"/>
+                                                </Panel>
+                                                <TextBlock Text="{Binding CheckUpdateButtonKey, Converter={StaticResource ResourceKeyToTextConverter}}" FontSize="13"/>
+                                            </StackPanel>
+                                        </Button>
+
+                                        <!-- Update check status label -->
+                                        <TextBlock Text="{Binding UpdateCheckStatusText}" 
+                                                   Foreground="{Binding UpdateCheckStatusBrush}"
+                                                   FontSize="12"
+                                                   VerticalAlignment="Center"
+                                                   IsVisible="{Binding IsUpdateCheckStatusVisible}"
+                                                   Opacity="0.8"/>
+                                    </StackPanel>
                                 </StackPanel>
                             </StackPanel>
                         </StackPanel>

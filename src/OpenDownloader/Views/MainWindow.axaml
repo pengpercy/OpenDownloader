@@ -13,7 +13,7 @@
         Icon="/Assets/app_ico.ico"
         Title="OpenDownloader"
         ExtendClientAreaToDecorationsHint="True"
-        ExtendClientAreaTitleBarHeightHint="44"
+        ExtendClientAreaTitleBarHeightHint="52"
         TransparencyLevelHint="AcrylicBlur"
         Background="Transparent"
         WindowStartupLocation="CenterScreen">
@@ -131,6 +131,45 @@
             <Setter Property="Spacing" Value="10" />
             <Setter Property="Margin" Value="0,0,0,20" />
         </Style>
+
+        <!-- Compact Menu Styles -->
+        <Style Selector="MenuFlyoutPresenter">
+            <Setter Property="Padding" Value="4" />
+            <Setter Property="MinWidth" Value="140" />
+        </Style>
+        <Style Selector="MenuItem">
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Padding" Value="8,6" />
+            <Setter Property="CornerRadius" Value="5" />
+            <Setter Property="Margin" Value="2,1" />
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+        <Style Selector="MenuItem:pointerover /template/ Border#PART_LayoutRoot">
+            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAccentBrush}" />
+            <Setter Property="CornerRadius" Value="5" />
+        </Style>
+        <Style Selector="MenuItem:pointerover /template/ ContentPresenter#PART_HeaderPresenter">
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+        <!-- Ensure text color remains unchanged on hover -->
+        <Style Selector="MenuItem:pointerover TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundChromeWhiteBrush}" />
+        </Style>
+        <Style Selector="MenuItem:pointerover /template/ TextBlock#PART_InputGestureText">
+            <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundChromeWhiteBrush}" />
+        </Style>
+
+        <!-- Settings Icon Hover Animation -->
+        <Style Selector="Button.settingsBtn PathIcon">
+            <Setter Property="Transitions">
+                <Transitions>
+                    <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.3" Easing="CubicEaseOut" />
+                </Transitions>
+            </Setter>
+        </Style>
+        <Style Selector="Button.settingsBtn:pointerover PathIcon">
+            <Setter Property="RenderTransform" Value="rotate(90deg) scale(1.1)" />
+        </Style>
     </Window.Styles>
 
     <Panel>
@@ -154,8 +193,8 @@
                 <!-- Add PointerPressed event handler for drag -->
                 <Grid RowDefinitions="Auto, *, Auto" Margin="0,0,0,20" Background="Transparent"
                       PointerPressed="Sidebar_PointerPressed">
-                    <!-- TitleBar Placeholder in Sidebar (44px height) -->
-                    <Grid Grid.Row="0" Height="44">
+                    <!-- TitleBar Placeholder in Sidebar (52px height) -->
+                    <Grid Grid.Row="0" Height="52">
                         <Button Command="{Binding TogglePaneCommand}"
                                 Background="Transparent"
                                 BorderThickness="0"
@@ -218,27 +257,13 @@
                     </StackPanel>
 
                     <StackPanel Grid.Row="2" Spacing="4">
-                        <Button Classes="sidebar" Classes.active="{Binding IsSettings}">
+                        <Button Classes="sidebar settingsBtn" Classes.active="{Binding IsSettings}">
                             <Button.Flyout>
                                 <MenuFlyout Placement="Top">
-                                    <MenuItem Header="{DynamicResource MenuSettings}" Command="{Binding ShowSettingsCommand}" InputGesture="Cmd+,">
-                                        <MenuItem.Icon>
-                                            <PathIcon Data="{StaticResource IconSettings}" Width="14" Height="14"/>
-                                        </MenuItem.Icon>
-                                    </MenuItem>
-                                    <MenuItem Header="{DynamicResource MenuCheckUpdate}" Command="{Binding CheckForUpdatesCommand}">
-                                        <MenuItem.Icon>
-                                            <PathIcon Data="{StaticResource IconRefresh}" Width="14" Height="14"/>
-                                        </MenuItem.Icon>
-                                    </MenuItem>
-                                    <MenuItem Header="{DynamicResource SettingsAbout}" Command="{Binding ShowAboutCommand}">
-                                        <MenuItem.Icon>
-                                            <PathIcon Data="{StaticResource IconInfo}" Width="14" Height="14"/>
-                                        </MenuItem.Icon>
-                                    </MenuItem>
-                                    <Separator/>
-                                    <MenuItem Header="{DynamicResource MenuQuit}" Command="{Binding QuitAppCommand}" InputGesture="Cmd+Q">
-                                    </MenuItem>
+                                    <MenuItem Header="{DynamicResource SettingsAbout}" Command="{Binding ShowAboutCommand}" />
+                                    <MenuItem Header="{DynamicResource MenuFeedback}" Command="{Binding OpenFeedbackUrlCommand}" />
+                                    <MenuItem Header="{DynamicResource MenuCheckUpdate}" Command="{Binding CheckForUpdatesCommand}" />
+                                    <MenuItem Header="{DynamicResource MenuSettings}" Command="{Binding ShowSettingsCommand}" InputGesture="Cmd+," />
                                 </MenuFlyout>
                             </Button.Flyout>
                             <Grid ColumnDefinitions="40, *">
@@ -256,7 +281,7 @@
                 <Grid RowDefinitions="52, *">
                     <!-- Title Bar -->
                     <Border Grid.Row="0"
-                            Background="{DynamicResource WorkspaceBackgroundBrush}"
+                            Background="{DynamicResource TitleBarBackgroundBrush}"
                             BorderThickness="1,0,0,1"
                             BorderBrush="{DynamicResource SystemControlHighlightBaseLowBrush}"
                             PointerPressed="TitleBar_PointerPressed">

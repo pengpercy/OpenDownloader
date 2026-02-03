@@ -4,37 +4,48 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:views="using:OpenDownloader.Views"
         xmlns:controls="using:OpenDownloader.Controls"
-        mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="350"
+        xmlns:services="using:OpenDownloader.Services"
+        xmlns:md="clr-namespace:LiveMarkdown.Avalonia;assembly=LiveMarkdown.Avalonia"
+        mc:Ignorable="d" d:DesignWidth="640" d:DesignHeight="520"
         x:Class="OpenDownloader.Views.UpdateWindow"
         x:DataType="views:UpdateViewModel"
         Classes="dialog"
-        Title="{DynamicResource TitleUpdateAvailable}"
+        Title="{Binding WindowTitle}"
         Width="640"
         Height="520"
+        SizeToContent="Manual"
         >
 
+    <Design.DataContext>
+        <views:UpdateViewModel>
+            <views:UpdateViewModel.Release>
+                <services:ReleaseInfo TagName="v1.0.31" Body="🚀 版本发布 v1.0.31&#x0a;&#x0a;✨ 改进：&#x0a;- 🎨 主窗口标题栏与内容区背景做了轻微区分，更有层次感。&#x0a;- 🎯 左下角设置悬浮菜单：hover 背景稳定使用主题强调色（跟随系统主题也生效）。&#x0a;- 📝 更新窗口发布说明支持 Markdown 渲染（更适合长文与列表）。&#x0a;&#x0a;🧹 工程清理：&#x0a;- 移除了冗余的 Markdown 渲染库依赖，统一使用 LiveMarkdown.Avalonia。" />
+            </views:UpdateViewModel.Release>
+            <views:UpdateViewModel.CurrentVersion>1.0.30</views:UpdateViewModel.CurrentVersion>
+        </views:UpdateViewModel>
+    </Design.DataContext>
+
     <controls:DialogHost Title="{Binding $parent[Window].Title}">
-        <Grid RowDefinitions="Auto, *, Auto">
-            <!-- Header -->
-            <StackPanel Grid.Row="0" Spacing="10" Margin="0,0,0,20">
-                <StackPanel Orientation="Horizontal" Spacing="12">
-                    <PathIcon Data="{StaticResource IconRefresh}" Width="24" Height="24" 
-                              Foreground="{DynamicResource SystemAccentColorBrush}" />
-                    <TextBlock Text="{DynamicResource TitleUpdateAvailable}" FontWeight="SemiBold" FontSize="20" VerticalAlignment="Center"/>
+        <Grid RowDefinitions="Auto, *, Auto" Margin="4">
+            <!-- Header: App Icon and Title -->
+            <Grid Grid.Row="0" ColumnDefinitions="Auto, *" Margin="0,0,0,16" IsVisible="{Binding !IsDownloading}">
+                <Image Grid.Column="0" Source="/Assets/app_ico.ico" Width="48" Height="48" VerticalAlignment="Top" Margin="0,0,16,0"/>
+                <StackPanel Grid.Column="1" Spacing="4">
+                    <TextBlock Text="{Binding UpdateTitleText}" FontWeight="Bold" FontSize="16"/>
+                    <TextBlock Text="{Binding UpdateDescriptionText}" FontSize="13" TextWrapping="Wrap" Opacity="0.8"/>
                 </StackPanel>
-                <TextBlock Text="{Binding UpdateFromToText}" FontSize="14" Opacity="0.7" Margin="36,0,0,0"
-                           IsVisible="{Binding !IsDownloading}"/>
-            </StackPanel>
+            </Grid>
 
             <!-- Release Notes -->
-            <ScrollViewer Grid.Row="1"
-                          Margin="-24,0,-24,20"
-                          Padding="24,0,24,0"
-                          VerticalScrollBarVisibility="Auto"
-                          HorizontalScrollBarVisibility="Disabled"
-                          IsVisible="{Binding !IsDownloading}">
-                <TextBlock Text="{Binding ReleaseNotes}" TextWrapping="Wrap" FontSize="13" Opacity="0.8" LineHeight="20"/>
-            </ScrollViewer>
+            <Border Grid.Row="1" 
+                    Background="{DynamicResource SystemControlBackgroundBaseLowBrush}" 
+                    CornerRadius="4" 
+                    Padding="12"
+                    IsVisible="{Binding !IsDownloading}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <md:MarkdownRenderer MarkdownBuilder="{Binding ReleaseNotesBuilder}" />
+                </ScrollViewer>
+            </Border>
 
             <!-- Progress & Install Status -->
             <StackPanel Grid.Row="1" IsVisible="{Binding IsDownloading}" VerticalAlignment="Center" Margin="0,0,0,20">
@@ -50,17 +61,28 @@
                            IsVisible="{Binding IsReadyToInstall}" TextAlignment="Center"/>
             </StackPanel>
 
-            <!-- Buttons: Initial State -->
-            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="12" IsVisible="{Binding !IsDownloading}">
-                <Button Classes="dialogButton" Content="{DynamicResource ButtonLater}" Click="OnLaterClick" IsCancel="True"/>
-                <Button Content="{DynamicResource ButtonUpdateNow}" Click="OnUpdateClick" IsDefault="True"
-                        Classes="dialogButton accent"/>
+            <!-- Footer: Checkbox and Buttons -->
+            <StackPanel Grid.Row="2" Spacing="16" Margin="0,16,0,0" IsVisible="{Binding !IsDownloading}">
+                <!-- Checkbox line -->
+                <CheckBox IsChecked="{Binding AutoInstallUpdates}" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding AutoUpdateLabelText}" FontSize="12" Opacity="0.8" TextWrapping="Wrap"/>
+                </CheckBox>
+                
+                <!-- Buttons line -->
+                <Grid ColumnDefinitions="Auto, *, Auto">
+                    <Button Grid.Column="0" Classes="dialogButton" Content="{Binding ButtonSkipText}" Command="{Binding SkipThisVersionCommand}" Click="OnLaterClick"/>
+                    
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
+                        <Button Classes="dialogButton" Content="{Binding ButtonLaterText}" Command="{Binding RemindMeLaterCommand}" Click="OnLaterClick"/>
+                        <Button Classes="dialogButton accent" Content="{Binding ButtonInstallText}" Click="OnUpdateClick" IsDefault="True"/>
+                    </StackPanel>
+                </Grid>
             </StackPanel>
 
             <!-- Buttons: Ready to Install State -->
             <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="12" IsVisible="{Binding IsReadyToInstall}">
-                <Button Classes="dialogButton" Content="{DynamicResource ButtonLater}" Click="OnLaterClick" IsCancel="True"/>
-                <Button Content="{DynamicResource ButtonInstallAndRelaunch}" Click="OnInstallClick" IsDefault="True"
+                <Button Classes="dialogButton" Content="{Binding ButtonLaterText}" Click="OnLaterClick" IsCancel="True"/>
+                <Button Content="{Binding ButtonInstallRelaunchText}" Click="OnInstallClick" IsDefault="True"
                         Classes="dialogButton accent"/>
             </StackPanel>
         </Grid>
