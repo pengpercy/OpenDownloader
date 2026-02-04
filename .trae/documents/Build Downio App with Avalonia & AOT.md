@@ -1,7 +1,7 @@
 I will create a cross-platform Aria2 download manager application using Avalonia UI and .NET 10, following your specific design and configuration requirements.
 
 ### Project Setup
-1.  **Initialize Project**: Create a new solution `OpenDownloader` using the `avalonia.mvvm` template.
+1.  **Initialize Project**: Create a new solution `Downio` using the `avalonia.mvvm` template.
 2.  **Dependencies**: Add `CommunityToolkit.Mvvm` for architecture and `Avalonia.Themes.Fluent` for the base UI.
 
 ### Configuration (Critical)
