@@ -5,8 +5,8 @@ set -e
 RID=$1
 VERSION=$2
 OUTPUT_DIR=$3
-APP_NAME="OpenDownloader"
-PUBLISH_DIR="src/OpenDownloader/bin/Release/net10.0/$RID/publish"
+APP_NAME="Downio"
+PUBLISH_DIR="src/Downio/bin/Release/net10.0/$RID/publish"
 
 if [ -z "$RID" ] || [ -z "$VERSION" ] || [ -z "$OUTPUT_DIR" ]; then
     echo "Usage: ./package_osx.sh <runtime_id> <version> <output_dir>"
@@ -50,11 +50,11 @@ mkdir -p "$ENGINE_DIR"
 # The app expects it at Assets/Binaries/darwin/{arch}/aria2c
 if [ "$RID" == "osx-x64" ]; then
     mkdir -p "$ENGINE_DIR/darwin/x64"
-    cp "src/OpenDownloader/Assets/Binaries/darwin/x64/aria2c" "$ENGINE_DIR/darwin/x64/"
+    cp "src/Downio/Assets/Binaries/darwin/x64/aria2c" "$ENGINE_DIR/darwin/x64/"
     chmod +x "$ENGINE_DIR/darwin/x64/aria2c"
 elif [ "$RID" == "osx-arm64" ]; then
     mkdir -p "$ENGINE_DIR/darwin/arm64"
-    cp "src/OpenDownloader/Assets/Binaries/darwin/arm64/aria2c" "$ENGINE_DIR/darwin/arm64/"
+    cp "src/Downio/Assets/Binaries/darwin/arm64/aria2c" "$ENGINE_DIR/darwin/arm64/"
     chmod +x "$ENGINE_DIR/darwin/arm64/aria2c"
 fi
 
@@ -70,7 +70,7 @@ cat > "$CONTENTS/Info.plist" <<EOF
     <key>CFBundleDisplayName</key>
     <string>$APP_NAME</string>
     <key>CFBundleIdentifier</key>
-    <string>com.opendownloader.app</string>
+    <string>com.Downio.app</string>
     <key>CFBundleVersion</key>
     <string>$VERSION</string>
     <key>CFBundleShortVersionString</key>
@@ -91,7 +91,7 @@ EOF
 
 # Generate .icns from PNG if available
 echo "Generating AppIcon.icns..."
-ICON_SOURCE="src/OpenDownloader/Assets/app_ico.png"
+ICON_SOURCE="src/Downio/Assets/app_ico.png"
 
 if [ -f "$ICON_SOURCE" ]; then
     ICONSET_DIR="build/AppIcon.iconset"
@@ -114,10 +114,10 @@ if [ -f "$ICON_SOURCE" ]; then
     
     # Cleanup
     rm -rf "$ICONSET_DIR"
-elif [ -f "src/OpenDownloader/Assets/avalonia-logo.ico" ]; then
+elif [ -f "src/Downio/Assets/avalonia-logo.ico" ]; then
     # Fallback to simple copy if png not found
     echo "Warning: app_ico.png not found, falling back to avalonia-logo.ico"
-    cp "src/OpenDownloader/Assets/avalonia-logo.ico" "$RESOURCES/AppIcon.icns"
+    cp "src/Downio/Assets/avalonia-logo.ico" "$RESOURCES/AppIcon.icns"
 fi
 
 # Remove .pdb files to save space
