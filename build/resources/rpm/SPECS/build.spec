@@ -21,7 +21,6 @@ mkdir -p %{buildroot}/%{_bindir}
 mkdir -p %{buildroot}/usr/share/applications
 mkdir -p %{buildroot}/usr/share/icons
 cp -r %{_topdir}/../../Downio/* %{buildroot}/opt/Downio/
-ln -rsf %{buildroot}/opt/Downio/Downio %{buildroot}/opt/Downio/Downio
 ln -rsf %{buildroot}/opt/Downio/Downio %{buildroot}/%{_bindir}
 cp -r %{_topdir}/../_common/applications %{buildroot}/%{_datadir}
 cp -r %{_topdir}/../_common/icons %{buildroot}/%{_datadir}

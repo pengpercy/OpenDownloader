@@ -51,7 +51,6 @@ desktop-file-install resources/_common/applications/Downio.desktop --dir Downio.
     --set-icon com.Downio.app --set-key=Exec --set-value=AppRun
 mv Downio.AppDir/usr/share/applications/{Downio,com.Downio.app}.desktop
 cp resources/_common/icons/Downio.png Downio.AppDir/com.Downio.app.png
-ln -rsf Downio.AppDir/opt/Downio/Downio Downio.AppDir/opt/Downio/Downio
 ln -rsf Downio.AppDir/opt/Downio/Downio Downio.AppDir/AppRun
 ln -rsf Downio.AppDir/usr/share/applications/com.Downio.app.desktop Downio.AppDir
 cp resources/appimage/Downio.appdata.xml Downio.AppDir/usr/share/metainfo/com.Downio.app.appdata.xml
@@ -63,7 +62,6 @@ mkdir -p resources/deb/usr/bin
 mkdir -p resources/deb/usr/share/applications
 mkdir -p resources/deb/usr/share/icons
 cp -a Downio/. resources/deb/opt/Downio/
-ln -rsf resources/deb/opt/Downio/Downio resources/deb/opt/Downio/Downio
 ln -rsf resources/deb/opt/Downio/Downio resources/deb/usr/bin
 cp -r resources/_common/applications resources/deb/usr/share
 cp -r resources/_common/icons resources/deb/usr/share
