@@ -49,33 +49,37 @@
             <Setter Property="Height" Value="14" />
         </Style>
         <Style Selector="Button.sidebar:pointerover /template/ ContentPresenter">
-            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundBaseLowBrush}" />
+            <Setter Property="Background" Value="{DynamicResource SidebarHoverBackgroundBrush}" />
         </Style>
 
         <!-- Hover State (Foreground) - NEW -->
         <Style Selector="Button.sidebar:pointerover TextBlock">
             <Setter Property="Foreground" Value="{DynamicResource SidebarHoverForeground}" />
+            <Setter Property="Opacity" Value="1" />
         </Style>
         <Style Selector="Button.sidebar:pointerover PathIcon">
             <Setter Property="Foreground" Value="{DynamicResource SidebarHoverForeground}" />
+            <Setter Property="Opacity" Value="1" />
         </Style>
 
         <!-- Active State -->
         <Style Selector="Button.sidebar.active">
-            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundBaseLowBrush}" />
+            <Setter Property="Background" Value="Transparent" />
         </Style>
         <Style Selector="Button.sidebar.active /template/ ContentPresenter">
-            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundBaseLowBrush}" />
+            <Setter Property="Background" Value="{DynamicResource SidebarActiveBackgroundBrush}" />
         </Style>
         <!-- Active Text/Icon with Theme Support -->
         <Style Selector="Button.sidebar.active TextBlock">
             <Setter Property="Foreground" Value="{DynamicResource SidebarActiveForeground}" />
             <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Opacity" Value="1" />
         </Style>
         <Style Selector="Button.sidebar.active PathIcon">
             <Setter Property="Foreground" Value="{DynamicResource SidebarActiveForeground}" />
             <Setter Property="Width" Value="14" />
             <Setter Property="Height" Value="14" />
+            <Setter Property="Opacity" Value="1" />
         </Style>
 
         <!-- Dark Theme Overrides -->
@@ -150,6 +154,9 @@
         </Style>
         <Style Selector="MenuItem:pointerover /template/ ContentPresenter#PART_HeaderPresenter">
             <Setter Property="Background" Value="Transparent" />
+        </Style>
+        <Style Selector="MenuItem:pointerover">
+            <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundChromeWhiteBrush}" />
         </Style>
         <!-- Ensure text color remains unchanged on hover -->
         <Style Selector="MenuItem:pointerover TextBlock">
@@ -286,11 +293,10 @@
                             BorderBrush="{DynamicResource SystemControlHighlightBaseLowBrush}"
                             PointerPressed="TitleBar_PointerPressed">
                         <Grid ColumnDefinitions="Auto, *">
-                            <!-- Global Controls (Resume All / Pause All / Remove / Refresh) -->
+                            <!-- Global Controls (Resume All / Pause All / Remove) -->
                             <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left"
-                                        VerticalAlignment="Center" Margin="8,0,0,0" Spacing="8"
-                                        >
-                                <StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding !IsSettingsVisible}"
+                                        VerticalAlignment="Center" Margin="24,0,0,0">
+                                <StackPanel Orientation="Horizontal" IsVisible="{Binding !IsSettingsVisible}"
                                             Margin="{Binding TitleBarToolsMargin}">
                                     <Button Command="{Binding ResumeAllCommand}"
                                             Background="Transparent"
@@ -300,6 +306,11 @@
                                         <PathIcon Data="{StaticResource IconPlay}" Width="16" Height="16"
                                                   Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}" />
                                     </Button>
+                                    
+                                    <Rectangle Width="1.5" Height="14" VerticalAlignment="Center" 
+                                               Fill="{DynamicResource SystemControlForegroundBaseLowBrush}" 
+                                               Opacity="0.7" Margin="6,0"/>
+                                               
                                     <Button Command="{Binding PauseAllCommand}"
                                             Background="Transparent"
                                             BorderThickness="0"
@@ -308,6 +319,11 @@
                                         <PathIcon Data="{StaticResource IconPause}" Width="16" Height="16"
                                                   Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}" />
                                     </Button>
+
+                                    <Rectangle Width="1.5" Height="14" VerticalAlignment="Center" 
+                                               Fill="{DynamicResource SystemControlForegroundBaseLowBrush}" 
+                                               Opacity="0.7" Margin="6,0"/>
+
                                     <Button Command="{Binding DeleteSelectedTasksCommand}"
                                             Background="Transparent"
                                             BorderThickness="0"

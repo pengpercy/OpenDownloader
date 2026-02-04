@@ -10,7 +10,7 @@
                     x:Class="OpenDownloader.Views.SettingsWindow"
                     x:DataType="vm:MainWindowViewModel"
                     Title="{DynamicResource MenuSettings}"
-                    Width="920" Height="680"
+                    Width="840" Height="600"
                     MinWidth="840" MinHeight="600"
                     CanResize="True"
                     ShowInTaskbar="False"
@@ -65,12 +65,14 @@
             <Setter Property="Opacity" Value="0.85" />
             <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseHighBrush}" />
         </Style>
-        <Style Selector="Button.settingsNav.active TextBlock">
+        <Style Selector="Button.settingsNav:pointerover TextBlock, Button.settingsNav.active TextBlock">
             <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="Foreground" Value="{DynamicResource SystemAccentColorBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundAccentBrush}" />
+            <Setter Property="Opacity" Value="1" />
         </Style>
-        <Style Selector="Button.settingsNav.active PathIcon">
-            <Setter Property="Foreground" Value="{DynamicResource SystemAccentColorBrush}" />
+        <Style Selector="Button.settingsNav:pointerover PathIcon, Button.settingsNav.active PathIcon">
+            <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundAccentBrush}" />
+            <Setter Property="Opacity" Value="1" />
         </Style>
 
         <Style Selector="Border.settingsCard">
@@ -250,7 +252,7 @@
                             <TextBlock Text="{DynamicResource SettingsNetwork}" FontSize="13" FontWeight="SemiBold" Opacity="0.85"/>
                             <Border Classes="settingsDivider"/>
 
-                            <Grid ColumnDefinitions="200, 120, 12, *, 12, 120" RowDefinitions="Auto, Auto, Auto" RowSpacing="14">
+                            <Grid ColumnDefinitions="200, 100, 12, *, 12, 80" RowDefinitions="Auto, Auto, Auto" RowSpacing="14">
                                 <TextBlock Grid.Row="0" Grid.Column="0" Text="{DynamicResource LabelProxy}" VerticalAlignment="Center" Opacity="0.85" FontSize="13"/>
                                 <ComboBox Grid.Row="0" Grid.Column="1" ItemsSource="{Binding ProxyTypes}" SelectedIndex="{Binding ProxyTypeIndex}" HorizontalAlignment="Stretch" FontSize="13"/>
                                 <TextBox Grid.Row="0" Grid.Column="3" Text="{Binding ProxyAddress}" Watermark="127.0.0.1" FontSize="13"/>

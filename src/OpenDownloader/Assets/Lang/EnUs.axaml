@@ -74,6 +74,9 @@
     <x:String x:Key="StatusError">Error</x:String>
     <x:String x:Key="NotificationDownloadComplete">Download Complete</x:String>
     <x:String x:Key="NotificationDownloadFailed">Download Failed</x:String>
+    <x:String x:Key="NotificationTaskDeleted">Task Deleted</x:String>
+    <x:String x:Key="NotificationTasksDeleted">Deleted {0} tasks</x:String>
+    <x:String x:Key="NotificationAlsoDeletedFile"> (Also deleted local file)</x:String>
 
     <!-- Time -->
     <x:String x:Key="TimeMoreThanOneDay">> 1 Day</x:String>
@@ -118,6 +121,8 @@
     <x:String x:Key="ButtonRemindLater">Remind Me Later</x:String>
     <x:String x:Key="ButtonInstallUpdate">Install Update</x:String>
     <x:String x:Key="LabelAutoUpdate">Automatically download and install updates in the future</x:String>
+    <x:String x:Key="LabelSwitchOn">On</x:String>
+    <x:String x:Key="LabelSwitchOff">Off</x:String>
     <x:String x:Key="UpdateStatusPreparing">Preparing...</x:String>
     <x:String x:Key="UpdateStatusDownloading">Downloading... {0}%</x:String>
     <x:String x:Key="UpdateStatusApplying">Applying update...</x:String>

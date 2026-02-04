@@ -74,7 +74,7 @@
         <Style Selector="Button.linkButton">
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Foreground" Value="{DynamicResource SystemAccentColorBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundAccentBrush}" />
             <Setter Property="Padding" Value="0" />
             <Setter Property="Cursor" Value="Hand" />
             <Setter Property="Opacity" Value="0.9" />
@@ -90,6 +90,11 @@
 
         <Style Selector="TextBlock">
             <Setter Property="TextWrapping" Value="WrapWithOverflow" />
+        </Style>
+        
+        <Style Selector="ToggleSwitch">
+            <Setter Property="OnContent" Value="{DynamicResource LabelSwitchOn}" />
+            <Setter Property="OffContent" Value="{DynamicResource LabelSwitchOff}" />
         </Style>
     </Application.Styles>
 
@@ -119,16 +124,22 @@
                     <SolidColorBrush x:Key="CardBackgroundBrush" Color="#FFFFFF" />
                     <SolidColorBrush x:Key="SidebarActiveForeground" Color="{DynamicResource SystemAccentColor}" />
                     <SolidColorBrush x:Key="SidebarHoverForeground" Color="{DynamicResource SystemAccentColor}" />
+                    <SolidColorBrush x:Key="SidebarPaneBackgroundBrush" Color="#E6F2F3F5" />
+                    <SolidColorBrush x:Key="SidebarHoverBackgroundBrush" Color="#66FFFFFF" />
+                    <SolidColorBrush x:Key="SidebarActiveBackgroundBrush" Color="#66FFFFFF" />
                     <BoxShadows x:Key="CardShadow">0 2 2 0 #10000000</BoxShadows>
                     <BoxShadows x:Key="CardHoverShadow">0 2 2 0 #406842</BoxShadows>
                 </ResourceDictionary>
                 <ResourceDictionary x:Key="Dark">
                     <SolidColorBrush x:Key="TitleBarBackgroundBrush" Color="#242424" />
                     <SolidColorBrush x:Key="WorkspaceBackgroundBrush" Color="#1E1E1E" />
-                    <SolidColorBrush x:Key="CardBackgroundBrush" Color="#2D2D2D" />
+                    <SolidColorBrush x:Key="CardBackgroundBrush" Color="#343434" />
                     <SolidColorBrush x:Key="SystemControlHighlightBaseLowBrush" Color="#000000" />
                     <SolidColorBrush x:Key="SidebarActiveForeground" Color="White" />
-                    <SolidColorBrush x:Key="SidebarHoverForeground" Color="White" />
+                    <SolidColorBrush x:Key="SidebarHoverForeground" Color="White" Opacity="0.92" />
+                    <SolidColorBrush x:Key="SidebarPaneBackgroundBrush" Color="#E61E1E1E" />
+                    <SolidColorBrush x:Key="SidebarHoverBackgroundBrush" Color="#33FFFFFF" />
+                    <SolidColorBrush x:Key="SidebarActiveBackgroundBrush" Color="#33FFFFFF" />
                     <BoxShadows x:Key="CardShadow">0 2 2 0 #40000000</BoxShadows>
                     <BoxShadows x:Key="CardHoverShadow">0 2 2 0 #406842</BoxShadows>
                 </ResourceDictionary>
@@ -163,8 +174,29 @@
         </Style>
 
         <Style Selector="MenuItem:pointerover /template/ Border#PART_LayoutRoot">
-             <Setter Property="Background" Value="{DynamicResource SystemControlHighlightListLowBrush}" />
+             <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAccentBrush}" />
         </Style>
+        <Style Selector="MenuItem:pointerover">
+            <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundChromeWhiteBrush}" />
+        </Style>
+         <Style Selector="MenuItem:pointerover /template/ ContentPresenter#PART_HeaderPresenter">
+             <Setter Property="TextElement.Foreground" Value="{DynamicResource SystemControlForegroundChromeWhiteBrush}" />
+         </Style>
+        <Style Selector="MenuItem:pointerover TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundChromeWhiteBrush}" />
+        </Style>
+         <Style Selector="MenuItem:pointerover /template/ ContentPresenter#PART_HeaderPresenter TextBlock">
+             <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundChromeWhiteBrush}" />
+         </Style>
+         <Style Selector="MenuItem:pointerover /template/ ContentPresenter#PART_HeaderPresenter AccessText">
+             <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundChromeWhiteBrush}" />
+         </Style>
+        <Style Selector="MenuItem:pointerover PathIcon">
+            <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundChromeWhiteBrush}" />
+        </Style>
+         <Style Selector="MenuItem:pointerover /template/ TextBlock#PART_InputGestureText">
+             <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundChromeWhiteBrush}" />
+         </Style>
     </Application.Styles>
     <TrayIcon.Icons>
         <TrayIcons>

@@ -140,24 +140,18 @@ public partial class MainWindowViewModel : ViewModelBase
 
         if (IsPaneOpen)
         {
-            // 当侧边栏展开时，工具栏应紧贴分栏线。
-            // 由于 XAML 中 StackPanel 已有 Margin="8,0,0,0"，这里设为 0 即可。
             TitleBarToolsMargin = new Thickness(0);
         }
         else
         {
-            // 当侧边栏折叠时，需要避开 Mac 风格的 Toggle 按钮。
-            var compactWidth = 64d; // SplitView.CompactPaneLength
-            var baseMargin = 8d;    // StackPanel 的基础 Margin
+            var compactWidth = 64d; 
+            var baseMargin = 8d;    
             var toggleWidth = 32d;
             var spacing = 8d;
             
-            // Toggle 按钮的右边界位置
             var toggleRightEdge = MacToggleMargin.Left + toggleWidth + spacing;
-            // 工具栏在不加额外 Margin 时的起始位置
             var toolbarStartWithoutExtraMargin = compactWidth + baseMargin;
             
-            // 计算需要额外偏移的量
             var desiredExtraMargin = Math.Max(0, toggleRightEdge - toolbarStartWithoutExtraMargin);
             TitleBarToolsMargin = new Thickness(desiredExtraMargin, 0, 0, 0);
         }
@@ -209,6 +203,17 @@ public partial class MainWindowViewModel : ViewModelBase
                     
                     SelectedTask = null;
                     await RefreshTaskListAsync();
+                    
+                    if (tasksToDelete.Count == 1)
+                    {
+                        var msg = tasksToDelete[0].Name + (dialog.DeleteFile ? GetString("NotificationAlsoDeletedFile") : string.Empty);
+                        _notificationService.ShowNotification(GetString("NotificationTaskDeleted"), msg, ToastType.Success);
+                    }
+                    else
+                    {
+                        var msg = string.Format(GetString("NotificationTasksDeleted"), tasksToDelete.Count) + (dialog.DeleteFile ? GetString("NotificationAlsoDeletedFile") : string.Empty);
+                        _notificationService.ShowNotification(GetString("NotificationTaskDeleted"), msg, ToastType.Success);
+                    }
                 }
             }
         }

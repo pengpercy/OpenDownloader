@@ -31,3 +31,7 @@ artifacts/
 aria2.conf
 aria2.session
 aria2.log
+
+# Local release tools
+tools/local/
+tools/README.md

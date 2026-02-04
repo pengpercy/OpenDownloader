@@ -188,7 +188,7 @@
                 Background="Transparent"
                 IsVisible="{Binding Tasks.Count, Converter={StaticResource CollectionIsEmptyConverter}}">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="14" Width="420">
-                <Border Background="{DynamicResource CardBackgroundBrush}" CornerRadius="16"
+                <Border Background="{DynamicResource CardBackgroundBrush}" CornerRadius="10"
                         BorderThickness="1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
                         Padding="28"
                         BoxShadow="{DynamicResource CardShadow}">

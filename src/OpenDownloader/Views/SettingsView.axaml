@@ -16,7 +16,7 @@
         <Style Selector="TextBlock.settingsHeader">
             <Setter Property="FontSize" Value="16"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="{DynamicResource SystemAccentColorBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundAccentBrush}"/>
         </Style>
 
         <Style Selector="PathIcon.spin">
@@ -88,7 +88,7 @@
                     
                     <StackPanel Spacing="8">
                         <TextBlock Text="{DynamicResource LabelProxy}" FontWeight="Medium"/>
-                        <Grid ColumnDefinitions="100, 10, *, 10, 80">
+                        <Grid ColumnDefinitions="90, 10, *, 10, 70">
                             <StackPanel Grid.Column="0">
                                 <TextBlock Text="{DynamicResource LabelProxyType}" FontSize="12" Opacity="0.7"/>
                                 <ComboBox ItemsSource="{Binding ProxyTypes}" SelectedIndex="{Binding ProxyTypeIndex}" HorizontalAlignment="Stretch"/>

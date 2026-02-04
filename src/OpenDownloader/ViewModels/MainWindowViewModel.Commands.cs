@@ -406,6 +406,8 @@ public partial class MainWindowViewModel
         }
 
         await RefreshTaskListAsync();
+        var message = task.Name + (dialog.DeleteFile ? GetString("NotificationAlsoDeletedFile") : string.Empty);
+        _notificationService.ShowNotification(GetString("NotificationTaskDeleted"), message, ToastType.Success);
     }
 
     [RelayCommand]
