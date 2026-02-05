@@ -122,11 +122,10 @@
                     <SolidColorBrush x:Key="TitleBarBackgroundBrush" Color="#ECEEF1" />
                     <SolidColorBrush x:Key="WorkspaceBackgroundBrush" Color="#F2F3F5" />
                     <SolidColorBrush x:Key="CardBackgroundBrush" Color="#FFFFFF" />
-                    <SolidColorBrush x:Key="SidebarActiveForeground" Color="{DynamicResource SystemAccentColor}" />
-                    <SolidColorBrush x:Key="SidebarHoverForeground" Color="{DynamicResource SystemAccentColor}" />
-                    <SolidColorBrush x:Key="SidebarPaneBackgroundBrush" Color="#E6F2F3F5" />
-                    <SolidColorBrush x:Key="SidebarHoverBackgroundBrush" Color="#66FFFFFF" />
-                    <SolidColorBrush x:Key="SidebarActiveBackgroundBrush" Color="#66FFFFFF" />
+                    <SolidColorBrush x:Key="SidebarBackgroundBrush" Color="#E6F5F5F7" />
+                    <SolidColorBrush x:Key="SidebarItemHoverBackgroundBrush" Color="#0D000000" />
+                    <SolidColorBrush x:Key="SidebarItemSelectedBackgroundBrush" Color="#14000000" />
+                    <SolidColorBrush x:Key="SidebarTextForegroundBrush" Color="#1F1F1F" />
                     <BoxShadows x:Key="CardShadow">0 2 2 0 #10000000</BoxShadows>
                     <BoxShadows x:Key="CardHoverShadow">0 2 2 0 #406842</BoxShadows>
                 </ResourceDictionary>
@@ -135,11 +134,10 @@
                     <SolidColorBrush x:Key="WorkspaceBackgroundBrush" Color="#1E1E1E" />
                     <SolidColorBrush x:Key="CardBackgroundBrush" Color="#343434" />
                     <SolidColorBrush x:Key="SystemControlHighlightBaseLowBrush" Color="#000000" />
-                    <SolidColorBrush x:Key="SidebarActiveForeground" Color="White" />
-                    <SolidColorBrush x:Key="SidebarHoverForeground" Color="White" Opacity="0.92" />
-                    <SolidColorBrush x:Key="SidebarPaneBackgroundBrush" Color="#E61E1E1E" />
-                    <SolidColorBrush x:Key="SidebarHoverBackgroundBrush" Color="#33FFFFFF" />
-                    <SolidColorBrush x:Key="SidebarActiveBackgroundBrush" Color="#33FFFFFF" />
+                    <SolidColorBrush x:Key="SidebarBackgroundBrush" Color="#CC1F2022" />
+                    <SolidColorBrush x:Key="SidebarItemHoverBackgroundBrush" Color="#1AFFFFFF" />
+                    <SolidColorBrush x:Key="SidebarItemSelectedBackgroundBrush" Color="#24FFFFFF" />
+                    <SolidColorBrush x:Key="SidebarTextForegroundBrush" Color="#F4F4F4" />
                     <BoxShadows x:Key="CardShadow">0 2 2 0 #40000000</BoxShadows>
                     <BoxShadows x:Key="CardHoverShadow">0 2 2 0 #406842</BoxShadows>
                 </ResourceDictionary>

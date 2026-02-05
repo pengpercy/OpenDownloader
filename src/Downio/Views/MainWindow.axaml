@@ -40,62 +40,33 @@
             <Setter Property="HorizontalAlignment" Value="Stretch" />
             <Setter Property="HorizontalContentAlignment" Value="Left" />
             <Setter Property="Padding" Value="0" />
-            <Setter Property="Height" Value="40" />
-            <Setter Property="CornerRadius" Value="5" />
+            <Setter Property="Height" Value="34" />
+            <Setter Property="CornerRadius" Value="8" />
             <Setter Property="Margin" Value="12,2" />
         </Style>
         <Style Selector="Button.sidebar PathIcon">
-            <Setter Property="Width" Value="14" />
-            <Setter Property="Height" Value="14" />
+            <Setter Property="Width" Value="16" />
+            <Setter Property="Height" Value="16" />
+            <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundAccentBrush}" />
         </Style>
-        <Style Selector="Button.sidebar:pointerover /template/ ContentPresenter">
-            <Setter Property="Background" Value="{DynamicResource SidebarHoverBackgroundBrush}" />
+        <Style Selector="Button.sidebar TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource SidebarTextForegroundBrush}" />
         </Style>
-
-        <!-- Hover State (Foreground) - NEW -->
-        <Style Selector="Button.sidebar:pointerover TextBlock">
-            <Setter Property="Foreground" Value="{DynamicResource SidebarHoverForeground}" />
-            <Setter Property="Opacity" Value="1" />
-        </Style>
-        <Style Selector="Button.sidebar:pointerover PathIcon">
-            <Setter Property="Foreground" Value="{DynamicResource SidebarHoverForeground}" />
-            <Setter Property="Opacity" Value="1" />
+        <Style Selector="Button.sidebar:pointerover">
+            <Setter Property="Background" Value="{DynamicResource SidebarItemHoverBackgroundBrush}" />
         </Style>
 
         <!-- Active State -->
         <Style Selector="Button.sidebar.active">
-            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Background" Value="{DynamicResource SidebarItemSelectedBackgroundBrush}" />
         </Style>
-        <Style Selector="Button.sidebar.active /template/ ContentPresenter">
-            <Setter Property="Background" Value="{DynamicResource SidebarActiveBackgroundBrush}" />
-        </Style>
-        <!-- Active Text/Icon with Theme Support -->
         <Style Selector="Button.sidebar.active TextBlock">
-            <Setter Property="Foreground" Value="{DynamicResource SidebarActiveForeground}" />
+            <Setter Property="Foreground" Value="{DynamicResource SidebarTextForegroundBrush}" />
             <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="Opacity" Value="1" />
-        </Style>
-        <Style Selector="Button.sidebar.active PathIcon">
-            <Setter Property="Foreground" Value="{DynamicResource SidebarActiveForeground}" />
-            <Setter Property="Width" Value="14" />
-            <Setter Property="Height" Value="14" />
             <Setter Property="Opacity" Value="1" />
         </Style>
 
         <!-- Dark Theme Overrides -->
-        <!-- We use ThemeVariantScope or a class on root to detect dark mode usually, 
-             but Avalonia 11 handles it via ResourceDictionaries. 
-             Since we can't easily select based on theme variant in CSS-like selectors without a class,
-             we rely on DynamicResources that change values.
-             
-             Let's define a new resource for ActiveForeground.
-             But the user wants:
-             Dark Mode -> White
-             Light Mode -> Accent Color
-             
-             We should define a resource 'SidebarActiveForeground' in App.axaml and use it here.
-        -->
-
         <!-- ListBoxItem Styles Override -->
         <Style Selector="ListBoxItem">
             <Setter Property="Padding" Value="0" />
@@ -194,7 +165,7 @@
                    DisplayMode="CompactInline"
                    OpenPaneLength="220"
                    CompactPaneLength="64"
-                   PaneBackground="Transparent">
+                   PaneBackground="{DynamicResource SidebarBackgroundBrush}">
 
             <SplitView.Pane>
                 <!-- Add PointerPressed event handler for drag -->
