@@ -41,8 +41,11 @@
             <Setter Property="HorizontalContentAlignment" Value="Left" />
             <Setter Property="Padding" Value="0" />
             <Setter Property="Height" Value="34" />
-            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="CornerRadius" Value="5" />
             <Setter Property="Margin" Value="12,2" />
+            <Setter Property="Transitions">
+                <Transitions />
+            </Setter>
         </Style>
         <Style Selector="Button.sidebar PathIcon">
             <Setter Property="Width" Value="16" />
@@ -55,9 +58,15 @@
         <Style Selector="Button.sidebar:pointerover">
             <Setter Property="Background" Value="{DynamicResource SidebarItemHoverBackgroundBrush}" />
         </Style>
+        <Style Selector="Button.sidebar:pressed">
+            <Setter Property="Background" Value="{DynamicResource SidebarItemHoverBackgroundBrush}" />
+        </Style>
 
         <!-- Active State -->
         <Style Selector="Button.sidebar.active">
+            <Setter Property="Background" Value="{DynamicResource SidebarItemSelectedBackgroundBrush}" />
+        </Style>
+        <Style Selector="Button.sidebar.active:pressed">
             <Setter Property="Background" Value="{DynamicResource SidebarItemSelectedBackgroundBrush}" />
         </Style>
         <Style Selector="Button.sidebar.active TextBlock">
@@ -165,12 +174,22 @@
                    DisplayMode="CompactInline"
                    OpenPaneLength="220"
                    CompactPaneLength="64"
-                   PaneBackground="{DynamicResource SidebarBackgroundBrush}">
+                   PaneBackground="Transparent">
 
             <SplitView.Pane>
                 <!-- Add PointerPressed event handler for drag -->
-                <Grid RowDefinitions="Auto, *, Auto" Margin="0,0,0,20" Background="Transparent"
+                <Grid RowDefinitions="Auto, *, Auto" Margin="0" Background="Transparent"
                       PointerPressed="Sidebar_PointerPressed">
+                    <ExperimentalAcrylicBorder IsHitTestVisible="False" Grid.RowSpan="3">
+                        <ExperimentalAcrylicBorder.Material>
+                            <ExperimentalAcrylicMaterial BackgroundSource="Digger"
+                                                         TintColor="{DynamicResource SidebarAcrylicTintColor}"
+                                                         TintOpacity="{DynamicResource SidebarAcrylicTintOpacity}"
+                                                         MaterialOpacity="{DynamicResource SidebarAcrylicMaterialOpacity}" />
+                        </ExperimentalAcrylicBorder.Material>
+                    </ExperimentalAcrylicBorder>
+
+                    <Border Background="{DynamicResource SidebarBackgroundBrush}" IsHitTestVisible="False" Grid.RowSpan="3" />
                     <!-- TitleBar Placeholder in Sidebar (52px height) -->
                     <Grid Grid.Row="0" Height="52">
                         <Button Command="{Binding TogglePaneCommand}"
@@ -234,7 +253,7 @@
                         </Button>
                     </StackPanel>
 
-                    <StackPanel Grid.Row="2" Spacing="4">
+                    <StackPanel Grid.Row="2" Spacing="4" Margin="0,0,0,20">
                         <Button Classes="sidebar settingsBtn" Classes.active="{Binding IsSettings}">
                             <Button.Flyout>
                                 <MenuFlyout Placement="Top">
