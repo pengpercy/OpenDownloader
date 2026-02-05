@@ -19,9 +19,9 @@
     <Design.DataContext>
         <views:UpdateViewModel>
             <views:UpdateViewModel.Release>
-                <services:ReleaseInfo TagName="v1.0.32" Body="🚀 版本发布 v1.0.32&#x0a;&#x0a;🐛 修复：&#x0a;- 🪟 Windows CI 构建失败：修正 CommunityToolkit.WinUI.Notifications 的 NuGet 版本号，确保 Windows ARM64 等平台可正常还原与构建。&#x0a;&#x0a;✨ 保持：&#x0a;- 其他功能与界面改动与 v1.0.31 一致。" />
+                <services:ReleaseInfo TagName="v1.0.34" Body="🚀 版本发布 v1.0.32&#x0a;&#x0a;🐛 修复：&#x0a;- 🪟 Windows CI 构建失败：修正 CommunityToolkit.WinUI.Notifications 的 NuGet 版本号，确保 Windows ARM64 等平台可正常还原与构建。&#x0a;&#x0a;✨ 保持：&#x0a;- 其他功能与界面改动与 v1.0.31 一致。" />
             </views:UpdateViewModel.Release>
-            <views:UpdateViewModel.CurrentVersion>1.0.31</views:UpdateViewModel.CurrentVersion>
+            <views:UpdateViewModel.CurrentVersion>1.0.33</views:UpdateViewModel.CurrentVersion>
         </views:UpdateViewModel>
     </Design.DataContext>
 
