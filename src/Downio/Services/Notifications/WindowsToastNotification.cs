@@ -1,5 +1,9 @@
 using System;
 
+#if WINDOWS
+using CommunityToolkit.WinUI.Notifications;
+#endif
+
 namespace Downio.Services.Notifications;
 
 public static class WindowsToastNotification
@@ -11,9 +15,23 @@ public static class WindowsToastNotification
 #else
         try
         {
+            return TryShowCore(title, message, appLogoPath);
+        }
+        catch
+        {
+            return false;
+        }
+#endif
+    }
+
+#if WINDOWS
+    private static bool TryShowCore(string title, string message, string? appLogoPath)
+    {
+        try
+        {
             if (!OperatingSystem.IsWindowsVersionAtLeast(10)) return false;
 
-            var builder = new CommunityToolkit.WinUI.Notifications.ToastContentBuilder()
+            var builder = new ToastContentBuilder()
                 .AddText(title)
                 .AddText(message);
 
@@ -30,7 +48,6 @@ public static class WindowsToastNotification
         {
             return false;
         }
-#endif
     }
+#endif
 }
-
