@@ -556,8 +556,14 @@ public partial class MainWindowViewModel : ViewModelBase
         get
         {
             var template = GetString("EmptyStateSubtitleDownloading");
-            var shortcut = RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? "⌘N" : "Ctrl+N";
-            return template.Replace("⌘N", shortcut);
+            var shortcut = OperatingSystem.IsMacOS() ? "⌘+N" : "Ctrl+N";
+
+            if (template.Contains("{0}", StringComparison.Ordinal))
+            {
+                return string.Format(template, shortcut);
+            }
+
+            return template.Replace("⌘+N", shortcut).Replace("⌘N", shortcut);
         }
     }
 

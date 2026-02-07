@@ -141,7 +141,7 @@
     <x:String x:Key="UpdateStatusFailed">更新失败。</x:String>
 
     <x:String x:Key="EmptyStateTitleNoTasks">还没有下载任务</x:String>
-    <x:String x:Key="EmptyStateSubtitleDownloading">点击左侧“新建任务”，或按 ⌘+N 开始下载。</x:String>
+    <x:String x:Key="EmptyStateSubtitleDownloading">点击左侧“新建任务”，或按 {0} 开始下载。</x:String>
     <x:String x:Key="EmptyStateSubtitleWaiting">当前没有等待中的任务。</x:String>
     <x:String x:Key="EmptyStateSubtitleStopped">当前没有已完成或已停止的任务。</x:String>
 </ResourceDictionary>

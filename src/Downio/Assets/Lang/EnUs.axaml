@@ -141,7 +141,7 @@
     <x:String x:Key="UpdateStatusFailed">Update failed.</x:String>
 
     <x:String x:Key="EmptyStateTitleNoTasks">No tasks yet</x:String>
-    <x:String x:Key="EmptyStateSubtitleDownloading">Click “New Task” on the left, or press ⌘+N to start.</x:String>
+    <x:String x:Key="EmptyStateSubtitleDownloading">Click “New Task” on the left, or press {0} to start.</x:String>
     <x:String x:Key="EmptyStateSubtitleWaiting">There are no waiting tasks.</x:String>
     <x:String x:Key="EmptyStateSubtitleStopped">There are no completed or stopped tasks.</x:String>
 </ResourceDictionary>
