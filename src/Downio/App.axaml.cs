@@ -49,8 +49,15 @@ public partial class App : Application
                 trayIcon.Icon = new WindowIcon(new Bitmap(AssetLoader.Open(iconUri)));
             }
 
-            mainWindow.Closing += (_, _) =>
+            mainWindow.Closing += (_, e) =>
             {
+                if (!viewModel.IsExitOnClose)
+                {
+                    e.Cancel = true;
+                    mainWindow.Hide();
+                    return;
+                }
+                
                 _ = viewModel.ShutdownServicesAsync();
             };
 

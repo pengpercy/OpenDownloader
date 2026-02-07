@@ -48,6 +48,17 @@
             <Setter Property="CornerRadius" Value="8" />
             <Setter Property="Padding" Value="16,8" />
             <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="Transitions">
+                <Transitions />
+            </Setter>
+        </Style>
+        <Style Selector="Button.settingsNav /template/ ContentPresenter">
+            <Setter Property="RenderTransformOrigin" Value="50%,50%" />
+            <Setter Property="RenderTransform" Value="scale(1)" />
+        </Style>
+        <Style Selector="Button.settingsNav:pressed /template/ ContentPresenter">
+            <Setter Property="RenderTransformOrigin" Value="50%,50%" />
+            <Setter Property="RenderTransform" Value="scale(1)" />
         </Style>
         <Style Selector="Button.settingsNav:pointerover /template/ ContentPresenter">
             <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundBaseLowBrush}" />
@@ -160,7 +171,7 @@
 
                             <Border Classes="settingsDivider"/>
 
-                            <Grid ColumnDefinitions="200, Auto" RowDefinitions="Auto, Auto, Auto" RowSpacing="14">
+                            <Grid ColumnDefinitions="200, Auto" RowDefinitions="Auto, Auto, Auto, Auto" RowSpacing="14">
                                 <TextBlock Grid.Row="0" Grid.Column="0" Text="{DynamicResource LabelLanguage}" VerticalAlignment="Center" Opacity="0.85" FontSize="13"/>
                                 <ComboBox Grid.Row="0" Grid.Column="1" Width="220" ItemsSource="{Binding LanguageOptions}" SelectedItem="{Binding SelectedLanguage}" HorizontalAlignment="Right">
                                     <ComboBox.ItemTemplate>
@@ -175,6 +186,10 @@
 
                                 <TextBlock Grid.Row="2" Grid.Column="0" Text="{DynamicResource LabelAutoUpdate}" VerticalAlignment="Center" Opacity="0.85" FontSize="13"/>
                                 <ToggleSwitch Grid.Row="2" Grid.Column="1" IsChecked="{Binding IsAutoInstallUpdatesEnabled}" HorizontalAlignment="Right"/>
+
+                                <TextBlock Grid.Row="3" Grid.Column="0" Text="{DynamicResource LabelCloseAction}" VerticalAlignment="Center" Opacity="0.85" FontSize="13"/>
+                                <ToggleSwitch Grid.Row="3" Grid.Column="1" IsChecked="{Binding IsExitOnClose}" HorizontalAlignment="Right"
+                                              OnContent="{DynamicResource LabelExitApp}" OffContent="{DynamicResource LabelKeepInBackground}"/>
                             </Grid>
 
                             <Border Classes="settingsDivider"/>

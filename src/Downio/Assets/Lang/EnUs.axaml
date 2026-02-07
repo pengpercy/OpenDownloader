@@ -51,6 +51,9 @@
     <x:String x:Key="LabelFollowSystem">Follow system (Default)</x:String>
     <x:String x:Key="LabelCustomAccent">Custom Accent</x:String>
     <x:String x:Key="LabelRgb">RGB</x:String>
+    <x:String x:Key="LabelCloseAction">Close action</x:String>
+    <x:String x:Key="LabelKeepInBackground">Keep running</x:String>
+    <x:String x:Key="LabelExitApp">Exit app</x:String>
     <x:String x:Key="BtnCheckUpdate">Check Update</x:String>
     <x:String x:Key="BtnCheckingUpdate">Checking...</x:String>
     <x:String x:Key="LabelAboutContent">Downio is an open-source download manager.</x:String>

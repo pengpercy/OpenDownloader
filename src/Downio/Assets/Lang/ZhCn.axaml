@@ -51,6 +51,9 @@
     <x:String x:Key="LabelFollowSystem">跟随系统（默认）</x:String>
     <x:String x:Key="LabelCustomAccent">自定义主题色</x:String>
     <x:String x:Key="LabelRgb">RGB</x:String>
+    <x:String x:Key="LabelCloseAction">关闭行为</x:String>
+    <x:String x:Key="LabelKeepInBackground">后台运行</x:String>
+    <x:String x:Key="LabelExitApp">退出程序</x:String>
     <x:String x:Key="BtnCheckUpdate">检查更新</x:String>
     <x:String x:Key="BtnCheckingUpdate">检查中...</x:String>
     <x:String x:Key="LabelAboutContent">Downio 是一个开源的下载管理器。</x:String>

@@ -469,6 +469,15 @@ public partial class MainWindowViewModel : ViewModelBase
     }
 
     [ObservableProperty]
+    private bool _isExitOnClose;
+
+    partial void OnIsExitOnCloseChanged(bool value)
+    {
+        _settingsService.Settings.ExitOnClose = value;
+        _settingsService.Save();
+    }
+
+    [ObservableProperty]
     private bool _isAccentFollowSystem = true;
 
     [ObservableProperty]
@@ -620,6 +629,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
         IsAutoStartEnabled = _settingsService.Settings.AutoStart;
         IsAutoInstallUpdatesEnabled = _settingsService.Settings.AutoInstallUpdates;
+        IsExitOnClose = _settingsService.Settings.ExitOnClose;
 
         var savedAccentMode = _settingsService.Settings.AccentMode;
         SelectedAccentMode = AccentModeOptions.FirstOrDefault(a => a.Value == savedAccentMode) ?? AccentModeOptions[0];
