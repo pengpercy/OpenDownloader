@@ -22,6 +22,12 @@
     <x:String x:Key="LabelFileName">文件名称</x:String>
     <x:String x:Key="LabelChunks">分片数</x:String>
     <x:String x:Key="LabelSavePath">存储路径</x:String>
+    <x:String x:Key="LabelAdvancedOptions">高级选项</x:String>
+    <x:String x:Key="LabelUserAgent">User-Agent</x:String>
+    <x:String x:Key="LabelAuthorization">Authorization</x:String>
+    <x:String x:Key="LabelReferer">Referer</x:String>
+    <x:String x:Key="LabelCookie">Cookie</x:String>
+    <x:String x:Key="LabelTaskProxy">代理</x:String>
     <x:String x:Key="PlaceholderAutoDetected">自动检测</x:String>
     <x:String x:Key="ToolTipResumeAll">全部开始</x:String>
     <x:String x:Key="ToolTipPauseAll">全部暂停</x:String>
@@ -59,6 +65,7 @@
 
     <!-- Native Menu -->
     <x:String x:Key="MenuAbout">关于 Downio</x:String>
+    <x:String x:Key="MenuOpenDownio">打开 Downio</x:String>
     <x:String x:Key="MenuCheckUpdate">检查更新</x:String>
     <x:String x:Key="MenuFeedback">意见反馈</x:String>
     <x:String x:Key="MenuQuit">退出</x:String>

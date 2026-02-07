@@ -22,6 +22,12 @@
     <x:String x:Key="LabelFileName">File Name</x:String>
     <x:String x:Key="LabelChunks">Chunks</x:String>
     <x:String x:Key="LabelSavePath">Save Path</x:String>
+    <x:String x:Key="LabelAdvancedOptions">Advanced options</x:String>
+    <x:String x:Key="LabelUserAgent">User-Agent</x:String>
+    <x:String x:Key="LabelAuthorization">Authorization</x:String>
+    <x:String x:Key="LabelReferer">Referer</x:String>
+    <x:String x:Key="LabelCookie">Cookie</x:String>
+    <x:String x:Key="LabelTaskProxy">Proxy</x:String>
     <x:String x:Key="PlaceholderAutoDetected">Auto-detected</x:String>
     <x:String x:Key="ToolTipResumeAll">Resume All</x:String>
     <x:String x:Key="ToolTipPauseAll">Pause All</x:String>
@@ -59,6 +65,7 @@
 
     <!-- Native Menu -->
     <x:String x:Key="MenuAbout">About Downio</x:String>
+    <x:String x:Key="MenuOpenDownio">Open Downio</x:String>
     <x:String x:Key="MenuCheckUpdate">Check for Updates</x:String>
     <x:String x:Key="MenuFeedback">Feedback</x:String>
     <x:String x:Key="MenuQuit">Quit</x:String>

@@ -357,6 +357,24 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty]
     private string _newTaskSavePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
 
+    [ObservableProperty]
+    private bool _newTaskShowAdvanced;
+
+    [ObservableProperty]
+    private string _newTaskUserAgent = string.Empty;
+
+    [ObservableProperty]
+    private string _newTaskAuthorization = string.Empty;
+
+    [ObservableProperty]
+    private string _newTaskReferer = string.Empty;
+
+    [ObservableProperty]
+    private string _newTaskCookie = string.Empty;
+
+    [ObservableProperty]
+    private string _newTaskProxy = string.Empty;
+
     // Settings Properties
     [ObservableProperty]
     private string _defaultSavePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");

@@ -221,7 +221,7 @@ public class Aria2Service : IAria2Service, IDisposable
         return standardPath;
     }
 
-    public async Task<string> AddUriAsync(string url, string filename, string savePath, int split = 4)
+    public async Task<string> AddUriAsync(string url, string filename, string savePath, int split = 4, IDictionary<string, string>? extraOptions = null)
     {
         if (_rpcClient == null) return string.Empty;
 
@@ -236,6 +236,16 @@ public class Aria2Service : IAria2Service, IDisposable
         if (!string.IsNullOrEmpty(filename))
         {
             options["out"] = filename;
+        }
+        
+        if (extraOptions != null)
+        {
+            foreach (var kv in extraOptions)
+            {
+                if (string.IsNullOrWhiteSpace(kv.Key)) continue;
+                if (kv.Value == null) continue;
+                options[kv.Key] = kv.Value;
+            }
         }
 
         // Params: [ [urls], options ]

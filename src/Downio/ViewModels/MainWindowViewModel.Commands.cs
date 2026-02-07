@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -255,11 +256,57 @@ public partial class MainWindowViewModel
                 }
             }
 
-            await _aria2Service.AddUriAsync(NewTaskUrl, NewTaskName, NewTaskSavePath, NewTaskChunks);
+            IDictionary<string, string>? extraOptions = null;
+            if (NewTaskShowAdvanced)
+            {
+                var options = new Dictionary<string, string>();
+                
+                if (!string.IsNullOrWhiteSpace(NewTaskUserAgent))
+                {
+                    options["user-agent"] = NewTaskUserAgent.Trim();
+                }
+                
+                if (!string.IsNullOrWhiteSpace(NewTaskReferer))
+                {
+                    options["referer"] = NewTaskReferer.Trim();
+                }
+                
+                var headers = new List<string>();
+                if (!string.IsNullOrWhiteSpace(NewTaskAuthorization))
+                {
+                    headers.Add($"Authorization: {NewTaskAuthorization.Trim()}");
+                }
+                if (!string.IsNullOrWhiteSpace(NewTaskCookie))
+                {
+                    headers.Add($"Cookie: {NewTaskCookie.Trim()}");
+                }
+                if (headers.Count > 0)
+                {
+                    options["header"] = string.Join("\n", headers);
+                }
+                
+                if (!string.IsNullOrWhiteSpace(NewTaskProxy))
+                {
+                    options["all-proxy"] = NewTaskProxy.Trim();
+                }
+                
+                if (options.Count > 0)
+                {
+                    extraOptions = options;
+                }
+            }
+
+            await _aria2Service.AddUriAsync(NewTaskUrl, NewTaskName, NewTaskSavePath, NewTaskChunks, extraOptions);
 
             IsAddTaskVisible = false;
             NewTaskUrl = string.Empty;
             NewTaskName = string.Empty;
+            NewTaskShowAdvanced = false;
+            NewTaskUserAgent = string.Empty;
+            NewTaskAuthorization = string.Empty;
+            NewTaskReferer = string.Empty;
+            NewTaskCookie = string.Empty;
+            NewTaskProxy = string.Empty;
 
             if (CurrentTitleKey != "MenuDownloading")
             {

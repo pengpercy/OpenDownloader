@@ -55,19 +55,31 @@
         <Style Selector="Button.sidebar TextBlock">
             <Setter Property="Foreground" Value="{DynamicResource SidebarTextForegroundBrush}" />
         </Style>
-        <Style Selector="Button.sidebar:pointerover">
-            <Setter Property="Background" Value="{DynamicResource SidebarItemHoverBackgroundBrush}" />
+        <Style Selector="Button.sidebar /template/ ContentPresenter">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Opacity" Value="1" />
         </Style>
-        <Style Selector="Button.sidebar:pressed">
+        <Style Selector="Button.sidebar:pointerover /template/ ContentPresenter">
             <Setter Property="Background" Value="{DynamicResource SidebarItemHoverBackgroundBrush}" />
+            <Setter Property="Opacity" Value="1" />
+        </Style>
+        <Style Selector="Button.sidebar:pressed /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource SidebarItemHoverBackgroundBrush}" />
+            <Setter Property="Opacity" Value="1" />
         </Style>
 
         <!-- Active State -->
-        <Style Selector="Button.sidebar.active">
+        <Style Selector="Button.sidebar.active /template/ ContentPresenter">
             <Setter Property="Background" Value="{DynamicResource SidebarItemSelectedBackgroundBrush}" />
+            <Setter Property="Opacity" Value="1" />
         </Style>
-        <Style Selector="Button.sidebar.active:pressed">
+        <Style Selector="Button.sidebar.active:pointerover /template/ ContentPresenter">
             <Setter Property="Background" Value="{DynamicResource SidebarItemSelectedBackgroundBrush}" />
+            <Setter Property="Opacity" Value="1" />
+        </Style>
+        <Style Selector="Button.sidebar.active:pressed /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource SidebarItemSelectedBackgroundBrush}" />
+            <Setter Property="Opacity" Value="1" />
         </Style>
         <Style Selector="Button.sidebar.active TextBlock">
             <Setter Property="Foreground" Value="{DynamicResource SidebarTextForegroundBrush}" />

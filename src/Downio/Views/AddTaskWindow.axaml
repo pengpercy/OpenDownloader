@@ -48,16 +48,40 @@
                             </Button>
                         </Grid>
                     </StackPanel>
+
+                    <StackPanel Spacing="10" IsVisible="{Binding NewTaskShowAdvanced}">
+                        <Grid ColumnDefinitions="140, *" RowDefinitions="Auto, Auto, Auto, Auto, Auto" RowSpacing="10">
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="{DynamicResource LabelUserAgent}" Opacity="0.7" VerticalAlignment="Center"/>
+                            <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding NewTaskUserAgent}" Watermark="Mozilla/5.0" />
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="{DynamicResource LabelAuthorization}" Opacity="0.7" VerticalAlignment="Center"/>
+                            <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding NewTaskAuthorization}" Watermark="Bearer ..." />
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="{DynamicResource LabelReferer}" Opacity="0.7" VerticalAlignment="Center"/>
+                            <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding NewTaskReferer}" Watermark="https://..." />
+
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="{DynamicResource LabelCookie}" Opacity="0.7" VerticalAlignment="Center"/>
+                            <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding NewTaskCookie}" Watermark="key=value; ..." />
+
+                            <TextBlock Grid.Row="4" Grid.Column="0" Text="{DynamicResource LabelTaskProxy}" Opacity="0.7" VerticalAlignment="Center"/>
+                            <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding NewTaskProxy}" Watermark="http://127.0.0.1:7890" />
+                        </Grid>
+                    </StackPanel>
                 </StackPanel>
             </StackPanel>
 
             <!-- Footer -->
-            <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="12" HorizontalAlignment="Right" Margin="0,24,0,0">
-                <Button Content="{DynamicResource BtnCancel}" Click="OnCancelClick"
-                        Classes="dialogButton" IsCancel="True"/>
-                <Button Content="{DynamicResource BtnDownload}" Click="OnDownloadClick"
-                        Classes="dialogButton accent" IsDefault="True"/>
-            </StackPanel>
+            <Grid Grid.Row="1" ColumnDefinitions="*, Auto" Margin="0,24,0,0">
+                <CheckBox Grid.Column="0" VerticalAlignment="Center"
+                          Content="{DynamicResource LabelAdvancedOptions}"
+                          IsChecked="{Binding NewTaskShowAdvanced}" />
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12" HorizontalAlignment="Right">
+                    <Button Content="{DynamicResource BtnCancel}" Click="OnCancelClick"
+                            Classes="dialogButton" IsCancel="True"/>
+                    <Button Content="{DynamicResource BtnDownload}" Click="OnDownloadClick"
+                            Classes="dialogButton accent" IsDefault="True"/>
+                </StackPanel>
+            </Grid>
         </Grid>
     </controls:DialogHost>
 </views:DialogWindow>

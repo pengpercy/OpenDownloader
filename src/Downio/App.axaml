@@ -207,6 +207,8 @@
             <TrayIcon Icon="/Assets/app_ico.ico" ToolTipText="Downio" Clicked="TrayIcon_OnClicked">
                 <TrayIcon.Menu>
                     <NativeMenu>
+                        <NativeMenuItem Header="{DynamicResource MenuOpenDownio}" Command="{Binding ToggleMainWindowCommand}" />
+                        <NativeMenuItemSeparator />
                         <NativeMenuItem Header="{DynamicResource BtnNewTask}" Gesture="Cmd+N" Command="{Binding ShowAddTaskCommand}" />
                         <NativeMenuItem Header="{DynamicResource MenuSettings}" Gesture="Cmd+," Command="{Binding ShowSettingsCommand}" />
                         <NativeMenuItem Header="{DynamicResource MenuCheckUpdate}" Command="{Binding CheckForUpdatesCommand}" />
