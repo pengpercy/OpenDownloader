@@ -61,6 +61,10 @@
         <Folder Include="Models\" />
         <Folder Include="Services\" />
         <AvaloniaResource Include="Assets\**" Exclude="Assets\**\*.axaml;Assets\Binaries\**" />
+        <Content Include="Assets\cacert.pem">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+        </Content>
         <Content Include="Assets\Binaries\**">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>

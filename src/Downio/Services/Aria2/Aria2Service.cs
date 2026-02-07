@@ -79,6 +79,12 @@ public class Aria2Service : IAria2Service, IDisposable
             "--continue=true",
             "--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36"
         };
+        
+        var caBundlePath = Path.Combine(AppContext.BaseDirectory, "Assets", "cacert.pem");
+        if (File.Exists(caBundlePath))
+        {
+            args.Add($"--ca-certificate={caBundlePath}");
+        }
 
         var startInfo = new ProcessStartInfo
         {
