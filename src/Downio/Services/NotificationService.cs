@@ -71,7 +71,9 @@ public class NotificationService
                 builder.AddAppLogoOverride(new Uri(appLogoPath), CommunityToolkit.WinUI.Notifications.ToastGenericAppLogoCrop.Circle);
             }
 
-            builder.Show();
+            var xml = builder.GetXml();
+            var toast = new Windows.UI.Notifications.ToastNotification(xml);
+            CommunityToolkit.WinUI.Notifications.ToastNotificationManagerCompat.CreateToastNotifier().Show(toast);
             return true;
         }
         catch (Exception ex)
