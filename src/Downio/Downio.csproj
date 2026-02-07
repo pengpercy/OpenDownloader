@@ -14,8 +14,7 @@
         <InformationalVersion>$(Version)</InformationalVersion>
     </PropertyGroup>
     
-    <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
-        <TargetFramework>net10.0-windows10.0.17763.0</TargetFramework>
+    <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
         <DefineConstants>$(DefineConstants);WINDOWS</DefineConstants>
     </PropertyGroup>
     
@@ -99,7 +98,7 @@
         </PackageReference>
         <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
         <!-- 仅在 Windows 编译时引入通知库 -->
-        <PackageReference Include="CommunityToolkit.WinUI.Notifications" Version="7.1.2" Condition="'$(OS)' == 'Windows_NT'" />
+        <PackageReference Include="CommunityToolkit.WinUI.Notifications" Version="7.1.2" Condition="$([MSBuild]::IsOSPlatform('Windows'))" />
     </ItemGroup>
 
   <ItemGroup>
