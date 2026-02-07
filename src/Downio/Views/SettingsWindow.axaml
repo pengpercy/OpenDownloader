@@ -12,7 +12,7 @@
                     Title="{DynamicResource MenuSettings}"
                     Width="840" Height="600"
                     MinWidth="840" MinHeight="600"
-                    CanResize="True"
+                    CanResize="False"
                     ShowInTaskbar="False"
                     WindowStartupLocation="CenterOwner"
                     ExtendClientAreaToDecorationsHint="True"
