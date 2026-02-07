@@ -94,19 +94,18 @@ Start-Sleep -s 5
     private static void SendWindows10Toast(string title, string message)
     {
         var appLogoPath = PathCombineSafe(AppContext.BaseDirectory, "Assets", "windows_linux_icon.png");
-        if (WindowsToastNotification.TryShow(title, message, FileExists(appLogoPath) ? new Uri(appLogoPath).AbsoluteUri : null))
-        {
-            return;
-        }
+        var appLogoUri = FileExists(appLogoPath) ? new Uri(appLogoPath).AbsoluteUri : string.Empty;
 
         string psScript = $@"
 [Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] > $null;
-$template = [Windows.UI.Notifications.ToastNotificationManager]::GetTemplateContent([Windows.UI.Notifications.ToastTemplateType]::ToastText02);
+$template = [Windows.UI.Notifications.ToastNotificationManager]::GetTemplateContent([Windows.UI.Notifications.ToastTemplateType]::ToastImageAndText02);
+$imageNodes = $template.GetElementsByTagName('image');
+if ($imageNodes.Count -gt 0) {{ $imageNodes[0].SetAttribute('src', '{EscapeForScript(appLogoUri)}') > $null; $imageNodes[0].SetAttribute('alt', 'Downio') > $null; }}
 $textNodes = $template.GetElementsByTagName('text');
 $textNodes[0].AppendChild($template.CreateTextNode('{EscapeForScript(title)}')) > $null;
 $textNodes[1].AppendChild($template.CreateTextNode('{EscapeForScript(message)}')) > $null;
 $toast = [Windows.UI.Notifications.ToastNotification]::new($template);
-[Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier('AvaloniaApp').Show($toast);
+[Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier('Downio').Show($toast);
 ";
         RunProcess("powershell", $"-NoProfile -WindowStyle Hidden -Command \"{psScript}\"");
     }
