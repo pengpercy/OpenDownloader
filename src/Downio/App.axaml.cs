@@ -16,6 +16,8 @@ namespace Downio;
 
 public partial class App : Application
 {
+    private SingleInstanceService? _singleInstance;
+
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
@@ -25,6 +27,13 @@ public partial class App : Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
+            if (!SingleInstanceService.TryCreate("Downio", out _singleInstance))
+            {
+                SingleInstanceService.NotifyExisting("Downio");
+                desktop.Shutdown();
+                return;
+            }
+
             // Avoid duplicate validations from both Avalonia and the CommunityToolkit. 
             // More info: https://docs.avaloniaui.net/docs/guides/development-guides/data-validation#manage-validationplugins
             DisableAvaloniaDataAnnotationValidation();
@@ -38,6 +47,8 @@ public partial class App : Application
             };
             
             desktop.MainWindow = mainWindow;
+
+            _singleInstance?.SetActivateHandler(viewModel.ToggleMainWindow);
 
             var trayIcons = TrayIcon.GetIcons(this);
             if (trayIcons is { Count: > 0 })
@@ -64,6 +75,7 @@ public partial class App : Application
             desktop.Exit += (_, _) =>
             {
                 _ = viewModel.ShutdownServicesAsync();
+                _singleInstance?.Dispose();
             };
 
             var updateChecked = false;
