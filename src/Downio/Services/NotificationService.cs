@@ -93,7 +93,7 @@ Start-Sleep -s 5
     // 方案 B: Windows 10/11 现代方案 (基于 WinRT XML)
     private static void SendWindows10Toast(string title, string message)
     {
-        var appLogoPath = PathCombineSafe(AppContext.BaseDirectory, "Assets", "windows_linux_icon.png");
+        var appLogoPath = PathCombineSafe(AppContext.BaseDirectory, "Assets", "Branding", "app_icon.png");
         var appLogoUri = FileExists(appLogoPath) ? new Uri(appLogoPath).AbsoluteUri : string.Empty;
 
         string psScript = $@"
@@ -237,8 +237,8 @@ $toast = [Windows.UI.Notifications.ToastNotification]::new($template);
         return "\"" + value.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\"";
     }
 
-    private static string PathCombineSafe(string a, string b, string c) =>
-        System.IO.Path.Combine(a, b, c);
+    private static string PathCombineSafe(params string[] parts) =>
+        System.IO.Path.Combine(parts);
 
     private static bool FileExists(string path) =>
         System.IO.File.Exists(path);

@@ -39,7 +39,7 @@
             <!-- App Info with Logo -->
             <StackPanel Grid.Row="1" Spacing="16">
                 <StackPanel Orientation="Horizontal" Spacing="20">
-                    <Image Source="/Assets/app_ico.ico" Width="64" Height="64" VerticalAlignment="Top"/>
+                    <Image Source="/Assets/Branding/app_icon.png" Width="64" Height="64" VerticalAlignment="Top"/>
                     <StackPanel Spacing="6" VerticalAlignment="Center">
                         <TextBlock Text="Downio" FontWeight="Bold" FontSize="22"/>
                         <StackPanel Orientation="Horizontal" Spacing="6" Opacity="0.7">

@@ -55,8 +55,8 @@ public partial class App : Application
             {
                 var trayIcon = trayIcons[0];
                 var iconUri = OperatingSystem.IsMacOS()
-                    ? new Uri("avares://Downio/Assets/macos_tray_icon.png")
-                    : new Uri("avares://Downio/Assets/windows_linux_icon.png");
+                    ? new Uri("avares://Downio/Assets/Branding/Tray/macos.png")
+                    : new Uri("avares://Downio/Assets/Branding/Tray/windows.png");
                 trayIcon.Icon = new WindowIcon(new Bitmap(AssetLoader.Open(iconUri)));
             }
 

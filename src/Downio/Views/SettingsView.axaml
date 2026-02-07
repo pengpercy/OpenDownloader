@@ -113,7 +113,7 @@
                     
                     <StackPanel Spacing="12">
                         <StackPanel Orientation="Horizontal" Spacing="16">
-                            <Image Source="/Assets/app_ico.ico" Width="64" Height="64" VerticalAlignment="Top"/>
+                            <Image Source="/Assets/Branding/app_icon.png" Width="64" Height="64" VerticalAlignment="Top"/>
                             <StackPanel Spacing="6">
                                 <TextBlock Text="Downio" FontWeight="Bold" FontSize="18"/>
                                 <StackPanel Orientation="Horizontal" Spacing="5" Opacity="0.7">

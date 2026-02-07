@@ -29,7 +29,7 @@
         <Grid RowDefinitions="Auto, *, Auto" Margin="4">
             <!-- Header: App Icon and Title -->
             <Grid Grid.Row="0" ColumnDefinitions="Auto, *" Margin="0,0,0,16" IsVisible="{Binding !IsDownloading}">
-                <Image Grid.Column="0" Source="/Assets/app_ico.ico" Width="48" Height="48" VerticalAlignment="Top" Margin="0,0,16,0"/>
+                <Image Grid.Column="0" Source="/Assets/Branding/app_icon.png" Width="48" Height="48" VerticalAlignment="Top" Margin="0,0,16,0"/>
                 <StackPanel Grid.Column="1" Spacing="4">
                     <TextBlock Text="{Binding UpdateTitleText}" FontWeight="Bold" FontSize="16"/>
                     <TextBlock Text="{Binding UpdateDescriptionText}" FontSize="13" TextWrapping="Wrap" Opacity="0.8"/>

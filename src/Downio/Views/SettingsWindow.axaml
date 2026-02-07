@@ -294,7 +294,7 @@
                             <TextBlock Text="{DynamicResource SettingsAbout}" FontSize="13" FontWeight="SemiBold" Opacity="0.85"/>
                             <Border Classes="settingsDivider"/>
                             <StackPanel Orientation="Horizontal" Spacing="20">
-                                <Image Source="/Assets/app_ico.ico" Width="64" Height="64" VerticalAlignment="Top"/>
+                                <Image Source="/Assets/Branding/app_icon.png" Width="64" Height="64" VerticalAlignment="Top"/>
                                 <StackPanel Spacing="8">
                                     <TextBlock Text="Downio" FontWeight="Bold" FontSize="18"/>
                                     <StackPanel Orientation="Horizontal" Spacing="6" Opacity="0.7">

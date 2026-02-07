@@ -60,41 +60,14 @@ fi
 
 # Create Info.plist
 echo "Creating Info.plist..."
-cat > "$CONTENTS/Info.plist" <<EOF
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-    <key>CFBundleName</key>
-    <string>$APP_NAME</string>
-    <key>CFBundleDisplayName</key>
-    <string>$APP_NAME</string>
-    <key>CFBundleIdentifier</key>
-    <string>com.Downio.app</string>
-    <key>CFBundleVersion</key>
-    <string>$VERSION</string>
-    <key>CFBundleShortVersionString</key>
-    <string>$VERSION</string>
-    <key>CFBundleExecutable</key>
-    <string>$APP_NAME</string>
-    <key>CFBundleIconFile</key>
-    <string>AppIcon.icns</string>
-    <key>CFBundlePackageType</key>
-    <string>APPL</string>
-    <key>LSMinimumSystemVersion</key>
-    <string>10.13</string>
-    <key>NSHighResolutionCapable</key>
-    <true/>
-</dict>
-</plist>
-EOF
+sed "s/Downio_VERSION/$VERSION/g" build/resources/app/App.plist > "$CONTENTS/Info.plist"
 
 # Generate .icns from PNG if available
-echo "Generating AppIcon.icns..."
-ICON_SOURCE="src/Downio/Assets/app_ico.png"
+echo "Generating App.icns..."
+ICON_SOURCE="src/Downio/Assets/Branding/app_icon.png"
 
 if [ -f "$ICON_SOURCE" ]; then
-    ICONSET_DIR="build/AppIcon.iconset"
+    ICONSET_DIR="build/App.iconset"
     mkdir -p "$ICONSET_DIR"
 
     # Resize to standard icon sizes
@@ -110,14 +83,10 @@ if [ -f "$ICON_SOURCE" ]; then
     sips -z 1024 1024 "$ICON_SOURCE" --out "$ICONSET_DIR/icon_512x512@2x.png"
 
     # Convert iconset to icns
-    iconutil -c icns "$ICONSET_DIR" -o "$RESOURCES/AppIcon.icns"
+    iconutil -c icns "$ICONSET_DIR" -o "$RESOURCES/App.icns"
     
     # Cleanup
     rm -rf "$ICONSET_DIR"
-elif [ -f "src/Downio/Assets/avalonia-logo.ico" ]; then
-    # Fallback to simple copy if png not found
-    echo "Warning: app_ico.png not found, falling back to avalonia-logo.ico"
-    cp "src/Downio/Assets/avalonia-logo.ico" "$RESOURCES/AppIcon.icns"
 fi
 
 # Remove .pdb files to save space
