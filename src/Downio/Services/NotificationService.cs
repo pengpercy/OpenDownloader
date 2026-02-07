@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Avalonia;
 using Downio.Models;
+using Downio.Services.Notifications;
 
 namespace Downio.Services;
 
@@ -92,10 +93,15 @@ Start-Sleep -s 5
     // 方案 B: Windows 10/11 现代方案 (基于 WinRT XML)
     private static void SendWindows10Toast(string title, string message)
     {
+        var appLogoPath = PathCombineSafe(AppContext.BaseDirectory, "Assets", "windows_linux_icon.png");
+        if (WindowsToastNotification.TryShow(title, message, FileExists(appLogoPath) ? new Uri(appLogoPath).AbsoluteUri : null))
+        {
+            return;
+        }
+
         string psScript = $@"
 [Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] > $null;
 $template = [Windows.UI.Notifications.ToastNotificationManager]::GetTemplateContent([Windows.UI.Notifications.ToastTemplateType]::ToastText02);
-$xml = $template.GetXml();
 $textNodes = $template.GetElementsByTagName('text');
 $textNodes[0].AppendChild($template.CreateTextNode('{EscapeForScript(title)}')) > $null;
 $textNodes[1].AppendChild($template.CreateTextNode('{EscapeForScript(message)}')) > $null;
@@ -108,8 +114,13 @@ $toast = [Windows.UI.Notifications.ToastNotification]::new($template);
     // --- MacOS 实现 ---
     private static void ShowMacNotification(string title, string message)
     {
-        string script = $"display notification \"{EscapeForScript(message)}\" with title \"{EscapeForScript(title)}\"";
-        RunProcess("osascript", $"-e '{script}'");
+        if (MacSystemNotification.TryShow(title, message))
+        {
+            return;
+        }
+
+        string script = $"display notification {EscapeAppleScriptString(message)} with title {EscapeAppleScriptString(title)}";
+        RunProcess("/usr/bin/osascript", $"-e {EscapeForArgs(script)}");
     }
 
     // --- Linux 实现 ---
@@ -143,4 +154,22 @@ $toast = [Windows.UI.Notifications.ToastNotification]::new($template);
         // 这里主要针对 PowerShell 的单引号包裹逻辑进行转义
         return input.Replace("'", "''").Replace("\"", "\\\"");
     }
+
+    private static string EscapeAppleScriptString(string value)
+    {
+        value ??= string.Empty;
+        return "\"" + value.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\"";
+    }
+
+    private static string EscapeForArgs(string value)
+    {
+        value ??= string.Empty;
+        return "\"" + value.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\"";
+    }
+
+    private static string PathCombineSafe(string a, string b, string c) =>
+        System.IO.Path.Combine(a, b, c);
+
+    private static bool FileExists(string path) =>
+        System.IO.File.Exists(path);
 }
