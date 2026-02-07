@@ -69,6 +69,10 @@
         <Folder Include="Models\" />
         <Folder Include="Services\" />
         <AvaloniaResource Include="Assets\**" Exclude="Assets\**\*.axaml;Assets\Binaries\**" />
+        <Content Include="Assets\windows_linux_icon.png">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+        </Content>
         <Content Include="Assets\cacert.pem">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>

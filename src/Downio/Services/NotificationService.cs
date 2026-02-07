@@ -98,13 +98,34 @@ Start-Sleep -s 5
 
         string psScript = $@"
 [Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] > $null;
-$template = [Windows.UI.Notifications.ToastNotificationManager]::GetTemplateContent([Windows.UI.Notifications.ToastTemplateType]::ToastImageAndText02);
-$imageNodes = $template.GetElementsByTagName('image');
-if ($imageNodes.Count -gt 0) {{ $imageNodes[0].SetAttribute('src', '{EscapeForScript(appLogoUri)}') > $null; $imageNodes[0].SetAttribute('alt', 'Downio') > $null; }}
-$textNodes = $template.GetElementsByTagName('text');
-$textNodes[0].AppendChild($template.CreateTextNode('{EscapeForScript(title)}')) > $null;
-$textNodes[1].AppendChild($template.CreateTextNode('{EscapeForScript(message)}')) > $null;
-$toast = [Windows.UI.Notifications.ToastNotification]::new($template);
+
+$title = '{EscapeForScript(title)}';
+$message = '{EscapeForScript(message)}';
+$appLogoUri = '{EscapeForScript(appLogoUri)}';
+
+$xml = New-Object Windows.Data.Xml.Dom.XmlDocument;
+$xml.LoadXml('<toast><visual><binding template=""ToastGeneric""></binding></visual></toast>');
+
+$binding = $xml.SelectSingleNode('/toast/visual/binding');
+
+if ($appLogoUri -ne '') {{
+  $img = $xml.CreateElement('image');
+  $img.SetAttribute('placement', 'appLogoOverride') > $null;
+  $img.SetAttribute('src', $appLogoUri) > $null;
+  $img.SetAttribute('alt', 'Downio') > $null;
+  $img.SetAttribute('hint-crop', 'circle') > $null;
+  $binding.AppendChild($img) > $null;
+}}
+
+$t1 = $xml.CreateElement('text');
+$t1.InnerText = $title;
+$binding.AppendChild($t1) > $null;
+
+$t2 = $xml.CreateElement('text');
+$t2.InnerText = $message;
+$binding.AppendChild($t2) > $null;
+
+$toast = [Windows.UI.Notifications.ToastNotification]::new($xml);
 [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier('Downio').Show($toast);
 ";
         RunProcess("powershell", $"-NoProfile -WindowStyle Hidden -Command \"{psScript}\"");
