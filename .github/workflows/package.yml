@@ -134,7 +134,7 @@ jobs:
           export DEBIAN_FRONTEND=noninteractive
           ln -fs /usr/share/zoneinfo/Etc/UTC /etc/localtime
           apt-get update
-          apt-get install -y curl wget git dpkg-dev fakeroot tzdata zip unzip desktop-file-utils rpm libfuse2 file build-essential binutils
+          apt-get install -y curl wget git dpkg-dev fakeroot tzdata zip unzip desktop-file-utils rpm libfuse2 file build-essential binutils ffmpeg
       - name: Download build
         uses: actions/download-artifact@v4
         with:

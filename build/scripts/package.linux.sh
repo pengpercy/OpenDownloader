@@ -26,6 +26,20 @@ APPIMAGETOOL_URL=https://github.com/AppImage/appimagetool/releases/download/cont
 
 cd build
 
+ICON_SOURCE="../src/Downio/Assets/Branding/app_icon.png"
+ICON_OUT="resources/_common/icons/Downio.png"
+
+if [[ -f "$ICON_SOURCE" ]]; then
+    if command -v ffmpeg >/dev/null 2>&1; then
+        echo "Generating Linux icon from source: $ICON_SOURCE"
+        ffmpeg -y -hide_banner -loglevel error -i "$ICON_SOURCE" -vf "scale=256:256:flags=lanczos" -frames:v 1 "$ICON_OUT"
+    else
+        echo "Warning: ffmpeg not found; using existing icon: $ICON_OUT"
+    fi
+else
+    echo "Warning: icon source not found: $ICON_SOURCE (using existing icon: $ICON_OUT)"
+fi
+
 if [[ ! -f "appimagetool" ]]; then
     curl -o appimagetool -L "$APPIMAGETOOL_URL"
     chmod +x appimagetool
