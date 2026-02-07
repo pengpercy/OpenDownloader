@@ -33,5 +33,6 @@ aria2.session
 aria2.log
 
 # Local release tools
-tools/local/
+tools/local/*
+!tools/local/release.sh
 tools/README.md
