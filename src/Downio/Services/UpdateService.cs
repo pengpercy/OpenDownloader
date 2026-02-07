@@ -2,12 +2,14 @@ using System;
 using System.IO;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Net;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.Linq;
+using Downio.Models;
 
 namespace Downio.Services;
 
@@ -16,9 +18,32 @@ public class UpdateService
     private const string GitHubApiUrl = "https://api.github.com/repos/pengpercy/Downio/releases/latest";
     private readonly HttpClient _httpClient;
 
-    public UpdateService()
+    public UpdateService(AppSettings? settings = null)
     {
-        _httpClient = new HttpClient
+        var handler = new HttpClientHandler();
+
+        if (settings != null)
+        {
+            var address = settings.ProxyAddress?.Trim() ?? string.Empty;
+            var port = settings.ProxyPort;
+            if (!string.IsNullOrWhiteSpace(address) && port > 0)
+            {
+                var scheme = string.Equals(settings.ProxyType, "SOCKS5", StringComparison.OrdinalIgnoreCase) ? "socks5" : "http";
+                var proxyUri = new Uri($"{scheme}://{address}:{port}");
+                var proxy = new WebProxy(proxyUri);
+
+                var user = settings.ProxyUsername?.Trim() ?? string.Empty;
+                if (!string.IsNullOrWhiteSpace(user))
+                {
+                    proxy.Credentials = new NetworkCredential(user, settings.ProxyPassword ?? string.Empty);
+                }
+
+                handler.UseProxy = true;
+                handler.Proxy = proxy;
+            }
+        }
+
+        _httpClient = new HttpClient(handler)
         {
             Timeout = TimeSpan.FromSeconds(10)
         };
@@ -36,7 +61,11 @@ public class UpdateService
             // Let's create a simple context for ReleaseInfo.
             
             var response = await _httpClient.GetAsync(GitHubApiUrl);
-            if (!response.IsSuccessStatusCode) return null;
+            if (!response.IsSuccessStatusCode)
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                throw new HttpRequestException($"HTTP {(int)response.StatusCode} {response.ReasonPhrase}: {body}");
+            }
 
             var json = await response.Content.ReadAsStringAsync();
             var release = JsonSerializer.Deserialize(json, GitHubJsonContext.Default.ReleaseInfo);
@@ -56,6 +85,7 @@ public class UpdateService
         catch (Exception ex)
         {
             Debug.WriteLine($"Update check failed: {ex.Message}");
+            throw;
         }
         return null;
     }

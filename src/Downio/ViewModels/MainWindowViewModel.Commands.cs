@@ -186,7 +186,7 @@ public partial class MainWindowViewModel
         }
 
         IsCheckingForUpdates = true;
-        var updateService = new UpdateService();
+        var updateService = new UpdateService(_settingsService.Settings);
         var currentVersion = AppVersion.TrimStart('v');
 
         ReleaseInfo? release = null;
@@ -198,6 +198,14 @@ public partial class MainWindowViewModel
         {
             Debug.WriteLine($"Update check failed: {ex.Message}");
             AppLog.Error(ex, "Update check failed");
+
+            if (isFromAbout)
+            {
+                UpdateCheckStatusText = $"{GetString("MessageUpdateCheckFailed")} {ex.Message}";
+                UpdateCheckStatusBrush = Brushes.Red;
+                IsUpdateCheckStatusVisible = true;
+                _ = Task.Delay(8000).ContinueWith(_ => IsUpdateCheckStatusVisible = false, TaskScheduler.FromCurrentSynchronizationContext());
+            }
         }
         finally
         {
@@ -215,9 +223,16 @@ public partial class MainWindowViewModel
         {
             if (isFromAbout)
             {
-                UpdateCheckStatusText = GetString("MessageNoUpdates");
-                UpdateCheckStatusBrush = Brushes.Gray;
-                IsUpdateCheckStatusVisible = true;
+                if (UpdateCheckStatusBrush == Brushes.Red && !string.IsNullOrWhiteSpace(UpdateCheckStatusText))
+                {
+                    IsUpdateCheckStatusVisible = true;
+                }
+                else
+                {
+                    UpdateCheckStatusText = GetString("MessageNoUpdates");
+                    UpdateCheckStatusBrush = Brushes.Gray;
+                    IsUpdateCheckStatusVisible = true;
+                }
                 
                 // Hide after 5 seconds
                 _ = Task.Delay(5000).ContinueWith(_ => IsUpdateCheckStatusVisible = false, TaskScheduler.FromCurrentSynchronizationContext());

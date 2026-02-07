@@ -125,6 +125,7 @@
     <x:String x:Key="UpdateFromTo">Update from {0} to {1}</x:String>
     <x:String x:Key="TitleUpdateCheck">Update Check</x:String>
     <x:String x:Key="MessageNoUpdates">You're already on the latest version.</x:String>
+    <x:String x:Key="MessageUpdateCheckFailed">Update check failed:</x:String>
     <x:String x:Key="TitleNewVersionAvailable">A new version of {0} is available!</x:String>
     <x:String x:Key="UpdateDescription">{0} {1} is now available - you have {2}. Would you like to download it now?</x:String>
     <x:String x:Key="ButtonSkipVersion">Skip This Version</x:String>

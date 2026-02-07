@@ -125,6 +125,7 @@
     <x:String x:Key="UpdateFromTo">从 {0} 升级到 {1}</x:String>
     <x:String x:Key="TitleUpdateCheck">检查更新</x:String>
     <x:String x:Key="MessageNoUpdates">当前已是最新版本。</x:String>
+    <x:String x:Key="MessageUpdateCheckFailed">检查更新失败：</x:String>
     <x:String x:Key="TitleNewVersionAvailable">发现新版本 {0}！</x:String>
     <x:String x:Key="UpdateDescription">{0} {1} 现已可用 - 您当前版本为 {2}。是否立即下载？</x:String>
     <x:String x:Key="ButtonSkipVersion">跳过此版本</x:String>

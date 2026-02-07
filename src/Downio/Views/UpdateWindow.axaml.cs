@@ -185,7 +185,7 @@ public partial class UpdateViewModel : ObservableObject
         StatusText = GetString("UpdateStatusPreparing", "Preparing...");
         DownloadProgress = 0;
 
-        var updateService = new UpdateService();
+        var updateService = new UpdateService(SettingsService?.Settings);
         var asset = UpdateAssetSelector.SelectPreferredAsset(Release);
         if (asset is null)
         {

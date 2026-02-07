@@ -86,7 +86,15 @@ public partial class App : Application
 
                 var currentVersion = AppVersionProvider.GetCurrentVersion();
                 var updateService = new UpdateService();
-                var release = await updateService.CheckForUpdatesAsync(currentVersion);
+                ReleaseInfo? release = null;
+                try
+                {
+                    release = await updateService.CheckForUpdatesAsync(currentVersion);
+                }
+                catch (Exception ex)
+                {
+                    AppLog.Error(ex, "Update check failed");
+                }
                 if (release is null) return;
 
                 var dialog = new UpdateWindow(release);
