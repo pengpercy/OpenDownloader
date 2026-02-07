@@ -1,7 +1,10 @@
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core;
 using Avalonia.Data.Core.Plugins;
+using Avalonia.Media.Imaging;
+using Avalonia.Platform;
 using System;
 using System.Linq;
 using Avalonia.Markup.Xaml;
@@ -35,6 +38,16 @@ public partial class App : Application
             };
             
             desktop.MainWindow = mainWindow;
+
+            var trayIcons = TrayIcon.GetIcons(this);
+            if (trayIcons is { Count: > 0 })
+            {
+                var trayIcon = trayIcons[0];
+                var iconUri = OperatingSystem.IsMacOS()
+                    ? new Uri("avares://Downio/Assets/macos_tray_icon.png")
+                    : new Uri("avares://Downio/Assets/windows_linux_icon.png");
+                trayIcon.Icon = new WindowIcon(new Bitmap(AssetLoader.Open(iconUri)));
+            }
 
             mainWindow.Closing += (_, _) =>
             {
