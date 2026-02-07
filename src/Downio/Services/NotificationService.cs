@@ -97,13 +97,15 @@ Start-Sleep -s 5
         var appLogoUri = FileExists(appLogoPath) ? new Uri(appLogoPath).AbsoluteUri : string.Empty;
 
         string psScript = $@"
+$ErrorActionPreference = 'Stop';
 [Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] > $null;
 
 $title = '{EscapeForScript(title)}';
 $message = '{EscapeForScript(message)}';
 $appLogoUri = '{EscapeForScript(appLogoUri)}';
 
-$xml = New-Object Windows.Data.Xml.Dom.XmlDocument;
+try {{
+$xml = New-Object -TypeName Windows.Data.Xml.Dom.XmlDocument;
 $xml.LoadXml('<toast><visual><binding template=""ToastGeneric""></binding></visual></toast>');
 
 $binding = $xml.SelectSingleNode('/toast/visual/binding');
@@ -127,8 +129,25 @@ $binding.AppendChild($t2) > $null;
 
 $toast = [Windows.UI.Notifications.ToastNotification]::new($xml);
 [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier('Downio').Show($toast);
+exit 0;
+}} catch {{
+  Write-Error $_;
+  exit 1;
+}}
 ";
-        RunProcess("powershell", $"-NoProfile -WindowStyle Hidden -Command \"{psScript}\"");
+        var exitCode = RunProcessAndWait("powershell", $"-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -Sta -Command \"{psScript}\"", 2000);
+        if (exitCode == 0) return;
+
+        string fallback = $@"
+[Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] > $null;
+$template = [Windows.UI.Notifications.ToastNotificationManager]::GetTemplateContent([Windows.UI.Notifications.ToastTemplateType]::ToastText02);
+$textNodes = $template.GetElementsByTagName('text');
+$textNodes[0].AppendChild($template.CreateTextNode('{EscapeForScript(title)}')) > $null;
+$textNodes[1].AppendChild($template.CreateTextNode('{EscapeForScript(message)}')) > $null;
+$toast = [Windows.UI.Notifications.ToastNotification]::new($template);
+[Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier('Downio').Show($toast);
+";
+        RunProcessAndWait("powershell", $"-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -Sta -Command \"{fallback}\"", 2000);
     }
 
     // --- MacOS 实现 ---
@@ -165,6 +184,37 @@ $toast = [Windows.UI.Notifications.ToastNotification]::new($xml);
         using var process = Process.Start(info);
         // 对于 Win7 气泡，脚本里有 Sleep，所以这里如果不等，C# 主线程不受影响，PowerShell 在后台跑
         // 对于其他平台，命令很快结束
+    }
+
+    private static int RunProcessAndWait(string fileName, string arguments, int timeoutMs)
+    {
+        var info = new ProcessStartInfo
+        {
+            FileName = fileName,
+            Arguments = arguments,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            CreateNoWindow = true
+        };
+
+        using var process = Process.Start(info);
+        if (process == null) return -1;
+
+        if (!process.WaitForExit(timeoutMs))
+        {
+            try
+            {
+                process.Kill(entireProcessTree: true);
+            }
+            catch
+            {
+            }
+
+            return -1;
+        }
+
+        return process.ExitCode;
     }
 
     private static string EscapeForScript(string input)
