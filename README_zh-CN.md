@@ -2,7 +2,7 @@
 
 <div align="center">
 
-<img src="src/Downio/Assets/app_icon.png" width="128" height="128" alt="Logo">
+<img src="src/Downio/Assets/Branding/app_icon.png" width="128" height="128" alt="Logo">
 
 ### 适用于 macOS、Windows 和 Linux 的现代化下载管理器
 
