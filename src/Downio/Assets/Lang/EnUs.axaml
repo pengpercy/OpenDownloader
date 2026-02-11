@@ -68,7 +68,6 @@
     <x:String x:Key="SettingsAppearance">Appearance</x:String>
     <x:String x:Key="SettingsNetwork">Network</x:String>
     <x:String x:Key="SettingsAdvanced">Advanced</x:String>
-    <x:String x:Key="SettingsAdvanced">Advanced</x:String>
     <x:String x:Key="SettingsAdvancedDesc">Advanced options for aria2 engine.</x:String>
     <x:String x:Key="LabelBtTrackers">Tracker Servers</x:String>
     <x:String x:Key="LabelRpcSettings">RPC Settings</x:String>
