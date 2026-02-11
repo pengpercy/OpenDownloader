@@ -19,10 +19,63 @@
             <StackPanel Grid.Row="0" Spacing="16">
                 
                 <StackPanel Spacing="12">
-                    <StackPanel Spacing="8">
-                        <TextBlock Text="{DynamicResource LabelUrl}" Opacity="0.7"/>
-                        <TextBox Text="{Binding NewTaskUrl}" Watermark="https://..." Height="60" AcceptsReturn="True" TextWrapping="Wrap"/>
-                    </StackPanel>
+                    <TabControl SelectedIndex="{Binding NewTaskInputModeIndex}" Margin="-8,0,-8,4" Padding="0">
+                        <TabControl.Styles>
+                            <Style Selector="TabItem">
+                                <Setter Property="FontSize" Value="14"/>
+                                <Setter Property="FontWeight" Value="SemiBold"/>
+                                <Setter Property="MinHeight" Value="32"/>
+                                <Setter Property="Padding" Value="12,6"/>
+                            </Style>
+                            <Style Selector="TabItem > StackPanel">
+                                <Setter Property="Margin" Value="0,8,0,0"/>
+                            </Style>
+                            <!-- Tab Content Transition -->
+                            <Style Selector="TabControl WrapPanel">
+                                <Setter Property="Background" Value="Transparent"/>
+                            </Style>
+                            <Style Selector="TabControl ContentPresenter">
+                                <Setter Property="Transitions">
+                                    <Transitions>
+                                        <DoubleTransition Property="Opacity" Duration="0:0:0.25" Easing="CubicEaseOut"/>
+                                        <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.25" Easing="CubicEaseOut"/>
+                                    </Transitions>
+                                </Setter>
+                            </Style>
+                        </TabControl.Styles>
+                        <TabItem Header="{DynamicResource TabLinkTask}">
+                            <StackPanel Spacing="8" Margin="8,8,8,0">
+                                <TextBox Text="{Binding NewTaskUrl}"
+                                         Watermark="{DynamicResource PlaceholderMultiLinks}"
+                                         Height="100"
+                                         AcceptsReturn="True"
+                                         TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </TabItem>
+                        <TabItem Header="{DynamicResource TabTorrentTask}">
+                            <StackPanel Spacing="8" Margin="8,8,8,0">
+                                <Border CornerRadius="8"
+                                        BorderThickness="1"
+                                        BorderBrush="{DynamicResource SystemControlForegroundBaseMediumLowBrush}"
+                                        Background="{DynamicResource SystemControlBackgroundBaseLowBrush}"
+                                        Height="100"
+                                        Padding="12"
+                                        DragDrop.AllowDrop="True"
+                                        DragDrop.DragOver="OnTorrentDragOver"
+                                        DragDrop.Drop="OnTorrentDrop"
+                                        PointerPressed="OnTorrentPick">
+                                    <StackPanel Orientation="Vertical" Spacing="8" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                        <PathIcon Data="{StaticResource IconUpload}" Width="24" Height="24" Opacity="0.6" HorizontalAlignment="Center"/>
+                                        <StackPanel Spacing="4">
+                                            <TextBlock Text="{DynamicResource TorrentDropHint}" HorizontalAlignment="Center" TextAlignment="Center"/>
+                                            <TextBlock Text="{Binding NewTaskTorrentFileName}" Opacity="0.7" TextTrimming="CharacterEllipsis" 
+                                                       HorizontalAlignment="Center" TextAlignment="Center" FontSize="12" MaxWidth="350"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </TabItem>
+                    </TabControl>
 
                     <Grid ColumnDefinitions="*, 120" RowDefinitions="Auto, Auto">
                             <StackPanel Grid.Column="0" Spacing="8" Margin="0,0,10,0">

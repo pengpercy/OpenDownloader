@@ -45,6 +45,13 @@ public partial class ConfirmDeleteDialog : DialogWindow
         }
     }
 
+    public ConfirmDeleteDialog(string title, string message, bool showDeleteFile = false) : this()
+    {
+        Title = title;
+        MessageText.Text = message;
+        DeleteFileCheckBox.IsVisible = showDeleteFile;
+    }
+
     private void OnConfirmClick(object sender, RoutedEventArgs e)
     {
         Close(true);

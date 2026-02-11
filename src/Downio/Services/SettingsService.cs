@@ -61,4 +61,16 @@ public class SettingsService
             // Ignore save errors
         }
     }
+
+    public void ReplaceSettings(AppSettings settings)
+    {
+        Settings = settings ?? new AppSettings();
+        Save();
+    }
+
+    public void ResetToDefaults()
+    {
+        Settings = new AppSettings();
+        Save();
+    }
 }

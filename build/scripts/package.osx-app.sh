@@ -21,7 +21,7 @@ mkdir -p Downio.app/Contents/MacOS
 mkdir -p Downio.app/Contents/Resources
 cp -r Downio/* Downio.app/Contents/MacOS/
 rm -rf Downio
-ICON_SOURCE="../src/Downio/Assets/Branding/app_icon.png"
+ICON_SOURCE="../src/Downio/Assets/Branding/macOS/app_icon.png"
 ICONSET_DIR="App.iconset"
 rm -rf "$ICONSET_DIR"
 mkdir -p "$ICONSET_DIR"

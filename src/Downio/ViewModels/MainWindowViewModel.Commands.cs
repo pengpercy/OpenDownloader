@@ -114,7 +114,9 @@ public partial class MainWindowViewModel
     [RelayCommand]
     public void ShowAddTask()
     {
+        NewTaskInputModeIndex = 0;
         NewTaskUrl = string.Empty;
+        NewTaskTorrentFilePath = string.Empty;
         NewTaskName = string.Empty;
         NewTaskChunks = 4;
         if (string.IsNullOrEmpty(NewTaskSavePath))
@@ -259,18 +261,12 @@ public partial class MainWindowViewModel
     [RelayCommand]
     public async Task StartDownload()
     {
-        if (string.IsNullOrWhiteSpace(NewTaskUrl)) return;
+        bool isTorrent = NewTaskInputModeIndex == 1;
+        if (!isTorrent && string.IsNullOrWhiteSpace(NewTaskUrl)) return;
+        if (isTorrent && string.IsNullOrWhiteSpace(NewTaskTorrentFilePath)) return;
 
         try
         {
-            if (string.IsNullOrWhiteSpace(NewTaskName))
-            {
-                if (Uri.TryCreate(NewTaskUrl, UriKind.Absolute, out var uri))
-                {
-                    NewTaskName = Path.GetFileName(uri.LocalPath);
-                }
-            }
-
             IDictionary<string, string>? extraOptions = null;
             if (NewTaskShowAdvanced)
             {
@@ -311,10 +307,40 @@ public partial class MainWindowViewModel
                 }
             }
 
-            await _aria2Service.AddUriAsync(NewTaskUrl, NewTaskName, NewTaskSavePath, NewTaskChunks, extraOptions);
+            if (isTorrent)
+            {
+                await _aria2Service.AddTorrentAsync(NewTaskTorrentFilePath, NewTaskSavePath, extraOptions);
+            }
+            else
+            {
+                // Support multiple links (one per line)
+                var urls = NewTaskUrl.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
+                                     .Select(u => u.Trim())
+                                     .Where(u => !string.IsNullOrWhiteSpace(u))
+                                     .ToList();
+
+                foreach (var url in urls)
+                {
+                    var name = NewTaskName;
+                    if (string.IsNullOrWhiteSpace(name) && urls.Count == 1)
+                    {
+                        if (Uri.TryCreate(url, UriKind.Absolute, out var uri))
+                        {
+                            name = Path.GetFileName(uri.LocalPath);
+                        }
+                    }
+                    else if (urls.Count > 1)
+                    {
+                        name = string.Empty; // Let aria2 auto-detect names for multiple files
+                    }
+
+                    await _aria2Service.AddUriAsync(url, name, NewTaskSavePath, NewTaskChunks, extraOptions);
+                }
+            }
 
             IsAddTaskVisible = false;
             NewTaskUrl = string.Empty;
+            NewTaskTorrentFilePath = string.Empty;
             NewTaskName = string.Empty;
             NewTaskShowAdvanced = false;
             NewTaskUserAgent = string.Empty;

@@ -64,7 +64,7 @@ sed "s/Downio_VERSION/$VERSION/g" build/resources/app/App.plist > "$CONTENTS/Inf
 
 # Generate .icns from PNG if available
 echo "Generating App.icns..."
-ICON_SOURCE="src/Downio/Assets/Branding/app_icon.png"
+ICON_SOURCE="src/Downio/Assets/Branding/macOS/app_icon.png"
 
 if [ -f "$ICON_SOURCE" ]; then
     ICONSET_DIR="build/App.iconset"

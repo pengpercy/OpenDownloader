@@ -14,7 +14,12 @@
     <x:String x:Key="ThemeSystem">跟随系统</x:String>
     <x:String x:Key="BtnNewTask">新建任务</x:String>
     <x:String x:Key="TitleNewTask">添加下载任务</x:String>
+    <x:String x:Key="TabLinkTask">链接任务</x:String>
+    <x:String x:Key="TabTorrentTask">种子任务</x:String>
     <x:String x:Key="LabelUrl">下载链接</x:String>
+    <x:String x:Key="PlaceholderMultiLinks">添加多个下载链接时,请确保每行只有一个链接(支持磁力链)</x:String>
+    <x:String x:Key="LabelTorrentFile">种子文件</x:String>
+    <x:String x:Key="TorrentDropHint">将种子拖放到此处，或点击选择</x:String>
     <x:String x:Key="BtnCancel">取消</x:String>
     <x:String x:Key="BtnDownload">立即下载</x:String>
     <x:String x:Key="BtnPause">暂停</x:String>
@@ -64,7 +69,26 @@
     <x:String x:Key="SettingsNetwork">网络</x:String>
     <x:String x:Key="SettingsAdvanced">高级</x:String>
     <x:String x:Key="SettingsAbout">关于</x:String>
-    <x:String x:Key="SettingsAdvancedDesc">高级选项将会在这里提供。</x:String>
+    <x:String x:Key="SettingsAdvancedDesc">aria2 引擎的高级配置选项。</x:String>
+    <x:String x:Key="LabelBtTrackers">Tracker 服务器</x:String>
+    <x:String x:Key="LabelRpcSettings">RPC 设置</x:String>
+    <x:String x:Key="LabelRpcPort">RPC 监听端口</x:String>
+    <x:String x:Key="LabelRpcSecret">RPC 授权密钥</x:String>
+    <x:String x:Key="LabelListenPorts">监听端口</x:String>
+    <x:String x:Key="LabelEnableUpnp">启用 UPnP/NAT-PMP</x:String>
+    <x:String x:Key="LabelBtListenPort">BT 监听端口</x:String>
+    <x:String x:Key="LabelDhtListenPort">DHT 监听端口</x:String>
+    <x:String x:Key="LabelProtocols">下载协议</x:String>
+    <x:String x:Key="LabelProtocolMagnet">磁力链接 [ magnet:// ]</x:String>
+    <x:String x:Key="LabelProtocolThunder">迅雷链接 [ thunder:// ]</x:String>
+    <x:String x:Key="LabelDeveloper">开发者</x:String>
+    <x:String x:Key="LabelAria2Conf">内置的 aria2.conf 路径</x:String>
+    <x:String x:Key="LabelAria2Session">下载会话路径</x:String>
+    <x:String x:Key="LabelAria2Log">应用日志路径</x:String>
+    <x:String x:Key="BtnResetSettings">恢复初始设置</x:String>
+    <x:String x:Key="BtnResetSession">重置下载会话</x:String>
+    <x:String x:Key="MessageConfirmResetSettings">确定要恢复所有初始设置吗？</x:String>
+    <x:String x:Key="MessageConfirmResetSession">确定要重置下载会话吗？这将会清空所有下载任务（但不会删除您的本地文件）。</x:String>
 
     <!-- Native Menu -->
     <x:String x:Key="MenuAbout">关于 Downio</x:String>

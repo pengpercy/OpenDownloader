@@ -16,4 +16,13 @@ public class AppSettings
     public string ProxyPassword { get; set; } = string.Empty;
     public bool AutoInstallUpdates { get; set; } = false;
     public string SkipVersion { get; set; } = string.Empty;
+
+    // Advanced Settings
+    public string BtTrackers { get; set; } = string.Empty;
+    public int RpcPort { get; set; } = 16800;
+    public string RpcSecret { get; set; } = "DownioSecret";
+    public bool EnableUpnp { get; set; } = false;
+    public int BtListenPort { get; set; } = 6881;
+    public int DhtListenPort { get; set; } = 6881;
+    public string GlobalUserAgent { get; set; } = string.Empty;
 }

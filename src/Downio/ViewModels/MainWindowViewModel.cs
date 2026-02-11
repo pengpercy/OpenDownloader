@@ -346,7 +346,21 @@ public partial class MainWindowViewModel : ViewModelBase
     private bool _isAddTaskVisible;
 
     [ObservableProperty]
+    private int _newTaskInputModeIndex;
+
+    [ObservableProperty]
     private string _newTaskUrl = string.Empty;
+
+    [ObservableProperty]
+    private string _newTaskTorrentFilePath = string.Empty;
+
+    public string NewTaskTorrentFileName =>
+        string.IsNullOrWhiteSpace(NewTaskTorrentFilePath) ? string.Empty : Path.GetFileName(NewTaskTorrentFilePath);
+
+    partial void OnNewTaskTorrentFilePathChanged(string value)
+    {
+        OnPropertyChanged(nameof(NewTaskTorrentFileName));
+    }
 
     [ObservableProperty]
     private string _newTaskName = string.Empty;
@@ -374,6 +388,163 @@ public partial class MainWindowViewModel : ViewModelBase
 
     [ObservableProperty]
     private string _newTaskProxy = string.Empty;
+
+    // Advanced Settings Properties
+    [ObservableProperty]
+    private string _btTrackers = string.Empty;
+
+    partial void OnBtTrackersChanged(string value)
+    {
+        _settingsService.Settings.BtTrackers = value;
+        _settingsService.Save();
+        // For BT trackers, we might need a restart or a global option change if supported
+    }
+
+    [ObservableProperty]
+    private int _rpcPort = 16800;
+
+    partial void OnRpcPortChanged(int value)
+    {
+        _settingsService.Settings.RpcPort = value;
+        _settingsService.Save();
+    }
+
+    [ObservableProperty]
+    private string _rpcSecret = "DownioSecret";
+
+    partial void OnRpcSecretChanged(string value)
+    {
+        _settingsService.Settings.RpcSecret = value;
+        _settingsService.Save();
+    }
+
+    [ObservableProperty]
+    private bool _enableUpnp;
+
+    partial void OnEnableUpnpChanged(bool value)
+    {
+        _settingsService.Settings.EnableUpnp = value;
+        _settingsService.Save();
+    }
+
+    [ObservableProperty]
+    private int _btListenPort = 6881;
+
+    partial void OnBtListenPortChanged(int value)
+    {
+        _settingsService.Settings.BtListenPort = value;
+        _settingsService.Save();
+    }
+
+    [ObservableProperty]
+    private int _dhtListenPort = 6881;
+
+    partial void OnDhtListenPortChanged(int value)
+    {
+        _settingsService.Settings.DhtListenPort = value;
+        _settingsService.Save();
+    }
+
+    [ObservableProperty]
+    private string _globalUserAgent = string.Empty;
+
+    partial void OnGlobalUserAgentChanged(string value)
+    {
+        _settingsService.Settings.GlobalUserAgent = value;
+        _settingsService.Save();
+    }
+
+    public string Aria2ConfPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Downio", "aria2.conf");
+    public string Aria2SessionPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Downio", "aria2.session");
+    public string Aria2LogPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Downio", "aria2.log");
+
+    [RelayCommand]
+    public async Task ResetSession()
+    {
+        if (Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime { MainWindow: { } mainWindow }) return;
+
+        var title = GetString("BtnResetSession");
+        var message = GetString("MessageConfirmResetSession");
+        if (message == "MessageConfirmResetSession") message = "Are you sure you want to reset the download session? This will remove all tasks from the list (but not your files).";
+
+        var dialog = new ConfirmDeleteDialog(title, message, false);
+        var result = await dialog.ShowDialog<bool>(mainWindow);
+        if (result)
+        {
+            try
+            {
+                _refreshTimer.Stop();
+                await _aria2Service.ShutdownAsync();
+                
+                if (File.Exists(Aria2SessionPath))
+                {
+                    File.Delete(Aria2SessionPath);
+                }
+                
+                await InitializeAria2Async();
+                _refreshTimer.Start();
+                
+                _notificationService.ShowNotification("Session Reset", "Download session has been reset.", ToastType.Success);
+            }
+            catch (Exception ex)
+            {
+                AppLog.Error(ex, "Failed to reset session");
+                _notificationService.ShowNotification("Error", "Failed to reset session.", ToastType.Error);
+                _refreshTimer.Start();
+            }
+        }
+    }
+
+    [RelayCommand]
+    public async Task ResetSettings()
+    {
+        if (Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime { MainWindow: { } mainWindow }) return;
+
+        var title = GetString("BtnResetSettings");
+        var message = GetString("MessageConfirmResetSettings");
+        if (message == "MessageConfirmResetSettings") message = "Are you sure you want to reset all settings to defaults?";
+
+        var dialog = new ConfirmDeleteDialog(title, message, false);
+        var result = await dialog.ShowDialog<bool>(mainWindow);
+        if (result)
+        {
+            _settingsService.ResetToDefaults();
+
+            var savedTheme = _settingsService.Settings.Theme;
+            SelectedTheme = ThemeOptions.FirstOrDefault(t => t.Value == savedTheme) ?? ThemeOptions.FirstOrDefault(t => t.Value == "System") ?? ThemeOptions[2];
+
+            var savedLang = _settingsService.Settings.Language;
+            SelectedLanguage = LanguageOptions.FirstOrDefault(l => l.Value == savedLang) ?? LanguageOptions.FirstOrDefault(l => l.Value == "System") ?? LanguageOptions[2];
+
+            IsAutoStartEnabled = _settingsService.Settings.AutoStart;
+            IsAutoInstallUpdatesEnabled = _settingsService.Settings.AutoInstallUpdates;
+            IsExitOnClose = _settingsService.Settings.ExitOnClose;
+
+            var savedAccentMode = _settingsService.Settings.AccentMode;
+            SelectedAccentMode = AccentModeOptions.FirstOrDefault(a => a.Value == savedAccentMode) ?? AccentModeOptions[0];
+
+            DefaultSavePath = string.IsNullOrWhiteSpace(_settingsService.Settings.DefaultSavePath)
+                ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads")
+                : _settingsService.Settings.DefaultSavePath;
+
+            ProxyAddress = _settingsService.Settings.ProxyAddress;
+            ProxyPort = _settingsService.Settings.ProxyPort;
+            ProxyTypeIndex = string.Equals(_settingsService.Settings.ProxyType, "SOCKS5", StringComparison.OrdinalIgnoreCase) ? 1 : 0;
+            ProxyUsername = _settingsService.Settings.ProxyUsername;
+            ProxyPassword = _settingsService.Settings.ProxyPassword;
+
+            BtTrackers = _settingsService.Settings.BtTrackers;
+            RpcPort = _settingsService.Settings.RpcPort;
+            RpcSecret = _settingsService.Settings.RpcSecret;
+            EnableUpnp = _settingsService.Settings.EnableUpnp;
+            BtListenPort = _settingsService.Settings.BtListenPort;
+            DhtListenPort = _settingsService.Settings.DhtListenPort;
+            GlobalUserAgent = _settingsService.Settings.GlobalUserAgent;
+
+            ThemeAccentService.Apply(_settingsService.Settings.AccentMode, _settingsService.Settings.CustomAccentColor);
+            _notificationService.ShowNotification("Settings Reset", "Settings have been reset to defaults. Please restart the app for some changes to take effect.", ToastType.Info);
+        }
+    }
 
     // Settings Properties
     [ObservableProperty]
@@ -656,6 +827,15 @@ public partial class MainWindowViewModel : ViewModelBase
         ProxyUsername = _settingsService.Settings.ProxyUsername;
         ProxyPassword = _settingsService.Settings.ProxyPassword;
 
+        // Advanced Settings
+        BtTrackers = _settingsService.Settings.BtTrackers;
+        RpcPort = _settingsService.Settings.RpcPort;
+        RpcSecret = _settingsService.Settings.RpcSecret;
+        EnableUpnp = _settingsService.Settings.EnableUpnp;
+        BtListenPort = _settingsService.Settings.BtListenPort;
+        DhtListenPort = _settingsService.Settings.DhtListenPort;
+        GlobalUserAgent = _settingsService.Settings.GlobalUserAgent;
+
         IsAccentFollowSystem = !string.Equals(_settingsService.Settings.AccentMode, "Custom", StringComparison.OrdinalIgnoreCase);
         if (!string.IsNullOrWhiteSpace(_settingsService.Settings.CustomAccentColor))
         {
@@ -812,7 +992,7 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         try 
         {
-            await _aria2Service.InitializeAsync();
+            await _aria2Service.InitializeAsync(_settingsService.Settings);
             _ = ApplyProxySettingsAsync();
             await RefreshTaskListAsync();
         }

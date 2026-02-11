@@ -16,13 +16,16 @@ public class Aria2Service : IAria2Service, IDisposable
 {
     private Process? _aria2Process;
     private JsonRpcClient? _rpcClient;
-    private const int RpcPort = 16800;
-    private const string RpcSecret = "DownioSecret"; // In prod, generate random or user config
+    private int _rpcPort = 16800;
+    private string _rpcSecret = "DownioSecret";
     private string _configDir = string.Empty;
     private readonly ConcurrentDictionary<string, int> _splitCache = new();
 
-    public async Task InitializeAsync()
+    public async Task InitializeAsync(AppSettings settings)
     {
+        _rpcPort = settings.RpcPort;
+        _rpcSecret = settings.RpcSecret;
+
         // 1. Setup Config Directory
         var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
         _configDir = Path.Combine(appData, "Downio");
@@ -32,6 +35,12 @@ public class Aria2Service : IAria2Service, IDisposable
         if (!File.Exists(sessionFile))
         {
             File.WriteAllText(sessionFile, "");
+        }
+
+        var configFile = Path.Combine(_configDir, "aria2.conf");
+        if (!File.Exists(configFile))
+        {
+            File.WriteAllText(configFile, "# Custom aria2 configurations\n");
         }
 
         var logFile = Path.Combine(_configDir, "aria2.log");
@@ -64,12 +73,13 @@ public class Aria2Service : IAria2Service, IDisposable
         var args = new List<string>
         {
             "--enable-rpc=true",
-            $"--rpc-listen-port={RpcPort}",
-            $"--rpc-secret={RpcSecret}",
+            $"--rpc-listen-port={_rpcPort}",
+            $"--rpc-secret={_rpcSecret}",
             "--rpc-allow-origin-all=true",
             "--rpc-listen-all=true", // Listen on all interfaces if needed, usually localhost is fine but 'all' avoids binding issues sometimes
             $"--save-session={sessionFile}",
             $"--input-file={sessionFile}",
+            $"--conf-path={configFile}",
             $"--log={logFile}",
             "--log-level=warn",
             "--max-concurrent-downloads=5",
@@ -77,8 +87,24 @@ public class Aria2Service : IAria2Service, IDisposable
             "--split=16",
             "--min-split-size=1M",
             "--continue=true",
-            "--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36"
+            "--enable-upnp=" + (settings.EnableUpnp ? "true" : "false"),
+            $"--listen-port={settings.BtListenPort}",
+            $"--dht-listen-port={settings.DhtListenPort}"
         };
+
+        if (!string.IsNullOrWhiteSpace(settings.GlobalUserAgent))
+        {
+            args.Add($"--user-agent={settings.GlobalUserAgent}");
+        }
+        else
+        {
+            args.Add("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36");
+        }
+
+        if (!string.IsNullOrWhiteSpace(settings.BtTrackers))
+        {
+            args.Add($"--bt-tracker={settings.BtTrackers}");
+        }
         
         var caBundlePath = Path.Combine(AppContext.BaseDirectory, "Assets", "cacert.pem");
         if (File.Exists(caBundlePath))
@@ -126,7 +152,7 @@ public class Aria2Service : IAria2Service, IDisposable
         }
 
         // 4. Init Client
-        _rpcClient = new JsonRpcClient($"http://localhost:{RpcPort}/jsonrpc", RpcSecret);
+        _rpcClient = new JsonRpcClient($"http://localhost:{_rpcPort}/jsonrpc", _rpcSecret);
         
         // Wait for it to be ready?
         await Task.Delay(1000);
@@ -261,6 +287,43 @@ public class Aria2Service : IAria2Service, IDisposable
             _splitCache[gid] = split;
         }
         return gid ?? string.Empty;
+    }
+
+    public async Task<string> AddTorrentAsync(string torrentFilePath, string savePath, IDictionary<string, string>? extraOptions = null)
+    {
+        if (_rpcClient == null || string.IsNullOrWhiteSpace(torrentFilePath) || !File.Exists(torrentFilePath))
+            return string.Empty;
+
+        try
+        {
+            var torrentBytes = await File.ReadAllBytesAsync(torrentFilePath);
+            var base64Torrent = Convert.ToBase64String(torrentBytes);
+
+            var options = new Dictionary<string, string>
+            {
+                { "dir", savePath }
+            };
+
+            if (extraOptions != null)
+            {
+                foreach (var kv in extraOptions)
+                {
+                    if (string.IsNullOrWhiteSpace(kv.Key)) continue;
+                    if (kv.Value == null) continue;
+                    options[kv.Key] = kv.Value;
+                }
+            }
+
+            // Params: [ base64Torrent, [uris], options ]
+            // Note: [uris] is usually empty for local torrent files
+            var gid = await _rpcClient.InvokeAsync<string>("addTorrent", base64Torrent, Array.Empty<string>(), options);
+            return gid ?? string.Empty;
+        }
+        catch (Exception ex)
+        {
+            AppLog.Error(ex, $"Failed to add torrent: {torrentFilePath}");
+            return string.Empty;
+        }
     }
 
     public async Task ApplyProxyAsync(string proxyType, string proxyAddress, int proxyPort, string proxyUsername, string proxyPassword)

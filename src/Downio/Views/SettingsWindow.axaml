@@ -266,6 +266,7 @@
                             <TextBlock Text="{DynamicResource SettingsNetwork}" FontSize="13" FontWeight="SemiBold" Opacity="0.85"/>
                             <Border Classes="settingsDivider"/>
 
+                            <!-- Proxy -->
                             <Grid ColumnDefinitions="200, 100, 12, *, 12, 80" RowDefinitions="Auto, Auto, Auto" RowSpacing="14">
                                 <TextBlock Grid.Row="0" Grid.Column="0" Text="{DynamicResource LabelProxy}" VerticalAlignment="Center" Opacity="0.85" FontSize="13"/>
                                 <ComboBox Grid.Row="0" Grid.Column="1" ItemsSource="{Binding ProxyTypes}" SelectedIndex="{Binding ProxyTypeIndex}" HorizontalAlignment="Stretch" FontSize="13"/>
@@ -278,6 +279,33 @@
                                 <TextBlock Grid.Row="2" Grid.Column="0" Text="{DynamicResource LabelProxyPassword}" VerticalAlignment="Center" Opacity="0.85" FontSize="13"/>
                                 <TextBox Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="5" Text="{Binding ProxyPassword}" PasswordChar="•" FontSize="13"/>
                             </Grid>
+
+                            <Border Classes="settingsDivider"/>
+
+                            <!-- RPC -->
+                            <TextBlock Text="{DynamicResource LabelRpcSettings}" FontSize="12" FontWeight="SemiBold" Opacity="0.7"/>
+                            <Grid ColumnDefinitions="200, *, 12, 120" RowDefinitions="Auto" RowSpacing="14">
+                                <TextBlock Grid.Column="0" Text="{DynamicResource LabelRpcPort}" VerticalAlignment="Center" Opacity="0.85" FontSize="13"/>
+                                <TextBox Grid.Column="1" Text="{Binding RpcPort}" FontSize="13"/>
+                                
+                                <TextBlock Grid.Column="3" Text="{DynamicResource LabelRpcSecret}" VerticalAlignment="Center" Opacity="0.85" FontSize="13" Margin="12,0,0,0"/>
+                                <TextBox Grid.Column="3" Text="{Binding RpcSecret}" PasswordChar="•" FontSize="13"/>
+                            </Grid>
+
+                            <Border Classes="settingsDivider"/>
+
+                            <!-- Listen Ports -->
+                            <TextBlock Text="{DynamicResource LabelListenPorts}" FontSize="12" FontWeight="SemiBold" Opacity="0.7"/>
+                            <Grid ColumnDefinitions="200, Auto" RowDefinitions="Auto, Auto, Auto" RowSpacing="14">
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="{DynamicResource LabelEnableUpnp}" VerticalAlignment="Center" Opacity="0.85" FontSize="13"/>
+                                <ToggleSwitch Grid.Row="0" Grid.Column="1" IsChecked="{Binding EnableUpnp}" HorizontalAlignment="Right"/>
+
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="{DynamicResource LabelBtListenPort}" VerticalAlignment="Center" Opacity="0.85" FontSize="13"/>
+                                <TextBox Grid.Row="1" Grid.Column="1" Width="220" Text="{Binding BtListenPort}" FontSize="13" HorizontalAlignment="Right"/>
+
+                                <TextBlock Grid.Row="2" Grid.Column="0" Text="{DynamicResource LabelDhtListenPort}" VerticalAlignment="Center" Opacity="0.85" FontSize="13"/>
+                                <TextBox Grid.Row="2" Grid.Column="1" Width="220" Text="{Binding DhtListenPort}" FontSize="13" HorizontalAlignment="Right"/>
+                            </Grid>
                         </StackPanel>
                     </Border>
 
@@ -285,7 +313,48 @@
                         <StackPanel Spacing="14">
                             <TextBlock Text="{DynamicResource SettingsAdvanced}" FontSize="13" FontWeight="SemiBold" Opacity="0.85"/>
                             <Border Classes="settingsDivider"/>
-                            <TextBlock Text="{DynamicResource SettingsAdvancedDesc}" Opacity="0.75" TextWrapping="Wrap" FontSize="13"/>
+                            
+                            <!-- Trackers -->
+                            <TextBlock Text="{DynamicResource LabelBtTrackers}" FontSize="12" FontWeight="SemiBold" Opacity="0.7"/>
+                            <TextBox Text="{Binding BtTrackers}" Height="100" AcceptsReturn="True" TextWrapping="Wrap" FontSize="13" Watermark="http://..."/>
+
+                            <Border Classes="settingsDivider"/>
+
+                            <!-- User Agent -->
+                            <TextBlock Text="{DynamicResource LabelUserAgent}" FontSize="12" FontWeight="SemiBold" Opacity="0.7"/>
+                            <TextBox Text="{Binding GlobalUserAgent}" FontSize="13" Watermark="Mozilla/5.0..."/>
+
+                            <Border Classes="settingsDivider"/>
+
+                            <!-- Protocols -->
+                            <TextBlock Text="{DynamicResource LabelProtocols}" FontSize="12" FontWeight="SemiBold" Opacity="0.7"/>
+                            <StackPanel Spacing="8">
+                                <CheckBox Content="{DynamicResource LabelProtocolMagnet}" IsChecked="True" IsEnabled="False" FontSize="13"/>
+                                <CheckBox Content="{DynamicResource LabelProtocolThunder}" IsChecked="True" IsEnabled="False" FontSize="13"/>
+                            </StackPanel>
+
+                            <Border Classes="settingsDivider"/>
+
+                            <!-- Developer -->
+                            <TextBlock Text="{DynamicResource LabelDeveloper}" FontSize="12" FontWeight="SemiBold" Opacity="0.7"/>
+                            <Grid ColumnDefinitions="200, *" RowDefinitions="Auto, Auto, Auto" RowSpacing="10">
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="{DynamicResource LabelAria2Conf}" VerticalAlignment="Center" Opacity="0.85" FontSize="13"/>
+                                <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Aria2ConfPath}" IsReadOnly="True" FontSize="13"/>
+
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="{DynamicResource LabelAria2Session}" VerticalAlignment="Center" Opacity="0.85" FontSize="13"/>
+                                <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Aria2SessionPath}" IsReadOnly="True" FontSize="13"/>
+
+                                <TextBlock Grid.Row="2" Grid.Column="0" Text="{DynamicResource LabelAria2Log}" VerticalAlignment="Center" Opacity="0.85" FontSize="13"/>
+                                <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding Aria2LogPath}" IsReadOnly="True" FontSize="13"/>
+                            </Grid>
+
+                            <Border Classes="settingsDivider"/>
+
+                            <!-- Reset -->
+                            <StackPanel Orientation="Horizontal" Spacing="12">
+                                <Button Content="{DynamicResource BtnResetSettings}" Command="{Binding ResetSettingsCommand}" />
+                                <Button Content="{DynamicResource BtnResetSession}" Command="{Binding ResetSessionCommand}" />
+                            </StackPanel>
                         </StackPanel>
                     </Border>
 

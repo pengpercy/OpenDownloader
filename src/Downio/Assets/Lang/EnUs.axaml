@@ -14,7 +14,12 @@
     <x:String x:Key="ThemeSystem">System</x:String>
     <x:String x:Key="BtnNewTask">New Task</x:String>
     <x:String x:Key="TitleNewTask">Add New Download</x:String>
+    <x:String x:Key="TabLinkTask">Link Task</x:String>
+    <x:String x:Key="TabTorrentTask">Torrent Task</x:String>
     <x:String x:Key="LabelUrl">Download URL</x:String>
+    <x:String x:Key="PlaceholderMultiLinks">Paste links here, one per line (supports magnet links)</x:String>
+    <x:String x:Key="LabelTorrentFile">Torrent File</x:String>
+    <x:String x:Key="TorrentDropHint">Drop torrent here, or click to select</x:String>
     <x:String x:Key="BtnCancel">Cancel</x:String>
     <x:String x:Key="BtnDownload">Download</x:String>
     <x:String x:Key="BtnPause">Pause</x:String>
@@ -63,8 +68,27 @@
     <x:String x:Key="SettingsAppearance">Appearance</x:String>
     <x:String x:Key="SettingsNetwork">Network</x:String>
     <x:String x:Key="SettingsAdvanced">Advanced</x:String>
-    <x:String x:Key="SettingsAbout">About</x:String>
-    <x:String x:Key="SettingsAdvancedDesc">Advanced options will be added here.</x:String>
+    <x:String x:Key="SettingsAdvanced">Advanced</x:String>
+    <x:String x:Key="SettingsAdvancedDesc">Advanced options for aria2 engine.</x:String>
+    <x:String x:Key="LabelBtTrackers">Tracker Servers</x:String>
+    <x:String x:Key="LabelRpcSettings">RPC Settings</x:String>
+    <x:String x:Key="LabelRpcPort">RPC Port</x:String>
+    <x:String x:Key="LabelRpcSecret">RPC Secret</x:String>
+    <x:String x:Key="LabelListenPorts">Listen Ports</x:String>
+    <x:String x:Key="LabelEnableUpnp">Enable UPnP/NAT-PMP</x:String>
+    <x:String x:Key="LabelBtListenPort">BT Listen Port</x:String>
+    <x:String x:Key="LabelDhtListenPort">DHT Listen Port</x:String>
+    <x:String x:Key="LabelProtocols">Default Client</x:String>
+    <x:String x:Key="LabelProtocolMagnet">Magnet Link [ magnet:// ]</x:String>
+    <x:String x:Key="LabelProtocolThunder">Thunder Link [ thunder:// ]</x:String>
+    <x:String x:Key="LabelDeveloper">Developer</x:String>
+    <x:String x:Key="LabelAria2Conf">aria2.conf path</x:String>
+    <x:String x:Key="LabelAria2Session">Session path</x:String>
+    <x:String x:Key="LabelAria2Log">Log path</x:String>
+    <x:String x:Key="BtnResetSettings">Restore initial settings</x:String>
+    <x:String x:Key="BtnResetSession">Reset download session</x:String>
+    <x:String x:Key="MessageConfirmResetSettings">Are you sure you want to reset all settings to defaults?</x:String>
+    <x:String x:Key="MessageConfirmResetSession">Are you sure you want to reset the download session? This will remove all tasks from the list (but not your files).</x:String>
 
     <!-- Native Menu -->
     <x:String x:Key="MenuAbout">About Downio</x:String>
