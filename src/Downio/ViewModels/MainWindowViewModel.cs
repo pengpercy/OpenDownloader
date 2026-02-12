@@ -5,6 +5,8 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Avalonia;
@@ -390,6 +392,173 @@ public partial class MainWindowViewModel : ViewModelBase
     private string _newTaskProxy = string.Empty;
 
     // Advanced Settings Properties
+    public ObservableCollection<TrackerSourceOption> TrackerSourceOptions { get; } = new();
+
+    public ObservableCollection<TrackerSourceOption> SelectedTrackerSourceOptions { get; } = new();
+
+    [ObservableProperty]
+    private bool _isSyncingTrackers;
+
+    [ObservableProperty]
+    private string _newTrackerSourceUrl = string.Empty;
+
+    [RelayCommand]
+    private void AddTrackerSource()
+    {
+        var url = (NewTrackerSourceUrl ?? string.Empty).Trim();
+        if (!Uri.TryCreate(url, UriKind.Absolute, out var uri) || (uri.Scheme != Uri.UriSchemeHttps && uri.Scheme != Uri.UriSchemeHttp))
+        {
+            _notificationService.ShowNotification("Tracker", "Invalid tracker source URL.", ToastType.Warning);
+            return;
+        }
+
+        if (TrackerSourceOptions.Any(x => string.Equals(x.Url, url, StringComparison.OrdinalIgnoreCase)))
+        {
+            var exist = TrackerSourceOptions.First(x => string.Equals(x.Url, url, StringComparison.OrdinalIgnoreCase));
+            exist.IsSelected = true;
+            NewTrackerSourceUrl = string.Empty;
+            RefreshSelectedTrackerSources();
+            return;
+        }
+
+        var isCdn = url.Contains("cdn.jsdelivr.net", StringComparison.OrdinalIgnoreCase);
+        var option = new TrackerSourceOption("Custom", url, isCdn, true)
+        {
+            IsSelected = true
+        };
+        option.PropertyChanged += (_, args) =>
+        {
+            if (string.Equals(args.PropertyName, nameof(TrackerSourceOption.IsSelected), StringComparison.Ordinal))
+            {
+                RefreshSelectedTrackerSources();
+            }
+        };
+
+        TrackerSourceOptions.Add(option);
+
+        _settingsService.Settings.CustomTrackerSources ??= new List<string>();
+        if (!_settingsService.Settings.CustomTrackerSources.Contains(url, StringComparer.OrdinalIgnoreCase))
+        {
+            _settingsService.Settings.CustomTrackerSources.Add(url);
+        }
+        _settingsService.Save();
+
+        NewTrackerSourceUrl = string.Empty;
+        RefreshSelectedTrackerSources();
+    }
+
+    [RelayCommand]
+    public void RemoveTrackerSource(TrackerSourceOption? option)
+    {
+        if (option == null) return;
+        if (!option.IsCustom) return;
+
+        TrackerSourceOptions.Remove(option);
+        SelectedTrackerSourceOptions.Remove(option);
+
+        _settingsService.Settings.CustomTrackerSources ??= new List<string>();
+        _settingsService.Settings.CustomTrackerSources.RemoveAll(x => string.Equals(x, option.Url, StringComparison.OrdinalIgnoreCase));
+        _settingsService.Save();
+
+        RefreshSelectedTrackerSources();
+    }
+
+    [ObservableProperty]
+    private bool _autoSyncTracker;
+
+    partial void OnAutoSyncTrackerChanged(bool value)
+    {
+        _settingsService.Settings.AutoSyncTracker = value;
+        _settingsService.Save();
+    }
+
+    [ObservableProperty]
+    private long _lastSyncTrackerTime;
+
+    public string LastSyncTrackerTimeText
+    {
+        get
+        {
+            if (LastSyncTrackerTime <= 0) return "-";
+            try
+            {
+                return DateTimeOffset.FromUnixTimeMilliseconds(LastSyncTrackerTime).LocalDateTime.ToString("yyyy/MM/dd HH:mm:ss", CultureInfo.CurrentCulture);
+            }
+            catch
+            {
+                return "-";
+            }
+        }
+    }
+
+    partial void OnLastSyncTrackerTimeChanged(long value)
+    {
+        _settingsService.Settings.LastSyncTrackerTime = value;
+        _settingsService.Save();
+        OnPropertyChanged(nameof(LastSyncTrackerTimeText));
+    }
+
+    [RelayCommand]
+    private async Task SyncTrackersAsync()
+    {
+        if (IsSyncingTrackers) return;
+
+        var sources = SelectedTrackerSourceOptions.Select(x => x.Url).Where(x => !string.IsNullOrWhiteSpace(x)).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+        if (sources.Count == 0)
+        {
+            sources = _settingsService.Settings.TrackerSources.Where(x => !string.IsNullOrWhiteSpace(x)).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+        }
+        if (sources.Count == 0)
+        {
+            _notificationService.ShowNotification("Tracker", "No tracker source selected.", ToastType.Warning);
+            return;
+        }
+
+        IsSyncingTrackers = true;
+        try
+        {
+            var handler = new HttpClientHandler();
+            if (!string.IsNullOrWhiteSpace(ProxyAddress) && ProxyPort > 0 && ProxyTypeIndex == 0)
+            {
+                handler.Proxy = new WebProxy(ProxyAddress, ProxyPort);
+                handler.UseProxy = true;
+            }
+
+            using var client = new HttpClient(handler) { Timeout = TimeSpan.FromSeconds(30) };
+            client.DefaultRequestHeaders.UserAgent.ParseAdd("Downio/1.0");
+
+            var now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            var tasks = sources.Select(async url =>
+            {
+                var requestUrl = url.Contains('?') ? $"{url}&t={now}" : $"{url}?t={now}";
+                return await client.GetStringAsync(requestUrl).ConfigureAwait(false);
+            }).ToList();
+
+            var results = await Task.WhenAll(tasks).ConfigureAwait(false);
+            var trackers = results
+                .SelectMany(text => (text ?? string.Empty).Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries))
+                .Select(x => x.Trim())
+                .Where(x => !string.IsNullOrWhiteSpace(x) && !x.StartsWith('#'))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            BtTrackers = string.Join('\n', trackers);
+            await _aria2Service.ApplyBtTrackersAsync(BtTrackers).ConfigureAwait(false);
+            LastSyncTrackerTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+
+            _notificationService.ShowNotification("Tracker", "Tracker list synced.", ToastType.Success);
+        }
+        catch (Exception ex)
+        {
+            AppLog.Error(ex, "Failed to sync trackers");
+            _notificationService.ShowNotification("Tracker", "Failed to sync tracker list.", ToastType.Error);
+        }
+        finally
+        {
+            IsSyncingTrackers = false;
+        }
+    }
+
     [ObservableProperty]
     private string _btTrackers = string.Empty;
 
@@ -451,6 +620,90 @@ public partial class MainWindowViewModel : ViewModelBase
     partial void OnGlobalUserAgentChanged(string value)
     {
         _settingsService.Settings.GlobalUserAgent = value;
+        _settingsService.Save();
+    }
+
+    private void RefreshSelectedTrackerSources()
+    {
+        var selected = TrackerSourceOptions.Where(x => x.IsSelected).ToList();
+
+        SelectedTrackerSourceOptions.Clear();
+        foreach (var item in selected)
+        {
+            SelectedTrackerSourceOptions.Add(item);
+        }
+
+        _settingsService.Settings.TrackerSources = selected.Select(x => x.Url).ToList();
+        _settingsService.Save();
+    }
+
+    private void InitializeTrackerSourceOptions()
+    {
+        TrackerSourceOptions.Clear();
+
+        var sources = new List<TrackerSourceOption>
+        {
+            new("ngosang/trackerslist", "https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_best.txt", false, false),
+            new("ngosang/trackerslist", "https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_best_ip.txt", false, false),
+            new("ngosang/trackerslist", "https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_all.txt", false, false),
+            new("ngosang/trackerslist", "https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_all_ip.txt", false, false),
+            new("ngosang/trackerslist", "https://cdn.jsdelivr.net/gh/ngosang/trackerslist/trackers_best.txt", true, false),
+            new("ngosang/trackerslist", "https://cdn.jsdelivr.net/gh/ngosang/trackerslist/trackers_best_ip.txt", true, false),
+            new("ngosang/trackerslist", "https://cdn.jsdelivr.net/gh/ngosang/trackerslist/trackers_all.txt", true, false),
+            new("ngosang/trackerslist", "https://cdn.jsdelivr.net/gh/ngosang/trackerslist/trackers_all_ip.txt", true, false),
+            new("XIU2/TrackersListCollection", "https://raw.githubusercontent.com/XIU2/TrackersListCollection/master/best.txt", false, false),
+            new("XIU2/TrackersListCollection", "https://raw.githubusercontent.com/XIU2/TrackersListCollection/master/all.txt", false, false),
+            new("XIU2/TrackersListCollection", "https://raw.githubusercontent.com/XIU2/TrackersListCollection/master/http.txt", false, false),
+            new("XIU2/TrackersListCollection", "https://cdn.jsdelivr.net/gh/XIU2/TrackersListCollection/best.txt", true, false),
+            new("XIU2/TrackersListCollection", "https://cdn.jsdelivr.net/gh/XIU2/TrackersListCollection/all.txt", true, false),
+            new("XIU2/TrackersListCollection", "https://cdn.jsdelivr.net/gh/XIU2/TrackersListCollection/http.txt", true, false)
+        };
+
+        var selectedSet = new HashSet<string>(_settingsService.Settings.TrackerSources ?? new List<string>(), StringComparer.OrdinalIgnoreCase);
+        if (selectedSet.Count == 0)
+        {
+            selectedSet.Add("https://cdn.jsdelivr.net/gh/ngosang/trackerslist/trackers_best_ip.txt");
+            selectedSet.Add("https://cdn.jsdelivr.net/gh/ngosang/trackerslist/trackers_best.txt");
+        }
+
+        _settingsService.Settings.CustomTrackerSources ??= new List<string>();
+        foreach (var url in _settingsService.Settings.CustomTrackerSources.Where(x => !string.IsNullOrWhiteSpace(x)).Distinct(StringComparer.OrdinalIgnoreCase))
+        {
+            var isCdn = url.Contains("cdn.jsdelivr.net", StringComparison.OrdinalIgnoreCase);
+            sources.Add(new TrackerSourceOption("Custom", url.Trim(), isCdn, true));
+        }
+
+        foreach (var option in sources)
+        {
+            option.IsSelected = selectedSet.Contains(option.Url);
+            option.PropertyChanged += (_, args) =>
+            {
+                if (string.Equals(args.PropertyName, nameof(TrackerSourceOption.IsSelected), StringComparison.Ordinal))
+                {
+                    RefreshSelectedTrackerSources();
+                }
+            };
+            TrackerSourceOptions.Add(option);
+        }
+
+        RefreshSelectedTrackerSources();
+    }
+
+    [ObservableProperty]
+    private bool _isDefaultClientMagnet = true;
+
+    partial void OnIsDefaultClientMagnetChanged(bool value)
+    {
+        _settingsService.Settings.DefaultClientMagnet = value;
+        _settingsService.Save();
+    }
+
+    [ObservableProperty]
+    private bool _isDefaultClientThunder = true;
+
+    partial void OnIsDefaultClientThunderChanged(bool value)
+    {
+        _settingsService.Settings.DefaultClientThunder = value;
         _settingsService.Save();
     }
 
@@ -540,6 +793,8 @@ public partial class MainWindowViewModel : ViewModelBase
             BtListenPort = _settingsService.Settings.BtListenPort;
             DhtListenPort = _settingsService.Settings.DhtListenPort;
             GlobalUserAgent = _settingsService.Settings.GlobalUserAgent;
+            IsDefaultClientMagnet = _settingsService.Settings.DefaultClientMagnet;
+            IsDefaultClientThunder = _settingsService.Settings.DefaultClientThunder;
 
             ThemeAccentService.Apply(_settingsService.Settings.AccentMode, _settingsService.Settings.CustomAccentColor);
             _notificationService.ShowNotification("Settings Reset", "Settings have been reset to defaults. Please restart the app for some changes to take effect.", ToastType.Info);
@@ -835,6 +1090,13 @@ public partial class MainWindowViewModel : ViewModelBase
         BtListenPort = _settingsService.Settings.BtListenPort;
         DhtListenPort = _settingsService.Settings.DhtListenPort;
         GlobalUserAgent = _settingsService.Settings.GlobalUserAgent;
+        IsDefaultClientMagnet = _settingsService.Settings.DefaultClientMagnet;
+        IsDefaultClientThunder = _settingsService.Settings.DefaultClientThunder;
+        AutoSyncTracker = _settingsService.Settings.AutoSyncTracker;
+        LastSyncTrackerTime = _settingsService.Settings.LastSyncTrackerTime;
+        InitializeTrackerSourceOptions();
+
+        _ = MaybeAutoSyncTrackersAsync();
 
         IsAccentFollowSystem = !string.Equals(_settingsService.Settings.AccentMode, "Custom", StringComparison.OrdinalIgnoreCase);
         if (!string.IsNullOrWhiteSpace(_settingsService.Settings.CustomAccentColor))
@@ -860,6 +1122,21 @@ public partial class MainWindowViewModel : ViewModelBase
         };
         _refreshTimer.Tick += async (_, _) => await RefreshTaskListAsync();
         _refreshTimer.Start();
+    }
+
+    private async Task MaybeAutoSyncTrackersAsync()
+    {
+        try
+        {
+            if (!AutoSyncTracker) return;
+            var last = LastSyncTrackerTime <= 0 ? DateTimeOffset.MinValue : DateTimeOffset.FromUnixTimeMilliseconds(LastSyncTrackerTime);
+            if (DateTimeOffset.UtcNow - last < TimeSpan.FromHours(24)) return;
+
+            await SyncTrackersAsync().ConfigureAwait(false);
+        }
+        catch
+        {
+        }
     }
 
     private bool DetectWindowControlsOnLeft()
@@ -1136,6 +1413,7 @@ public partial class MainWindowViewModel : ViewModelBase
                     if (existing.Speed != task.Speed) existing.Speed = task.Speed;
                     if (existing.TimeLeft != task.TimeLeft) existing.TimeLeft = task.TimeLeft;
                     if (existing.Connections != task.Connections) existing.Connections = task.Connections;
+                    if (existing.Split != task.Split) existing.Split = task.Split;
                     if (existing.Name != task.Name && task.Name != "Unknown") existing.Name = task.Name;
                 }
             }

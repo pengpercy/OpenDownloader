@@ -70,6 +70,15 @@
     <x:String x:Key="SettingsAdvanced">Advanced</x:String>
     <x:String x:Key="SettingsAdvancedDesc">Advanced options for aria2 engine.</x:String>
     <x:String x:Key="LabelBtTrackers">Tracker Servers</x:String>
+    <x:String x:Key="LabelTrackerServers">Tracker Servers:</x:String>
+    <x:String x:Key="LabelTrackerRecommended">Recommended:</x:String>
+    <x:String x:Key="LabelAutoSyncTracker">Auto update tracker list daily</x:String>
+    <x:String x:Key="LabelTrackerLastSync">Last sync:</x:String>
+    <x:String x:Key="BtnAdd">Add</x:String>
+    <x:String x:Key="PlaceholderTrackerSourceUrl">https://cdn.jsdelivr.net/gh/...</x:String>
+    <x:String x:Key="ToolTipCopyLink">Copy link</x:String>
+    <x:String x:Key="NotificationCopied">Copied</x:String>
+    <x:String x:Key="MessageLinkCopied">Link copied to clipboard.</x:String>
     <x:String x:Key="LabelRpcSettings">RPC Settings</x:String>
     <x:String x:Key="LabelRpcPort">RPC Port</x:String>
     <x:String x:Key="LabelRpcSecret">RPC Secret</x:String>

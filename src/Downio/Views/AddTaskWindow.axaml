@@ -30,19 +30,13 @@
                             <Style Selector="TabItem > StackPanel">
                                 <Setter Property="Margin" Value="0,8,0,0"/>
                             </Style>
-                            <!-- Tab Content Transition -->
-                            <Style Selector="TabControl WrapPanel">
-                                <Setter Property="Background" Value="Transparent"/>
-                            </Style>
-                            <Style Selector="TabControl ContentPresenter">
-                                <Setter Property="Transitions">
-                                    <Transitions>
-                                        <DoubleTransition Property="Opacity" Duration="0:0:0.25" Easing="CubicEaseOut"/>
-                                        <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.25" Easing="CubicEaseOut"/>
-                                    </Transitions>
+                            <Style Selector="TabControl /template/ TransitioningContentControl">
+                                <Setter Property="PageTransition">
+                                    <CrossFade Duration="0:00:00.180" />
                                 </Setter>
                             </Style>
                         </TabControl.Styles>
+
                         <TabItem Header="{DynamicResource TabLinkTask}">
                             <StackPanel Spacing="8" Margin="8,8,8,0">
                                 <TextBox Text="{Binding NewTaskUrl}"

@@ -103,7 +103,11 @@ public class Aria2Service : IAria2Service, IDisposable
 
         if (!string.IsNullOrWhiteSpace(settings.BtTrackers))
         {
-            args.Add($"--bt-tracker={settings.BtTrackers}");
+            var trackers = NormalizeBtTrackers(settings.BtTrackers);
+            if (!string.IsNullOrWhiteSpace(trackers))
+            {
+                args.Add($"--bt-tracker={trackers}");
+            }
         }
         
         var caBundlePath = Path.Combine(AppContext.BaseDirectory, "Assets", "cacert.pem");
@@ -156,6 +160,27 @@ public class Aria2Service : IAria2Service, IDisposable
         
         // Wait for it to be ready?
         await Task.Delay(1000);
+    }
+
+    private static string NormalizeBtTrackers(string raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw)) return string.Empty;
+
+        var items = raw
+            .Split([',', '\r', '\n', '\t', ' '], StringSplitOptions.RemoveEmptyEntries)
+            .Select(x => x.Trim())
+            .Where(x => !string.IsNullOrWhiteSpace(x) && !x.StartsWith('#'))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        var joined = string.Join(',', items);
+        const int maxLen = 6144;
+        if (joined.Length <= maxLen) return joined;
+
+        var truncated = joined[..maxLen];
+        var lastComma = truncated.LastIndexOf(',');
+        if (lastComma > 0) truncated = truncated[..lastComma];
+        return truncated;
     }
 
     public Task ShutdownAsync()
@@ -346,6 +371,25 @@ public class Aria2Service : IAria2Service, IDisposable
             options["all-proxy-user"] = proxyUsername?.Trim() ?? string.Empty;
             options["all-proxy-passwd"] = proxyPassword ?? string.Empty;
         }
+
+        try
+        {
+            await _rpcClient.InvokeAsync<string>("changeGlobalOption", options).ConfigureAwait(false);
+        }
+        catch
+        {
+        }
+    }
+
+    public async Task ApplyBtTrackersAsync(string btTrackers)
+    {
+        if (_rpcClient == null) return;
+
+        var value = NormalizeBtTrackers(btTrackers);
+        var options = new Dictionary<string, string>
+        {
+            ["bt-tracker"] = value
+        };
 
         try
         {
@@ -572,10 +616,6 @@ public class Aria2Service : IAria2Service, IDisposable
                 if (options != null && options.TryGetValue("split", out var splitStr) && int.TryParse(splitStr, out var split) && split > 0)
                 {
                     _splitCache[gid] = split;
-                }
-                else
-                {
-                    _splitCache.TryAdd(gid, 1);
                 }
             }
             catch

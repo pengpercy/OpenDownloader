@@ -71,6 +71,15 @@
     <x:String x:Key="SettingsAbout">关于</x:String>
     <x:String x:Key="SettingsAdvancedDesc">aria2 引擎的高级配置选项。</x:String>
     <x:String x:Key="LabelBtTrackers">Tracker 服务器</x:String>
+    <x:String x:Key="LabelTrackerServers">Tracker 服务器：</x:String>
+    <x:String x:Key="LabelTrackerRecommended">推荐使用：</x:String>
+    <x:String x:Key="LabelAutoSyncTracker">每天自动更新 Tracker 服务器列表</x:String>
+    <x:String x:Key="LabelTrackerLastSync">上次同步：</x:String>
+    <x:String x:Key="BtnAdd">添加</x:String>
+    <x:String x:Key="PlaceholderTrackerSourceUrl">https://cdn.jsdelivr.net/gh/...</x:String>
+    <x:String x:Key="ToolTipCopyLink">复制链接</x:String>
+    <x:String x:Key="NotificationCopied">已复制</x:String>
+    <x:String x:Key="MessageLinkCopied">链接已复制到剪贴板。</x:String>
     <x:String x:Key="LabelRpcSettings">RPC 设置</x:String>
     <x:String x:Key="LabelRpcPort">RPC 监听端口</x:String>
     <x:String x:Key="LabelRpcSecret">RPC 授权密钥</x:String>

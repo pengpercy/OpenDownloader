@@ -40,7 +40,7 @@ public partial class AddTaskWindow : DialogWindow
 
     private void OnTorrentDragOver(object? sender, DragEventArgs e)
     {
-        var file = e.Data.GetFiles()?.FirstOrDefault();
+        var file = e.DataTransfer.TryGetFiles()?.FirstOrDefault();
         var path = file?.TryGetLocalPath();
         if (string.IsNullOrWhiteSpace(path) || !path.EndsWith(".torrent", StringComparison.OrdinalIgnoreCase))
         {
@@ -55,7 +55,7 @@ public partial class AddTaskWindow : DialogWindow
 
     private void OnTorrentDrop(object? sender, DragEventArgs e)
     {
-        var file = e.Data.GetFiles()?.FirstOrDefault();
+        var file = e.DataTransfer.TryGetFiles()?.FirstOrDefault();
         var path = file?.TryGetLocalPath();
         if (_viewModel != null && !string.IsNullOrWhiteSpace(path) && path.EndsWith(".torrent", StringComparison.OrdinalIgnoreCase))
         {

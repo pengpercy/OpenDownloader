@@ -25,4 +25,14 @@ public class AppSettings
     public int BtListenPort { get; set; } = 6881;
     public int DhtListenPort { get; set; } = 6881;
     public string GlobalUserAgent { get; set; } = string.Empty;
+    public bool DefaultClientMagnet { get; set; } = true;
+    public bool DefaultClientThunder { get; set; } = true;
+    public System.Collections.Generic.List<string> TrackerSources { get; set; } =
+    [
+        "https://cdn.jsdelivr.net/gh/ngosang/trackerslist/trackers_best_ip.txt",
+        "https://cdn.jsdelivr.net/gh/ngosang/trackerslist/trackers_best.txt"
+    ];
+    public System.Collections.Generic.List<string> CustomTrackerSources { get; set; } = new();
+    public bool AutoSyncTracker { get; set; } = true;
+    public long LastSyncTrackerTime { get; set; } = 0;
 }

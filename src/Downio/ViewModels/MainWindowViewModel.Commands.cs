@@ -33,6 +33,32 @@ public partial class MainWindowViewModel
         OpenUrl(FeedbackUrl);
     }
 
+    [RelayCommand]
+    public void OpenExternalUrl(string url)
+    {
+        if (string.IsNullOrWhiteSpace(url)) return;
+        OpenUrl(url);
+    }
+
+    [RelayCommand]
+    public async Task CopyText(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text)) return;
+        try
+        {
+            if (Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime { MainWindow: { } mainWindow }) return;
+            var clipboard = mainWindow.Clipboard;
+            if (clipboard == null) return;
+
+            await clipboard.SetTextAsync(text);
+            _notificationService.ShowNotification(GetString("NotificationCopied"), GetString("MessageLinkCopied"), ToastType.Success);
+        }
+        catch (Exception ex)
+        {
+            AppLog.Error(ex, "CopyText failed");
+        }
+    }
+
     private void OpenUrl(string url)
     {
         try
