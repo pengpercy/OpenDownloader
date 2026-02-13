@@ -30,7 +30,7 @@ public class Aria2Service : IAria2Service, IDisposable
         try
         {
             _rpcPort = settings.RpcPort;
-            _rpcSecret = settings.RpcSecret;
+            _rpcSecret = string.IsNullOrWhiteSpace(settings.RpcSecret) ? string.Empty : settings.RpcSecret;
 
             if (_aria2Process != null && !_aria2Process.HasExited && _rpcClient != null)
             {
@@ -87,7 +87,6 @@ public class Aria2Service : IAria2Service, IDisposable
             {
                 "--enable-rpc=true",
                 $"--rpc-listen-port={_rpcPort}",
-                $"--rpc-secret={_rpcSecret}",
                 "--rpc-allow-origin-all=true",
                 "--rpc-listen-all=true",
                 $"--save-session={sessionFile}",
@@ -100,10 +99,13 @@ public class Aria2Service : IAria2Service, IDisposable
                 "--split=16",
                 "--min-split-size=1M",
                 "--continue=true",
-                "--enable-upnp=" + (settings.EnableUpnp ? "true" : "false"),
                 $"--listen-port={settings.BtListenPort}",
                 $"--dht-listen-port={settings.DhtListenPort}"
             };
+            if (!string.IsNullOrWhiteSpace(_rpcSecret))
+            {
+                args.Insert(2, $"--rpc-secret={_rpcSecret}");
+            }
 
             if (!string.IsNullOrWhiteSpace(settings.GlobalUserAgent))
             {
