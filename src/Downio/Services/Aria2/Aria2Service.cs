@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
@@ -20,146 +21,218 @@ public class Aria2Service : IAria2Service, IDisposable
     private string _rpcSecret = "DownioSecret";
     private string _configDir = string.Empty;
     private readonly ConcurrentDictionary<string, int> _splitCache = new();
+    private readonly SemaphoreSlim _lifecycleLock = new(1, 1);
+    private readonly ConcurrentQueue<string> _stderrTail = new();
 
     public async Task InitializeAsync(AppSettings settings)
     {
-        _rpcPort = settings.RpcPort;
-        _rpcSecret = settings.RpcSecret;
-
-        // 1. Setup Config Directory
-        var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-        _configDir = Path.Combine(appData, "Downio");
-        Directory.CreateDirectory(_configDir);
-
-        var sessionFile = Path.Combine(_configDir, "aria2.session");
-        if (!File.Exists(sessionFile))
+        await _lifecycleLock.WaitAsync().ConfigureAwait(false);
+        try
         {
-            File.WriteAllText(sessionFile, "");
-        }
+            _rpcPort = settings.RpcPort;
+            _rpcSecret = settings.RpcSecret;
 
-        var configFile = Path.Combine(_configDir, "aria2.conf");
-        if (!File.Exists(configFile))
-        {
-            File.WriteAllText(configFile, "# Custom aria2 configurations\n");
-        }
+            if (_aria2Process != null && !_aria2Process.HasExited && _rpcClient != null)
+            {
+                if (await IsRpcReadyAsync(_rpcClient).ConfigureAwait(false))
+                {
+                    return;
+                }
+            }
 
-        var logFile = Path.Combine(_configDir, "aria2.log");
+            await ShutdownAsync().ConfigureAwait(false);
 
-        // 2. Locate Binary
-        var binaryPath = GetBinaryPath();
-        if (!File.Exists(binaryPath))
-        {
-            // Fallback or error
-            Debug.WriteLine($"Aria2 binary not found at: {binaryPath}");
-            AppLog.Warn($"Aria2 binary not found at: {binaryPath}");
-            // Attempt to find in PATH if local binary missing?
-            // For now, assume it exists as we packaged it.
-        }
-        
-        // Ensure executable permission on Linux/macOS
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
+            // 1. Setup Config Directory
+            var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            _configDir = Path.Combine(appData, "Downio");
+            Directory.CreateDirectory(_configDir);
+
+            var sessionFile = Path.Combine(_configDir, "aria2.session");
+            if (!File.Exists(sessionFile))
+            {
+                File.WriteAllText(sessionFile, "");
+            }
+
+            var configFile = Path.Combine(_configDir, "aria2.conf");
+            if (!File.Exists(configFile))
+            {
+                File.WriteAllText(configFile, "# Custom aria2 configurations\n");
+            }
+
+            var logFile = Path.Combine(_configDir, "aria2.log");
+
+            // 2. Locate Binary
+            var binaryPath = GetBinaryPath();
+            if (!File.Exists(binaryPath))
+            {
+                Debug.WriteLine($"Aria2 binary not found at: {binaryPath}");
+                AppLog.Warn($"Aria2 binary not found at: {binaryPath}");
+            }
+
+            // Ensure executable permission on Linux/macOS
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                try
+                {
+                    Process.Start("chmod", $"+x \"{binaryPath}\"")?.WaitForExit();
+                }
+                catch (Exception ex)
+                {
+                    AppLog.Error(ex, $"Failed to chmod aria2 binary: {binaryPath}");
+                }
+            }
+
+            // 3. Start Process
+            var args = new List<string>
+            {
+                "--enable-rpc=true",
+                $"--rpc-listen-port={_rpcPort}",
+                $"--rpc-secret={_rpcSecret}",
+                "--rpc-allow-origin-all=true",
+                "--rpc-listen-all=true",
+                $"--save-session={sessionFile}",
+                $"--input-file={sessionFile}",
+                $"--conf-path={configFile}",
+                $"--log={logFile}",
+                "--log-level=warn",
+                "--max-concurrent-downloads=5",
+                "--max-connection-per-server=16",
+                "--split=16",
+                "--min-split-size=1M",
+                "--continue=true",
+                "--enable-upnp=" + (settings.EnableUpnp ? "true" : "false"),
+                $"--listen-port={settings.BtListenPort}",
+                $"--dht-listen-port={settings.DhtListenPort}"
+            };
+
+            if (!string.IsNullOrWhiteSpace(settings.GlobalUserAgent))
+            {
+                args.Add($"--user-agent={settings.GlobalUserAgent}");
+            }
+            else
+            {
+                args.Add("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36");
+            }
+
+            if (!string.IsNullOrWhiteSpace(settings.BtTrackers))
+            {
+                var trackers = NormalizeBtTrackers(settings.BtTrackers);
+                if (!string.IsNullOrWhiteSpace(trackers))
+                {
+                    args.Add($"--bt-tracker={trackers}");
+                }
+            }
+
+            var caBundlePath = Path.Combine(AppContext.BaseDirectory, "Assets", "cacert.pem");
+            if (File.Exists(caBundlePath))
+            {
+                args.Add($"--ca-certificate={caBundlePath}");
+            }
+
+            var startInfo = new ProcessStartInfo
+            {
+                FileName = binaryPath,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true
+            };
+
+            foreach (var arg in args)
+            {
+                startInfo.ArgumentList.Add(arg);
+            }
+
             try
             {
-                Process.Start("chmod", $"+x \"{binaryPath}\"")?.WaitForExit();
+                while (_stderrTail.TryDequeue(out var _)) { }
+                _aria2Process = new Process
+                {
+                    StartInfo = startInfo,
+                    EnableRaisingEvents = true
+                };
+
+                _aria2Process.OutputDataReceived += (_, _) => { };
+                _aria2Process.ErrorDataReceived += (_, e) =>
+                {
+                    if (string.IsNullOrWhiteSpace(e.Data)) return;
+                    _stderrTail.Enqueue(e.Data);
+                    while (_stderrTail.Count > 40)
+                    {
+                        _stderrTail.TryDequeue(out var _);
+                    }
+                    AppLog.Warn($"aria2: {e.Data}");
+                };
+
+                _aria2Process.Start();
+                _aria2Process.BeginOutputReadLine();
+                _aria2Process.BeginErrorReadLine();
+
+                Debug.WriteLine($"Aria2 started. PID: {_aria2Process.Id}");
+                AppLog.Info($"Aria2 started. PID: {_aria2Process.Id}");
             }
             catch (Exception ex)
             {
-                AppLog.Error(ex, $"Failed to chmod aria2 binary: {binaryPath}");
+                Debug.WriteLine($"Failed to start aria2: {ex.Message}");
+                AppLog.Error(ex, "Failed to start aria2");
+                throw;
+            }
+
+            // 4. Init Client + Wait Ready
+            _rpcClient = new JsonRpcClient($"http://localhost:{_rpcPort}/jsonrpc", _rpcSecret);
+            try
+            {
+                await WaitForRpcReadyAsync(_rpcClient).ConfigureAwait(false);
+            }
+            catch
+            {
+                await ShutdownAsync().ConfigureAwait(false);
+                throw;
+            }
+        }
+        finally
+        {
+            _lifecycleLock.Release();
+        }
+    }
+
+    private static async Task<bool> IsRpcReadyAsync(JsonRpcClient client)
+    {
+        try
+        {
+            _ = await client.InvokeAsync<Dictionary<string, string>>("getGlobalOption").ConfigureAwait(false);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private async Task WaitForRpcReadyAsync(JsonRpcClient client)
+    {
+        Exception? last = null;
+        for (var attempt = 0; attempt < 20; attempt++)
+        {
+            if (_aria2Process != null && _aria2Process.HasExited)
+            {
+                var tail = string.Join(" | ", _stderrTail.Reverse().Take(5).Reverse());
+                throw new Exception($"aria2 exited early (code: {_aria2Process.ExitCode}). {tail}");
+            }
+
+            try
+            {
+                _ = await client.InvokeAsync<Dictionary<string, string>>("getGlobalOption").ConfigureAwait(false);
+                return;
+            }
+            catch (Exception ex)
+            {
+                last = ex;
+                await Task.Delay(250).ConfigureAwait(false);
             }
         }
 
-        // 3. Start Process
-        var args = new List<string>
-        {
-            "--enable-rpc=true",
-            $"--rpc-listen-port={_rpcPort}",
-            $"--rpc-secret={_rpcSecret}",
-            "--rpc-allow-origin-all=true",
-            "--rpc-listen-all=true", // Listen on all interfaces if needed, usually localhost is fine but 'all' avoids binding issues sometimes
-            $"--save-session={sessionFile}",
-            $"--input-file={sessionFile}",
-            $"--conf-path={configFile}",
-            $"--log={logFile}",
-            "--log-level=warn",
-            "--max-concurrent-downloads=5",
-            "--max-connection-per-server=16",
-            "--split=16",
-            "--min-split-size=1M",
-            "--continue=true",
-            "--enable-upnp=" + (settings.EnableUpnp ? "true" : "false"),
-            $"--listen-port={settings.BtListenPort}",
-            $"--dht-listen-port={settings.DhtListenPort}"
-        };
-
-        if (!string.IsNullOrWhiteSpace(settings.GlobalUserAgent))
-        {
-            args.Add($"--user-agent={settings.GlobalUserAgent}");
-        }
-        else
-        {
-            args.Add("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36");
-        }
-
-        if (!string.IsNullOrWhiteSpace(settings.BtTrackers))
-        {
-            var trackers = NormalizeBtTrackers(settings.BtTrackers);
-            if (!string.IsNullOrWhiteSpace(trackers))
-            {
-                args.Add($"--bt-tracker={trackers}");
-            }
-        }
-        
-        var caBundlePath = Path.Combine(AppContext.BaseDirectory, "Assets", "cacert.pem");
-        if (File.Exists(caBundlePath))
-        {
-            args.Add($"--ca-certificate={caBundlePath}");
-        }
-
-        var startInfo = new ProcessStartInfo
-        {
-            FileName = binaryPath,
-            UseShellExecute = false,
-            CreateNoWindow = true,
-            RedirectStandardOutput = true,
-            RedirectStandardError = true
-        };
-        
-        foreach (var arg in args)
-        {
-            startInfo.ArgumentList.Add(arg);
-        }
-
-        try 
-        {
-            _aria2Process = new Process { StartInfo = startInfo };
-            _aria2Process.OutputDataReceived += (_, _) => { };
-            _aria2Process.ErrorDataReceived += (_, e) =>
-            {
-                if (!string.IsNullOrWhiteSpace(e.Data))
-                {
-                    AppLog.Warn($"aria2: {e.Data}");
-                }
-            };
-            _aria2Process.Start();
-            _aria2Process.BeginOutputReadLine();
-            _aria2Process.BeginErrorReadLine();
-            
-            Debug.WriteLine($"Aria2 started. PID: {_aria2Process.Id}");
-            AppLog.Info($"Aria2 started. PID: {_aria2Process.Id}");
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"Failed to start aria2: {ex.Message}");
-            AppLog.Error(ex, "Failed to start aria2");
-            throw;
-        }
-
-        // 4. Init Client
-        _rpcClient = new JsonRpcClient($"http://localhost:{_rpcPort}/jsonrpc", _rpcSecret);
-        
-        // Wait for it to be ready?
-        await Task.Delay(1000);
+        throw new Exception("aria2 RPC is not ready.", last);
     }
 
     private static string NormalizeBtTrackers(string raw)
@@ -209,6 +282,15 @@ public class Aria2Service : IAria2Service, IDisposable
                 }
             }
         }
+
+        try
+        {
+            _aria2Process?.Dispose();
+        }
+        catch
+        {
+        }
+        _aria2Process = null;
 
         return Task.CompletedTask;
     }

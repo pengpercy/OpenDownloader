@@ -392,6 +392,8 @@ public partial class MainWindowViewModel : ViewModelBase
     private string _newTaskProxy = string.Empty;
 
     // Advanced Settings Properties
+    private readonly System.Threading.SemaphoreSlim _aria2RecoveryLock = new(1, 1);
+    private DateTimeOffset _lastAria2RecoveryAttempt = DateTimeOffset.MinValue;
     public ObservableCollection<TrackerSourceOption> TrackerSourceOptions { get; } = new();
 
     public ObservableCollection<TrackerSourceOption> SelectedTrackerSourceOptions { get; } = new();
@@ -1344,7 +1346,7 @@ public partial class MainWindowViewModel : ViewModelBase
         }
     }
 
-    private async Task RefreshTaskListAsync()
+    private async Task RefreshTaskListAsync(bool allowRecovery = true)
     {
         try
         {
@@ -1422,6 +1424,54 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             Debug.WriteLine($"Refresh Failed: {ex.Message}");
             AppLog.Error(ex, "Refresh task list failed");
+
+            if (allowRecovery && IsConnectionRefused(ex))
+            {
+                var recovered = await TryRecoverAria2Async().ConfigureAwait(false);
+                if (recovered)
+                {
+                    await RefreshTaskListAsync(allowRecovery: false).ConfigureAwait(false);
+                }
+            }
+        }
+    }
+
+    private static bool IsConnectionRefused(Exception ex)
+    {
+        if (ex is System.Net.Http.HttpRequestException hre)
+        {
+            if (hre.InnerException is System.Net.Sockets.SocketException se &&
+                se.SocketErrorCode == System.Net.Sockets.SocketError.ConnectionRefused)
+            {
+                return true;
+            }
+        }
+
+        return ex.Message.Contains("Connection refused", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private async Task<bool> TryRecoverAria2Async()
+    {
+        var now = DateTimeOffset.UtcNow;
+        if (now - _lastAria2RecoveryAttempt < TimeSpan.FromSeconds(5)) return false;
+        if (!await _aria2RecoveryLock.WaitAsync(0).ConfigureAwait(false)) return false;
+
+        try
+        {
+            _lastAria2RecoveryAttempt = now;
+            await _aria2Service.ShutdownAsync().ConfigureAwait(false);
+            await _aria2Service.InitializeAsync(_settingsService.Settings).ConfigureAwait(false);
+            _ = ApplyProxySettingsAsync();
+            return true;
+        }
+        catch (Exception ex)
+        {
+            AppLog.Error(ex, "Aria2 recovery failed");
+            return false;
+        }
+        finally
+        {
+            _aria2RecoveryLock.Release();
         }
     }
 }
